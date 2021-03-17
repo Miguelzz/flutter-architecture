@@ -31,7 +31,8 @@ class MyApp extends StatelessWidget {
               ElevatedButton(
                 onPressed: () async {
                   print('*********');
-                  print(await UserService.instance.getUsers());
+                  print((await UserService.instance.getUsers()).id);
+                  print((await UserService.instance.getUsers()).title);
                   print('*********');
                 },
                 child: Text('CONTAINED BUTTON'),

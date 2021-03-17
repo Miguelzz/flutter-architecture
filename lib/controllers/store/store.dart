@@ -5,13 +5,13 @@ import 'package:myArchitecture/controllers/store/theme.dart';
 import 'package:sembast/sembast.dart';
 
 class Store {
+  static final Store _singleton = Store._internal();
+  factory Store() => _singleton;
+  static Store get instance => _singleton;
   Store._internal();
 
-  static Store _instance = Store._internal();
-  static Store get instance => _instance;
-
   final StoreRef _store = StoreRef.main();
-  static Database _db;
+  static Database? _db;
 
   Future<void> init() async {
     _db = await AppDatabase.instance.database;
@@ -21,7 +21,7 @@ class Store {
     _route = (await _store.record('route').get(_db)) ?? 'login';
   }
 
-  String _route;
+  String _route = 'splash';
   String get route => _route;
 
   Future<void> setRoute(String value) async =>

@@ -6,11 +6,12 @@ class ManagerService {
   final Connectivity _connectivity = Connectivity();
 
   bool connection = false;
-  StreamSubscription<ConnectivityResult> _connectivitySubscription;
+  StreamSubscription<ConnectivityResult>? _connectivitySubscription;
 
+  static final ManagerService _singleton = ManagerService._internal();
+  factory ManagerService() => _singleton;
+  static ManagerService get instance => _singleton;
   ManagerService._internal();
-  static ManagerService _instance = ManagerService._internal();
-  static ManagerService get instance => _instance;
 
   Future<void> init() async {
     await this._initConnectivity();
@@ -19,7 +20,7 @@ class ManagerService {
   }
 
   Future<void> _initConnectivity() async {
-    ConnectivityResult result;
+    ConnectivityResult? result;
     try {
       result = await _connectivity.checkConnectivity();
     } on PlatformException catch (e) {
@@ -28,7 +29,7 @@ class ManagerService {
     return _updateConnectionStatus(result);
   }
 
-  _updateConnectionStatus(ConnectivityResult result) async {
+  _updateConnectionStatus(ConnectivityResult? result) async {
     switch (result) {
       case ConnectivityResult.wifi:
       case ConnectivityResult.mobile:
@@ -45,6 +46,6 @@ class ManagerService {
   }
 
   close() {
-    _connectivitySubscription.cancel();
+    _connectivitySubscription!.cancel();
   }
 }
