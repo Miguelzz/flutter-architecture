@@ -30,9 +30,10 @@ class MyApp extends StatelessWidget {
               Spacer(),
               ElevatedButton(
                 onPressed: () async {
+                  final response = await UserService.instance.getUsers();
                   print('*********');
-                  print((await UserService.instance.getUsers()).id);
-                  print((await UserService.instance.getUsers()).title);
+                  print(response.id);
+                  print(response.title);
                   print('*********');
                 },
                 child: Text('CONTAINED BUTTON'),
