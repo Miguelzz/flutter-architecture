@@ -1,12 +1,10 @@
-import 'dart:async';
-import 'dart:io';
-
+import 'package:myArchitecture/services/manager.dart';
+import 'package:myArchitecture/database/database.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-
-import '../database/database.dart';
-import 'manager.dart';
+import 'dart:async';
+import 'dart:io';
 
 class RetryOnConnectionChangeInterceptor extends Interceptor {
   final DioConnectivityRequestRetrier? requestRetrier;
@@ -66,18 +64,18 @@ class DioConnectivityRequestRetrier {
   }
 }
 
-class Services {
-  Services._internal();
-  static Services _singleton = Services._internal();
-  static Services get instance => _singleton;
+class ServiceCache {
+  ServiceCache._internal();
+  static ServiceCache _singleton = ServiceCache._internal();
+  static ServiceCache get instance => _singleton;
   final cache = AppDatabase.instance;
 
   final Dio http = Dio(BaseOptions(
     baseUrl: "https://jsonplaceholder.typicode.com/",
     headers: {"Accept": "application/json"},
     responseType: ResponseType.json,
-    receiveTimeout: 15000,
-    connectTimeout: 10000,
+    //receiveTimeout: 15000,
+    //connectTimeout: 10000,
     followRedirects: false,
     receiveDataWhenStatusError: true,
   ));
