@@ -17,17 +17,17 @@ class HomePage extends StatelessWidget {
         children: [
           Spacer(),
           GetBuilder<HomeController>(
-              builder: (_) => Text('HOME ${homeController.user?.toJson()}')),
+              builder: (_) => Text('HOME ${homeController!.user?.toJson()}')),
           ElevatedButton(
             onPressed: () async {
-              homeController.getUser();
+              homeController!.getUser();
             },
             child: Text('GET USER'),
           ),
           ElevatedButton(
             onPressed: () async {
-              mainController.setRoute('/login');
-              mainController.autenticate(false);
+              mainController!.setRoute('/login');
+              mainController!.autenticate(false);
             },
             child: Text('IR A LOGIN'),
           )

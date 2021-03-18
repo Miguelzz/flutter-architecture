@@ -7,25 +7,23 @@ class SplashPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Scaffold(
-      body: Column(
-        children: [
-          Spacer(),
-          Center(
-            child: FractionallySizedBox(
-              widthFactor: 0.6,
-              child: Image.asset(
-                'assets/images/logo.png',
-                width: size.width * 0.60,
-                height: size.width * 0.60,
+      body: Center(
+        child: FractionallySizedBox(
+          widthFactor: 0.5,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: EdgeInsets.only(bottom: 15),
+                child: Image.asset(
+                  'assets/images/logo.png',
+                ),
               ),
-            ),
+              CircularProgressIndicator(),
+            ],
           ),
-          Spacer(),
-          CircularProgressIndicator(),
-          SizedBox(height: 20),
-        ],
+        ),
       ),
     );
   }

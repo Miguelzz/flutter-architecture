@@ -4,7 +4,6 @@ import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'dart:io';
 
 class RetryOnConnectionChangeInterceptor extends Interceptor {
   final DioConnectivityRequestRetrier? requestRetrier;
@@ -12,26 +11,6 @@ class RetryOnConnectionChangeInterceptor extends Interceptor {
   RetryOnConnectionChangeInterceptor({
     @required this.requestRetrier,
   });
-
-  @override
-  Future onError(DioError err) async {
-    if (_shouldRetry(err)) {
-      try {
-        await requestRetrier?.scheduleRequestRetry(err.request);
-      } catch (e) {
-        // Let any new error from the retrier pass through
-        return e;
-      }
-    }
-    // Let the error pass through if it's not the error we're looking for
-    return err;
-  }
-
-  bool _shouldRetry(DioError err) {
-    return err.type == DioErrorType.DEFAULT &&
-        err.error != null &&
-        err.error is SocketException;
-  }
 }
 
 class DioConnectivityRequestRetrier {
@@ -41,9 +20,7 @@ class DioConnectivityRequestRetrier {
   DioConnectivityRequestRetrier();
 
   Future<void> scheduleRequestRetry(RequestOptions requestOptions) async {
-    StreamSubscription streamSubscription;
-
-    streamSubscription = connectivity.onConnectivityChanged.listen(
+    connectivity.onConnectivityChanged.listen(
       (connectivityResult) async {
         if (connectivityResult != ConnectivityResult.none) {
           // Ensure that only one retry happens per connectivity change by cancelling the listener
@@ -56,7 +33,7 @@ class DioConnectivityRequestRetrier {
             onReceiveProgress: requestOptions.onReceiveProgress,
             onSendProgress: requestOptions.onSendProgress,
             queryParameters: requestOptions.queryParameters,
-            options: requestOptions,
+            //options: requestOptions,
           );
         }
       },
