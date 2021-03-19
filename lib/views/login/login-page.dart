@@ -16,7 +16,7 @@ class LoginPage extends StatelessWidget {
           Text('LOGIN'),
           ElevatedButton(
             onPressed: () async {
-              controller!.setRoute('/');
+              controller!.route('/');
               controller!.autenticate(true);
             },
             child: Text('IR A HOME'),

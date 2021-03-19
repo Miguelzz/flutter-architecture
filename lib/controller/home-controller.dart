@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:get/get.dart';
+import 'package:myArchitecture/database/database.dart';
 import 'package:myArchitecture/models/user.dart';
 import 'package:myArchitecture/services/services.dart';
 
 class HomeController extends GetxController {
-  static Services _services = Services.instance;
+  static final AppDatabase _cache = AppDatabase.instance;
+  static final Services _services = Services.instance;
 
   User? user;
 
@@ -18,6 +20,8 @@ class HomeController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
+    user = await _services.getUsers(useCache: true);
+    update();
     print('HOME');
   }
 }

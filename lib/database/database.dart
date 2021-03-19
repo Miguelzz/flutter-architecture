@@ -21,13 +21,11 @@ class AppDatabase {
     return _db!.future;
   }
 
-  Future<dynamic> getDB(String key) async {
-    return await _store.record(key).get(await database);
-  }
+  Future<dynamic> getDB(String key) async =>
+      await _store.record(key).get(await database);
 
-  Future<dynamic> setDB(String key, dynamic data) async {
-    return await _store.record(key).put(await database, data);
-  }
+  Future<dynamic> setDB(String key, dynamic data) async =>
+      await _store.record(key).put(await database, data);
 
   Future<void> _openDatabase() async {
     final String dir = (await getApplicationDocumentsDirectory()).path;

@@ -62,12 +62,12 @@ class ServiceCache {
   //   ),
   // );
 
-  get(String key, String url,
+  get(bool useCache, String key, String url,
       {Map<String, dynamic>? queryParameters,
       Options? options,
       CancelToken? cancelToken,
       void Function(int, int)? onReceiveProgress}) async {
-    if (ManagerService.instance.connection) {
+    if (!useCache && ManagerService.instance.connection) {
       try {
         final info = await http.get(
           url,
@@ -86,14 +86,14 @@ class ServiceCache {
     return await cache.getDB(key);
   }
 
-  post(String key, String url,
+  post(bool useCache, String key, String url,
       {dynamic? data,
       Map<String, dynamic>? queryParameters,
       Options? options,
       CancelToken? cancelToken,
       void Function(int, int)? onSendProgress,
       void Function(int, int)? onReceiveProgress}) async {
-    if (ManagerService.instance.connection) {
+    if (!useCache && ManagerService.instance.connection) {
       try {
         final info = await http.post(
           url,
