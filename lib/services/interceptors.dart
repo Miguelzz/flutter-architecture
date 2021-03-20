@@ -1,3 +1,4 @@
+import 'package:myArchitecture/models/factories.dart';
 import 'package:myArchitecture/services/manager.dart';
 import 'package:myArchitecture/database/database.dart';
 import 'package:connectivity/connectivity.dart';
@@ -41,6 +42,12 @@ class DioConnectivityRequestRetrier {
   }
 }
 
+class HttpCache<T> {
+  final ValueGetter<Future<T>> api;
+  final ValueGetter<Future<T>> cache;
+  HttpCache(this.api, this.cache);
+}
+
 class ServiceCache {
   ServiceCache._internal();
   static ServiceCache _singleton = ServiceCache._internal();
@@ -48,7 +55,7 @@ class ServiceCache {
   final cache = AppDatabase.instance;
 
   final Dio http = Dio(BaseOptions(
-    baseUrl: "https://jsonplaceholder.typicode.com/",
+    baseUrl: "https://jsonplaceholder.typicode.com",
     headers: {"Accept": "application/json"},
     responseType: ResponseType.json,
     //receiveTimeout: 15000,
@@ -62,55 +69,105 @@ class ServiceCache {
   //   ),
   // );
 
-  get(bool useCache, String key, String url,
+  HttpCache<T> get<T>(String key, String url,
       {Map<String, dynamic>? queryParameters,
       Options? options,
       CancelToken? cancelToken,
-      void Function(int, int)? onReceiveProgress}) async {
-    if (!useCache && ManagerService.instance.connection) {
-      try {
-        final info = await http.get(
-          url,
-          queryParameters: queryParameters,
-          cancelToken: cancelToken,
-          onReceiveProgress: onReceiveProgress,
-          options: options,
-        );
-        await cache.setDB(key, info.data);
-        return info.data;
-      } catch (e) {
-        print(e);
-      }
+      void Function(int, int)? onReceiveProgress}) {
+    if (factories[T.toString()] == null) {
+      print('\n\n***********************');
+      print('ERROR FACTORIA NO EXISTE ${T.toString()}');
+      print('***********************\n\n');
     }
 
-    return await cache.getDB(key);
+    final entity = factories[T.toString()]!();
+
+    return HttpCache(() async {
+      if (ManagerService.instance.connection) {
+        try {
+          final info = await http.get(
+            url,
+            queryParameters: queryParameters,
+            cancelToken: cancelToken,
+            onReceiveProgress: onReceiveProgress,
+            options: options,
+          );
+          return entity.fromJson(info.data);
+        } catch (e) {
+          print(e);
+        }
+      }
+      return entity;
+    }, () async {
+      if (ManagerService.instance.connection) {
+        try {
+          final info = await http.get(
+            url,
+            queryParameters: queryParameters,
+            cancelToken: cancelToken,
+            onReceiveProgress: onReceiveProgress,
+            options: options,
+          );
+          await cache.setDB(key, info.data);
+        } catch (e) {
+          print(e);
+        }
+      }
+
+      return entity.fromJson(await cache.getDB(key));
+    });
   }
 
-  post(bool useCache, String key, String url,
+  HttpCache<T> post<T>(String key, String url,
       {dynamic? data,
       Map<String, dynamic>? queryParameters,
       Options? options,
       CancelToken? cancelToken,
       void Function(int, int)? onSendProgress,
-      void Function(int, int)? onReceiveProgress}) async {
-    if (!useCache && ManagerService.instance.connection) {
-      try {
-        final info = await http.post(
-          url,
-          data: data,
-          queryParameters: queryParameters,
-          options: options,
-          cancelToken: cancelToken,
-          onReceiveProgress: onReceiveProgress,
-          onSendProgress: onReceiveProgress,
-        );
-        await cache.setDB(key, info.data);
-        return info;
-      } catch (e) {
-        print(e);
-      }
+      void Function(int, int)? onReceiveProgress}) {
+    if (factories[T.toString()] == null) {
+      print('\n\n***********************');
+      print('ERROR FACTORIA NO EXISTE ${T.toString()}');
+      print('***********************\n\n');
     }
+    final entity = factories['User']!();
 
-    return await cache.getDB(key);
+    return HttpCache(() async {
+      if (ManagerService.instance.connection) {
+        try {
+          final info = await http.post(
+            url,
+            data: data,
+            queryParameters: queryParameters,
+            options: options,
+            cancelToken: cancelToken,
+            onReceiveProgress: onReceiveProgress,
+            onSendProgress: onReceiveProgress,
+          );
+          return entity.fromJson(info.data);
+        } catch (e) {
+          print(e);
+        }
+      }
+      return entity;
+    }, () async {
+      if (ManagerService.instance.connection) {
+        try {
+          final info = await http.post(
+            url,
+            data: data,
+            queryParameters: queryParameters,
+            options: options,
+            cancelToken: cancelToken,
+            onReceiveProgress: onReceiveProgress,
+            onSendProgress: onReceiveProgress,
+          );
+          await cache.setDB(key, info.data);
+        } catch (e) {
+          print(e);
+        }
+      }
+      return entity.fromJson(await cache.getDB(key));
+    });
   }
 }
