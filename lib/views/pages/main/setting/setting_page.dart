@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/views/routes/routes-controller.dart';
-import 'package:group/views/pages/home/home-controller.dart';
+import 'package:group/views/routes/routes_controller.dart';
 
-class Page2Page extends StatelessWidget {
-  final HomeController homeController = Get.find();
+class SettingPage extends StatelessWidget {
   final RouteController routeController = Get.find();
 
   @override
@@ -15,7 +13,7 @@ class Page2Page extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Spacer(),
-          Text('PAGE 2'),
+          Text('SETTINGS'),
           ElevatedButton(
             onPressed: () async {
               routeController.nexBack();

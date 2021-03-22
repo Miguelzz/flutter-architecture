@@ -10,6 +10,14 @@ class HomeController extends GetxController {
 
   User? user;
 
+  num? _page;
+  num? get page => _page;
+  void changePage(num? page) {
+    _page = page;
+    print('page');
+    update();
+  }
+
   Future<void> getUser() async {
     _services.getUser('8').api().listen((event) {
       user = event;

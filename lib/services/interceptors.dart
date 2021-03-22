@@ -1,4 +1,5 @@
 import 'package:group/database/initialize-cache.dart';
+import 'package:group/models/assets.dart';
 import 'package:group/models/factories.dart';
 import 'package:group/services/manager.dart';
 import 'package:group/database/database.dart';
@@ -74,7 +75,7 @@ class ServiceCache {
   //   ),
   // );
 
-  HttpCache<T?> get<T>(UrlCache<T> point,
+  HttpCache<T?> get<T extends Entity>(UrlCache<T> point,
       {Map<String, dynamic>? queryParameters,
       Options? options,
       CancelToken? cancelToken,

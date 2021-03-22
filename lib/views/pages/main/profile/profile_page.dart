@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/views/routes/routes-controller.dart';
-import 'package:group/views/pages/home/home-controller.dart';
+import 'package:group/views/routes/routes_controller.dart';
 
-class Page3Page extends StatelessWidget {
-  final HomeController homeController = Get.find();
+class ProfilePage extends StatelessWidget {
   final RouteController routeController = Get.find();
 
   @override
@@ -15,12 +13,12 @@ class Page3Page extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Spacer(),
-          Text('PAGE 3'),
+          Text('PROFILE'),
           ElevatedButton(
             onPressed: () async {
-              routeController.nexPageStep2();
+              routeController.nexSetting();
             },
-            child: Text('IR A PAGE 2'),
+            child: Text('SETTINGS'),
           ),
           ElevatedButton(
             onPressed: () async {

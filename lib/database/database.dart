@@ -4,7 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sembast/sembast_io.dart';
-import 'package:group/views/routes/routes-pages.dart';
+import 'package:group/views/routes/routes.dart';
 
 class AppDatabase {
   static final AppDatabase _singleton = AppDatabase._internal();

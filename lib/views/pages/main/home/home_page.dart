@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/views/pages/home/home-controller.dart';
-import 'package:group/views/pages/main-controller.dart';
-import 'package:group/views/routes/routes-controller.dart';
+import 'package:group/views/pages/main/main_controller.dart';
+import 'package:group/views/pages/main/home/home_controller.dart';
+import 'package:group/views/routes/routes_controller.dart';
 
 class HomePage extends StatelessWidget {
-  final HomeController homeController = Get.find();
+  final controller = Get.put(HomeController());
   final MainController mainController = Get.find();
   final RouteController routeController = Get.find();
 
@@ -18,33 +18,41 @@ class HomePage extends StatelessWidget {
         children: [
           Spacer(),
           GetBuilder<HomeController>(
-              builder: (_) => Text('HOME ${homeController.user?.toJson()}')),
+              builder: (_) => Text('HOME ${controller?.user?.toJson()}')),
           ElevatedButton(
             onPressed: () async {
-              homeController.getUser();
+              controller?.getUser();
             },
-            child: Text('GET USER'),
+            child: GetBuilder<HomeController>(
+              builder: (_) => Text('GET USER ${controller?.page}'),
+            ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
                 onPressed: () async {
-                  routeController.nexPageStep2();
+                  routeController.nexSetting();
                 },
-                child: Text('PAGE 2'),
+                child: Text('SETTINGS'),
               ),
               ElevatedButton(
                 onPressed: () async {
-                  routeController.nexPageStep3();
+                  routeController.nexProfile();
                 },
-                child: Text('PAGE 3'),
+                child: Text('PROFILE'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  routeController.nexNone();
+                },
+                child: Text('NONE'),
               ),
             ],
           ),
           ElevatedButton(
             onPressed: () async {
-              routeController.nexSplash();
+              routeController.logout();
             },
             child: Text('LOGIN'),
           )

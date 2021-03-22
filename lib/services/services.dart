@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:group/models/user.dart';
 import 'package:group/services/interceptors.dart';
 import 'package:group/services/list_services.dart';

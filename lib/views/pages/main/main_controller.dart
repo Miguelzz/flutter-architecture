@@ -19,13 +19,13 @@ class MainController extends GetxController {
   }
 
   SelectTheme get theme => SelectTheme(() async {
-        await _cache.setTheme('light');
         Get.changeTheme(AppTheme.lightTheme);
+        await _cache.setTheme('light');
       }, () async {
-        await _cache.setTheme('dark');
         Get.changeTheme(AppTheme.darkTheme);
+        await _cache.setTheme('dark');
       }, () async {
-        await _cache.setTheme('personalized');
         Get.changeTheme(AppTheme.personalizedTheme);
+        await _cache.setTheme('personalized');
       });
 }

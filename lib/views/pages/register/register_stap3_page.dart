@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/views/routes/routes-controller.dart';
+import 'package:group/views/routes/routes_controller.dart';
 
 class RegisterStep3Page extends StatelessWidget {
   final RouteController routeController = Get.find();
