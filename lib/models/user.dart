@@ -1,7 +1,7 @@
-import 'package:myArchitecture/models/assets.dart';
+import 'package:group/models/assets.dart';
 
-class User extends Validator implements Mapper {
-  final int? age, id;
+class User extends Entity {
+  final num? age, id;
   final String? name;
   final bool? completed;
 
@@ -15,10 +15,22 @@ class User extends Validator implements Mapper {
         ...addIfNotNull('completed', completed),
       };
   @override
-  User fromJson(dynamic json) => User(
-        id: json['id'],
-        age: json['age'],
-        name: json['name'],
-        completed: json['completed'],
-      );
+  User? fromJson(dynamic json) {
+    if (json != null) {
+      try {
+        final valid =
+            json['id'] ?? json['age'] ?? json['name'] ?? json['completed'];
+        if (valid == null) throw '';
+        return User(
+          id: json['id'],
+          age: json['age'],
+          name: json['name'],
+          completed: json['completed'],
+        );
+      } catch (e) {
+        print('ERROR VALIDATING JSON');
+      }
+    }
+    return null;
+  }
 }

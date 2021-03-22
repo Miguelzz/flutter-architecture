@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class Theme {
+class AppTheme {
   static final lightTheme = ThemeData(
     primaryColor: Colors.redAccent,
     buttonColor: Colors.redAccent,
@@ -19,10 +19,18 @@ class Theme {
     accentColor: Colors.redAccent,
   );
 
-  static final debtorTheme = ThemeData(
+  static final personalizedTheme = ThemeData(
     primaryColor: Colors.redAccent,
     buttonColor: Colors.redAccent,
     brightness: Brightness.dark,
     accentColor: Colors.redAccent,
   );
+}
+
+class SelectTheme {
+  ValueGetter<Future<void>> light;
+  ValueGetter<Future<void>> dark;
+  ValueGetter<Future<void>> personalized;
+
+  SelectTheme(this.light, this.dark, this.personalized);
 }

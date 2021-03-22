@@ -1,10 +1,13 @@
-import 'package:myArchitecture/models/factories.dart';
-import 'package:myArchitecture/services/manager.dart';
-import 'package:myArchitecture/database/database.dart';
+import 'package:group/database/initialize-cache.dart';
+import 'package:group/models/factories.dart';
+import 'package:group/services/manager.dart';
+import 'package:group/database/database.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
+
+import 'list_services.dart';
 
 class RetryOnConnectionChangeInterceptor extends Interceptor {
   final DioConnectivityRequestRetrier? requestRetrier;
@@ -43,8 +46,8 @@ class DioConnectivityRequestRetrier {
 }
 
 class HttpCache<T> {
-  final ValueGetter<Future<T>> api;
-  final ValueGetter<Future<T>> cache;
+  final ValueGetter<Stream<T?>> api;
+  final ValueGetter<Stream<T?>> cache;
   HttpCache(this.api, this.cache);
 }
 
@@ -55,8 +58,10 @@ class ServiceCache {
   final cache = AppDatabase.instance;
 
   final Dio http = Dio(BaseOptions(
-    baseUrl: "https://jsonplaceholder.typicode.com",
-    headers: {"Accept": "application/json"},
+    headers: {
+      "Accept": "application/json",
+      'token': InitializeCache.instance.token
+    },
     responseType: ResponseType.json,
     //receiveTimeout: 15000,
     //connectTimeout: 10000,
@@ -69,7 +74,7 @@ class ServiceCache {
   //   ),
   // );
 
-  HttpCache<T> get<T>(String key, String url,
+  HttpCache<T?> get<T>(UrlCache<T> point,
       {Map<String, dynamic>? queryParameters,
       Options? options,
       CancelToken? cancelToken,
@@ -82,43 +87,54 @@ class ServiceCache {
 
     final entity = factories[T.toString()]!();
 
-    return HttpCache(() async {
-      if (ManagerService.instance.connection) {
-        try {
+    return HttpCache(() async* {
+      try {
+        if (!InitializeCache.instance.useMock &&
+            ManagerService.instance.connection) {
           final info = await http.get(
-            url,
+            point.urlFull(),
             queryParameters: queryParameters,
             cancelToken: cancelToken,
             onReceiveProgress: onReceiveProgress,
             options: options,
           );
-          return entity.fromJson(info.data);
-        } catch (e) {
-          print(e);
+          yield entity.fromJson(info.data);
+        } else if (InitializeCache.instance.useMock) {
+          yield point.mock;
         }
+      } catch (e) {
+        print(e);
       }
-      return entity;
-    }, () async {
-      if (ManagerService.instance.connection) {
-        try {
-          final info = await http.get(
-            url,
-            queryParameters: queryParameters,
-            cancelToken: cancelToken,
-            onReceiveProgress: onReceiveProgress,
-            options: options,
-          );
-          await cache.setDB(key, info.data);
-        } catch (e) {
-          print(e);
+    }, () async* {
+      try {
+        if (point.cache != null) {
+          yield entity.fromJson(await cache.getDB(point.cache!));
         }
-      }
 
-      return entity.fromJson(await cache.getDB(key));
+        if (!InitializeCache.instance.useMock &&
+            ManagerService.instance.connection) {
+          final info = await http.get(
+            point.urlFull(),
+            queryParameters: queryParameters,
+            cancelToken: cancelToken,
+            onReceiveProgress: onReceiveProgress,
+            options: options,
+          );
+          if (point.cache != null) {
+            cache.setDB(
+                point.cache!, entity.fromJson(info.data)?.toJson() ?? {});
+          }
+          yield entity.fromJson(info.data);
+        } else if (InitializeCache.instance.useMock) {
+          yield point.mock;
+        }
+      } catch (e) {
+        print(e);
+      }
     });
   }
 
-  HttpCache<T> post<T>(String key, String url,
+  HttpCache<T?> post<T>(UrlCache<T> point,
       {dynamic? data,
       Map<String, dynamic>? queryParameters,
       Options? options,
@@ -132,11 +148,12 @@ class ServiceCache {
     }
     final entity = factories['User']!();
 
-    return HttpCache(() async {
-      if (ManagerService.instance.connection) {
-        try {
+    return HttpCache(() async* {
+      try {
+        if (!InitializeCache.instance.useMock &&
+            ManagerService.instance.connection) {
           final info = await http.post(
-            url,
+            point.urlFull(),
             data: data,
             queryParameters: queryParameters,
             options: options,
@@ -144,17 +161,22 @@ class ServiceCache {
             onReceiveProgress: onReceiveProgress,
             onSendProgress: onReceiveProgress,
           );
-          return entity.fromJson(info.data);
-        } catch (e) {
-          print(e);
+          yield entity.fromJson(info.data);
+        } else if (InitializeCache.instance.useMock) {
+          yield point.mock;
         }
+      } catch (e) {
+        print(e);
       }
-      return entity;
-    }, () async {
-      if (ManagerService.instance.connection) {
-        try {
+    }, () async* {
+      try {
+        if (point.cache != null) {
+          yield entity.fromJson(await cache.getDB(point.cache!));
+        }
+        if (!InitializeCache.instance.useMock &&
+            ManagerService.instance.connection) {
           final info = await http.post(
-            url,
+            point.urlFull(),
             data: data,
             queryParameters: queryParameters,
             options: options,
@@ -162,12 +184,18 @@ class ServiceCache {
             onReceiveProgress: onReceiveProgress,
             onSendProgress: onReceiveProgress,
           );
-          await cache.setDB(key, info.data);
-        } catch (e) {
-          print(e);
+
+          if (point.cache != null) {
+            cache.setDB(
+                point.cache!, entity.fromJson(info.data)?.toJson() ?? {});
+          }
+          yield entity.fromJson(info.data);
+        } else if (InitializeCache.instance.useMock) {
+          yield point.mock;
         }
+      } catch (e) {
+        print(e);
       }
-      return entity.fromJson(await cache.getDB(key));
     });
   }
 }

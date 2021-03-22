@@ -1,8 +1,8 @@
-import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
-import 'package:myArchitecture/controller/theme.dart';
-import 'package:myArchitecture/database/database.dart';
-import 'package:myArchitecture/database/initialize-cache.dart';
+import 'package:group/models/theme.dart';
+import 'package:group/database/database.dart';
 
 class MainController extends GetxController {
   static final AppDatabase _cache = AppDatabase.instance;
@@ -10,34 +10,22 @@ class MainController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    _initTheme(InitializeCache.instance.theme);
+    print('MAIN');
   }
 
-  Future<void> autenticate(bool auth) async {
-    await _cache.setDB('authenticated', auth);
+  updateLocale(Locale locale) async {
+    Get.updateLocale(locale);
+    await _cache.setLocale(locale);
   }
 
-  Future<void> route(String route, {dynamic arguments}) async {
-    Get.toNamed(route, arguments: arguments);
-    if (route == '/login') {
-      await _cache.setDB('authenticated', false);
-    }
-    await _cache.setDB('route', route);
-  }
-
-  Future<void> theme(String value) async => await _cache.setDB('theme', value);
-
-  void _initTheme(String value) {
-    switch (value) {
-      case 'light':
-        Get.changeTheme(Theme.lightTheme);
-        break;
-      case 'dark':
-        Get.changeTheme(Theme.darkTheme);
-        break;
-      case 'debtor':
-        Get.changeTheme(Theme.debtorTheme);
-        break;
-    }
-  }
+  SelectTheme get theme => SelectTheme(() async {
+        await _cache.setTheme('light');
+        Get.changeTheme(AppTheme.lightTheme);
+      }, () async {
+        await _cache.setTheme('dark');
+        Get.changeTheme(AppTheme.darkTheme);
+      }, () async {
+        await _cache.setTheme('personalized');
+        Get.changeTheme(AppTheme.personalizedTheme);
+      });
 }

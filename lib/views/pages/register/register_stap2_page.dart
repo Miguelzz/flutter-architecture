@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:myArchitecture/controller/main-controller.dart';
+import 'package:group/controller/routes-controller.dart';
 
-class LoginPage extends StatelessWidget {
-  final controller = Get.put(MainController());
+class RegisterStep2Page extends StatelessWidget {
+  final RouteController routeController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -13,13 +13,12 @@ class LoginPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Spacer(),
-          Text('LOGIN'),
+          Text('REGISTER 2'),
           ElevatedButton(
             onPressed: () async {
-              controller!.route('/');
-              controller!.autenticate(true);
+              await routeController.nexRegisterStep3();
             },
-            child: Text('IR A HOME'),
+            child: Text('CONTINUAR REGISTRO'),
           )
         ],
       )),
