@@ -30,7 +30,7 @@ class AppTheme {
 class SelectTheme {
   ValueGetter<Future<void>> light;
   ValueGetter<Future<void>> dark;
-  ValueGetter<Future<void>> personalized;
+  ValueGetter<Future<void>> custom;
 
-  SelectTheme(this.light, this.dark, this.personalized);
+  SelectTheme(this.light, this.dark, this.custom);
 }

@@ -11,53 +11,44 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
-      body: Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Spacer(),
-          GetBuilder<HomeController>(
-              builder: (_) => Text('HOME ${controller?.user?.toJson()}')),
-          ElevatedButton(
-            onPressed: () async {
-              controller?.getUser();
-            },
-            child: GetBuilder<HomeController>(
-              builder: (_) => Text('GET USER ${controller?.page}'),
+      body: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              height: size.height * 0.3,
+              child: Center(
+                child: Text('txt_home'.tr),
+              ),
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: () async {
-                  routeController.nexSetting();
-                },
-                child: Text('SETTINGS'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  routeController.nexProfile();
-                },
-                child: Text('PROFILE'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  routeController.nexNone();
-                },
-                child: Text('NONE'),
-              ),
-            ],
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              routeController.logout();
-            },
-            child: Text('LOGIN'),
-          )
-        ],
-      )),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    routeController.nexSetting();
+                  },
+                  child: Text('setting'.tr),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    routeController.nexProfile();
+                  },
+                  child: Text('profile'.tr),
+                ),
+              ],
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                routeController.logout();
+              },
+              child: Text('LOGIN'),
+            )
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,79 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:group/views/pages/login/login-controller.dart';
-import 'package:group/views/pages/main/main_controller.dart';
 import 'package:group/views/routes/routes_controller.dart';
 
 class LoginPage extends StatelessWidget {
-  final controller = Get.put(LoginController());
-
-  final MainController mainController = Get.find();
-  final RouteController routeController = Get.find();
+  final login = Get.put(LoginController());
+  final RouteController route = Get.find();
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
-      body: Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Spacer(),
-          Text('LOGIN'),
-          Text('title'.trArgs(['...'])),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: () async {
-                  await mainController.theme.dark();
-                },
-                child: Text('DART'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  await mainController.theme.light();
-                },
-                child: Text('LINGHT'),
-              ),
-            ],
+          Container(
+            height: size.height * 0.3,
+            child: Center(
+              child: Text('txt_login'.tr),
+            ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
                 onPressed: () async {
-                  await mainController.updateLocale(Locale('es'));
+                  await login!.login('', '');
                 },
-                child: Text('ESPAÑOL'),
+                child: Text('txt_home'.tr),
               ),
               ElevatedButton(
                 onPressed: () async {
-                  await mainController.updateLocale(Locale('pt'));
+                  await route.nexRegister();
                 },
-                child: Text('PORTUGAL'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  await mainController.updateLocale(Locale('en'));
-                },
-                child: Text('INGLES'),
-              ),
+                child: Text('txt_register'.tr),
+              )
             ],
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              await controller!.login('', '');
-            },
-            child: Text('HOME'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              await routeController.nexRegister();
-            },
-            child: Text('REGISTER'),
           )
         ],
-      )),
+      ),
     );
   }
 }
