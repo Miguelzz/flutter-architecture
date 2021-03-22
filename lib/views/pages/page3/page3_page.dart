@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/controller/routes-controller.dart';
-import 'package:group/controller/user-controller.dart';
+import 'package:group/views/routes/routes-controller.dart';
+import 'package:group/views/pages/home/home-controller.dart';
 
 class Page3Page extends StatelessWidget {
-  final UserController userController = Get.find();
+  final HomeController homeController = Get.find();
   final RouteController routeController = Get.find();
 
   @override

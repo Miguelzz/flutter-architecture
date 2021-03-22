@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/controller/routes-controller.dart';
-import 'package:group/controller/user-controller.dart';
-import 'package:group/controller/main-controller.dart';
+import 'package:group/views/pages/home/home-controller.dart';
+import 'package:group/views/pages/main-controller.dart';
+import 'package:group/views/routes/routes-controller.dart';
 
 class HomePage extends StatelessWidget {
-  final UserController userController = Get.find();
+  final HomeController homeController = Get.find();
   final MainController mainController = Get.find();
   final RouteController routeController = Get.find();
 
@@ -17,11 +17,11 @@ class HomePage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Spacer(),
-          GetBuilder<UserController>(
-              builder: (_) => Text('HOME ${userController.user?.toJson()}')),
+          GetBuilder<HomeController>(
+              builder: (_) => Text('HOME ${homeController.user?.toJson()}')),
           ElevatedButton(
             onPressed: () async {
-              userController.getUser();
+              homeController.getUser();
             },
             child: Text('GET USER'),
           ),

@@ -48,6 +48,6 @@ class RouteController extends GetxController {
   void onInit() async {
     super.onInit();
 
-    print('LOGIN');
+    print('ROUTES');
   }
 }
