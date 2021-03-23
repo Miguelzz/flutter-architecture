@@ -30,13 +30,13 @@ class HomePage extends StatelessWidget {
                   onPressed: () async {
                     routeController.nexSetting();
                   },
-                  child: Text('setting'.tr),
+                  child: Text('txt_setting'.tr),
                 ),
                 ElevatedButton(
                   onPressed: () async {
                     routeController.nexProfile();
                   },
-                  child: Text('profile'.tr),
+                  child: Text('txt_profile'.tr),
                 ),
               ],
             ),
@@ -44,7 +44,7 @@ class HomePage extends StatelessWidget {
               onPressed: () async {
                 routeController.logout();
               },
-              child: Text('LOGIN'),
+              child: Text('txt_login'.tr),
             )
           ],
         ),

@@ -25,7 +25,13 @@ class LoginPage extends StatelessWidget {
             children: [
               ElevatedButton(
                 onPressed: () async {
-                  await login!.login('', '');
+                  login?.getUser();
+                },
+                child: Text('GET USER'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await route.login('', '');
                 },
                 child: Text('txt_home'.tr),
               ),

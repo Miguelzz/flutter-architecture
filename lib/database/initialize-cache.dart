@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:group/database/database.dart';
-import 'package:group/services/manager.dart';
 import 'package:group/models/theme.dart';
 
 class InitializeCache {
@@ -14,15 +13,12 @@ class InitializeCache {
   late bool useMock;
   late String route;
   late ThemeData theme;
-  late String token;
   late Locale locale;
 
   Future<void> init({bool useMock = false}) async {
     this.useMock = useMock;
     locale = (await _database.getLocale()) ?? Locale('en', 'CO');
     route = (await _database.getRoute()) ?? '/splash';
-    token = (await _database.getToken()) ?? '';
-    await ManagerService.instance.init();
 
     switch ((await _database.getTheme()) ?? 'light') {
       case 'light':

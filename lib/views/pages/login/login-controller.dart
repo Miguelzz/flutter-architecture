@@ -1,14 +1,16 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:group/database/database.dart';
+import 'package:group/services/services.dart';
 
 class LoginController extends GetxController {
   static final AppDatabase _cache = AppDatabase.instance;
+  static final Services _services = Services.instance;
 
-  Future<void> login(String prefix, String phone) async {
-    await _cache.setDB('token', 'dkjashdjkhsa');
-    await _cache.setRoute('/');
-    Get.offAllNamed('/');
+  Future<void> getUser() async {
+    _services.getUser('8').api().listen((event) {
+      update();
+    });
   }
 
   @override

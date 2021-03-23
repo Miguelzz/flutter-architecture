@@ -1,7 +1,8 @@
+import 'dart:io';
+
 import 'package:group/database/initialize-cache.dart';
 import 'package:group/models/assets.dart';
 import 'package:group/models/factories.dart';
-import 'package:group/services/manager.dart';
 import 'package:group/database/database.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
@@ -11,11 +12,31 @@ import 'dart:async';
 import 'list_services.dart';
 
 class RetryOnConnectionChangeInterceptor extends Interceptor {
-  final DioConnectivityRequestRetrier? requestRetrier;
+  late final DioConnectivityRequestRetrier? requestRetrier;
 
   RetryOnConnectionChangeInterceptor({
-    @required this.requestRetrier,
+    required this.requestRetrier,
   });
+
+  @override
+  void onError(DioError err, ErrorInterceptorHandler handler) async {
+    if (_shouldRetry(err)) {
+      try {
+        await requestRetrier?.scheduleRequestRetry(err.requestOptions);
+      } catch (e) {
+        print('******************');
+        print(e);
+        print('******************');
+      }
+    }
+  }
+
+  bool _shouldRetry(DioError err) {
+    return err.type == DioErrorType.sendTimeout ||
+        err.type == DioErrorType.connectTimeout ||
+        err.type == DioErrorType.receiveTimeout ||
+        err.type == DioErrorType.sendTimeout;
+  }
 }
 
 class DioConnectivityRequestRetrier {
@@ -24,25 +45,32 @@ class DioConnectivityRequestRetrier {
 
   DioConnectivityRequestRetrier();
 
-  Future<void> scheduleRequestRetry(RequestOptions requestOptions) async {
-    connectivity.onConnectivityChanged.listen(
+  Future<Response> scheduleRequestRetry(RequestOptions requestOptions) async {
+    late StreamSubscription streamSubscription;
+    final responseCompleter = Completer<Response>();
+
+    streamSubscription = connectivity.onConnectivityChanged.listen(
       (connectivityResult) async {
         if (connectivityResult != ConnectivityResult.none) {
-          // Ensure that only one retry happens per connectivity change by cancelling the listener
-          //streamSubscription.cancel();
-          // Copy & paste the failed request's data into the new request
-          dio.request(
-            requestOptions.path,
-            cancelToken: requestOptions.cancelToken,
-            data: requestOptions.data,
-            onReceiveProgress: requestOptions.onReceiveProgress,
-            onSendProgress: requestOptions.onSendProgress,
-            queryParameters: requestOptions.queryParameters,
-            //options: requestOptions,
+          streamSubscription.cancel();
+          //Complete the completer instead of returning
+
+          responseCompleter.complete(
+            dio.request(
+              requestOptions.path,
+              cancelToken: requestOptions.cancelToken,
+              data: requestOptions.data,
+              onReceiveProgress: requestOptions.onReceiveProgress,
+              onSendProgress: requestOptions.onSendProgress,
+              queryParameters: requestOptions.queryParameters,
+              //options: Options(),
+            ),
           );
         }
       },
     );
+
+    return responseCompleter.future;
   }
 }
 
@@ -58,22 +86,29 @@ class ServiceCache {
   static ServiceCache get instance => _singleton;
   final cache = AppDatabase.instance;
 
-  final Dio http = Dio(BaseOptions(
-    headers: {
-      "Accept": "application/json",
-      'token': InitializeCache.instance.token
-    },
-    responseType: ResponseType.json,
-    //receiveTimeout: 15000,
-    //connectTimeout: 10000,
-    followRedirects: false,
-    receiveDataWhenStatusError: true,
-  ));
-  // ..interceptors.add(
-  //   RetryOnConnectionChangeInterceptor(
-  //     requestRetrier: DioConnectivityRequestRetrier(),
-  //   ),
-  // );
+  final Dio http = Dio(
+    BaseOptions(
+      receiveTimeout: 5000,
+      connectTimeout: 3000,
+      followRedirects: false,
+      receiveDataWhenStatusError: true,
+    ),
+  )..interceptors.add(
+      RetryOnConnectionChangeInterceptor(
+        requestRetrier: DioConnectivityRequestRetrier(),
+      ),
+    );
+
+  Future<void> _addToken() async {
+    http
+      ..options.headers = {
+        'token': await cache.getToken(),
+      };
+    print('*******************');
+    print('TOKEN');
+    print(http.options.headers);
+    print('*******************');
+  }
 
   HttpCache<T?> get<T extends Entity>(UrlCache<T> point,
       {Map<String, dynamic>? queryParameters,
@@ -90,8 +125,8 @@ class ServiceCache {
 
     return HttpCache(() async* {
       try {
-        if (!InitializeCache.instance.useMock &&
-            ManagerService.instance.connection) {
+        if (!InitializeCache.instance.useMock) {
+          await _addToken();
           final info = await http.get(
             point.urlFull(),
             queryParameters: queryParameters,
@@ -112,8 +147,8 @@ class ServiceCache {
           yield entity.fromJson(await cache.getDB(point.cache!));
         }
 
-        if (!InitializeCache.instance.useMock &&
-            ManagerService.instance.connection) {
+        if (!InitializeCache.instance.useMock) {
+          await _addToken();
           final info = await http.get(
             point.urlFull(),
             queryParameters: queryParameters,
@@ -151,8 +186,8 @@ class ServiceCache {
 
     return HttpCache(() async* {
       try {
-        if (!InitializeCache.instance.useMock &&
-            ManagerService.instance.connection) {
+        if (!InitializeCache.instance.useMock) {
+          await _addToken();
           final info = await http.post(
             point.urlFull(),
             data: data,
@@ -174,8 +209,8 @@ class ServiceCache {
         if (point.cache != null) {
           yield entity.fromJson(await cache.getDB(point.cache!));
         }
-        if (!InitializeCache.instance.useMock &&
-            ManagerService.instance.connection) {
+        if (!InitializeCache.instance.useMock) {
+          await _addToken();
           final info = await http.post(
             point.urlFull(),
             data: data,

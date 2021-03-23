@@ -7,14 +7,15 @@ class RouteController extends GetxController {
   static final AppDatabase _cache = AppDatabase.instance;
 
   Future<void> login(String prefix, String phone) async {
+    final token = 'dkjashdjkhsa';
     Get.offAllNamed('/');
-    await _cache.setDB('token', 'dkjashdjkhsa');
+    await _cache.setToken(token);
     await _cache.setRoute('/');
   }
 
   Future<void> logout() async {
     Get.offAllNamed('/splash');
-    await _cache.setDB('token', '');
+    await _cache.setToken('');
     await _cache.setRoute('/login');
   }
 

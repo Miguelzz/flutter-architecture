@@ -9,7 +9,7 @@ import 'views/routes/routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await InitializeCache.instance.init(useMock: true);
+  await InitializeCache.instance.init(useMock: false);
 
   runApp(MyApp());
 }
