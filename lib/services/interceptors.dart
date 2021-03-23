@@ -1,78 +1,13 @@
-import 'dart:io';
-
 import 'package:group/database/initialize-cache.dart';
 import 'package:group/models/assets.dart';
 import 'package:group/models/factories.dart';
 import 'package:group/database/database.dart';
-import 'package:connectivity/connectivity.dart';
+import 'package:group/services/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'list_services.dart';
-
-class RetryOnConnectionChangeInterceptor extends Interceptor {
-  late final DioConnectivityRequestRetrier? requestRetrier;
-
-  RetryOnConnectionChangeInterceptor({
-    required this.requestRetrier,
-  });
-
-  @override
-  void onError(DioError err, ErrorInterceptorHandler handler) async {
-    if (_shouldRetry(err)) {
-      try {
-        await requestRetrier?.scheduleRequestRetry(err.requestOptions);
-      } catch (e) {
-        print('******************');
-        print(e);
-        print('******************');
-      }
-    }
-  }
-
-  bool _shouldRetry(DioError err) {
-    return err.type == DioErrorType.sendTimeout ||
-        err.type == DioErrorType.connectTimeout ||
-        err.type == DioErrorType.receiveTimeout ||
-        err.type == DioErrorType.sendTimeout;
-  }
-}
-
-class DioConnectivityRequestRetrier {
-  final Dio dio = Dio();
-  final Connectivity connectivity = Connectivity();
-
-  DioConnectivityRequestRetrier();
-
-  Future<Response> scheduleRequestRetry(RequestOptions requestOptions) async {
-    late StreamSubscription streamSubscription;
-    final responseCompleter = Completer<Response>();
-
-    streamSubscription = connectivity.onConnectivityChanged.listen(
-      (connectivityResult) async {
-        if (connectivityResult != ConnectivityResult.none) {
-          streamSubscription.cancel();
-          //Complete the completer instead of returning
-
-          responseCompleter.complete(
-            dio.request(
-              requestOptions.path,
-              cancelToken: requestOptions.cancelToken,
-              data: requestOptions.data,
-              onReceiveProgress: requestOptions.onReceiveProgress,
-              onSendProgress: requestOptions.onSendProgress,
-              queryParameters: requestOptions.queryParameters,
-              //options: Options(),
-            ),
-          );
-        }
-      },
-    );
-
-    return responseCompleter.future;
-  }
-}
 
 class HttpCache<T> {
   final ValueGetter<Stream<T?>> api;
@@ -85,29 +20,49 @@ class ServiceCache {
   static ServiceCache _singleton = ServiceCache._internal();
   static ServiceCache get instance => _singleton;
   final cache = AppDatabase.instance;
-
-  final Dio http = Dio(
+  final Dio _dio = Dio(
     BaseOptions(
-      receiveTimeout: 5000,
-      connectTimeout: 3000,
+      //receiveTimeout: 5000,
+      //connectTimeout: 3000,
       followRedirects: false,
       receiveDataWhenStatusError: true,
     ),
-  )..interceptors.add(
-      RetryOnConnectionChangeInterceptor(
-        requestRetrier: DioConnectivityRequestRetrier(),
+  );
+
+  Dio interceptor(String baseUrl) {
+    _dio.interceptors.clear();
+
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          print('interceptor');
+          handler.next(options..headers = {'token': await cache.getToken()});
+        },
+        onResponse: (response, handler) {
+          print('onResponse');
+          handler.next(response);
+        },
+        onError: (error, handler) async {
+          print('onError');
+          if (error.response?.statusCode == 403) {
+            _dio.interceptors.requestLock.lock();
+            _dio.interceptors.responseLock.lock();
+            //RequestOptions options = error.response?.request;
+            // FirebaseUser user = await FirebaseAuth.instance.currentUser();
+            // token = await user.getIdToken(refresh: true);
+            // await writeAuthKey(token);
+            // options.headers["Authorization"] = "Bearer " + token;
+
+            // _dio.interceptors.requestLock.unlock();
+            // _dio.interceptors.responseLock.unlock();
+            // return _dio.request(options.path, options: options);
+            handler.next(error);
+          }
+        },
       ),
     );
-
-  Future<void> _addToken() async {
-    http
-      ..options.headers = {
-        'token': await cache.getToken(),
-      };
-    print('*******************');
-    print('TOKEN');
-    print(http.options.headers);
-    print('*******************');
+    _dio.options.baseUrl = baseUrl;
+    return _dio;
   }
 
   HttpCache<T?> get<T extends Entity>(UrlCache<T> point,
@@ -125,18 +80,18 @@ class ServiceCache {
 
     return HttpCache(() async* {
       try {
-        if (!InitializeCache.instance.useMock) {
-          await _addToken();
+        if (InitializeCache.instance.useMock) {
+          yield point.mock;
+        } else if (ConnetivityService.instance.connection) {
+          final http = interceptor(point.base);
           final info = await http.get(
-            point.urlFull(),
+            point.url,
             queryParameters: queryParameters,
             cancelToken: cancelToken,
             onReceiveProgress: onReceiveProgress,
             options: options,
           );
           yield entity.fromJson(info.data);
-        } else if (InitializeCache.instance.useMock) {
-          yield point.mock;
         }
       } catch (e) {
         print(e);
@@ -147,10 +102,12 @@ class ServiceCache {
           yield entity.fromJson(await cache.getDB(point.cache!));
         }
 
-        if (!InitializeCache.instance.useMock) {
-          await _addToken();
+        if (InitializeCache.instance.useMock) {
+          yield point.mock;
+        } else if (ConnetivityService.instance.connection) {
+          final http = interceptor(point.base);
           final info = await http.get(
-            point.urlFull(),
+            point.url,
             queryParameters: queryParameters,
             cancelToken: cancelToken,
             onReceiveProgress: onReceiveProgress,
@@ -161,8 +118,6 @@ class ServiceCache {
                 point.cache!, entity.fromJson(info.data)?.toJson() ?? {});
           }
           yield entity.fromJson(info.data);
-        } else if (InitializeCache.instance.useMock) {
-          yield point.mock;
         }
       } catch (e) {
         print(e);
@@ -186,10 +141,12 @@ class ServiceCache {
 
     return HttpCache(() async* {
       try {
-        if (!InitializeCache.instance.useMock) {
-          await _addToken();
+        if (InitializeCache.instance.useMock) {
+          yield point.mock;
+        } else if (ConnetivityService.instance.connection) {
+          final http = interceptor(point.base);
           final info = await http.post(
-            point.urlFull(),
+            point.url,
             data: data,
             queryParameters: queryParameters,
             options: options,
@@ -198,8 +155,6 @@ class ServiceCache {
             onSendProgress: onReceiveProgress,
           );
           yield entity.fromJson(info.data);
-        } else if (InitializeCache.instance.useMock) {
-          yield point.mock;
         }
       } catch (e) {
         print(e);
@@ -209,10 +164,12 @@ class ServiceCache {
         if (point.cache != null) {
           yield entity.fromJson(await cache.getDB(point.cache!));
         }
-        if (!InitializeCache.instance.useMock) {
-          await _addToken();
+        if (InitializeCache.instance.useMock) {
+          yield point.mock;
+        } else if (ConnetivityService.instance.connection) {
+          final http = interceptor(point.base);
           final info = await http.post(
-            point.urlFull(),
+            point.url,
             data: data,
             queryParameters: queryParameters,
             options: options,
@@ -226,8 +183,6 @@ class ServiceCache {
                 point.cache!, entity.fromJson(info.data)?.toJson() ?? {});
           }
           yield entity.fromJson(info.data);
-        } else if (InitializeCache.instance.useMock) {
-          yield point.mock;
         }
       } catch (e) {
         print(e);

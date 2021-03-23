@@ -23,8 +23,8 @@ class AppTranslations extends Translations {
           'txt_login': 'Login',
 
           // BUTTONS
-          'txt_back': 'back',
-          'txt_lenguage_name': 'English',
+          'txt_back': 'Back',
+          'txt_continue': 'Continue',
 
           // OTHERS
         },
@@ -49,7 +49,7 @@ class AppTranslations extends Translations {
 
           // BUTTONS
           'txt_back': 'Atras',
-          'txt_lenguage_name': 'English',
+          'txt_continue': 'Continuar',
 
           // OTHERS
         },

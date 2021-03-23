@@ -10,4 +10,7 @@ class Services {
 
   HttpCache<User?> getUser(String id) =>
       _http.get<User>(ListServices.urlUser('/users/$id'));
+
+  HttpCache<User?> login() =>
+      _http.get<User>(ListServices.login('/user/token'));
 }

@@ -6,6 +6,7 @@ import 'package:group/views/routes/routes_controller.dart';
 class LoginPage extends StatelessWidget {
   final login = Get.put(LoginController());
   final RouteController route = Get.find();
+  final phone = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -20,29 +21,48 @@ class LoginPage extends StatelessWidget {
               child: Text('txt_login'.tr),
             ),
           ),
+          Container(
+            width: size.width * 0.7,
+            child: Column(
+              children: [
+                TextField(
+                  controller: phone,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Celular',
+                  ),
+                ),
+                // SizedBox(
+                //   height: 20,
+                // ),
+                // InkWell(
+                //   child: Text("Registrate ahora"),
+                //   onTap: () async {
+                //     await route.nexRegister();
+                //   },
+                // )
+              ],
+            ),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // ElevatedButton(
+              //   onPressed: () async {
+              //     login?.getUser();
+              //   },
+              //   child: Text('GET USER'),
+              // ),
               ElevatedButton(
                 onPressed: () async {
-                  login?.getUser();
+                  FocusScope.of(context).requestFocus(FocusNode());
+                  await route.login(prefix: '+57', phone: phone.text);
                 },
-                child: Text('GET USER'),
+                child: Text('txt_continue'.tr),
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  await route.login('', '');
-                },
-                child: Text('txt_home'.tr),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  await route.nexRegister();
-                },
-                child: Text('txt_register'.tr),
-              )
             ],
-          )
+          ),
         ],
       ),
     );

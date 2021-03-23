@@ -19,7 +19,7 @@ class AppTheme {
     accentColor: Colors.redAccent,
   );
 
-  static final personalizedTheme = ThemeData(
+  static final customTheme = ThemeData(
     primaryColor: Colors.redAccent,
     buttonColor: Colors.redAccent,
     brightness: Brightness.dark,

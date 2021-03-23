@@ -1,16 +1,26 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:group/database/database.dart';
+import 'package:group/services/services.dart';
 import 'package:group/views/routes/routes.dart';
 
 class RouteController extends GetxController {
   static final AppDatabase _cache = AppDatabase.instance;
+  static final Services _services = Services.instance;
 
-  Future<void> login(String prefix, String phone) async {
-    final token = 'dkjashdjkhsa';
-    Get.offAllNamed('/');
-    await _cache.setToken(token);
-    await _cache.setRoute('/');
+  Future<void> login({required String prefix, required String phone}) async {
+    _services.getUser('1').api().listen((event) async {
+      final name = phone == '333' ? 'Miguel' : 'Camila';
+      if (name == 'Miguel') {
+        final token =
+            'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtZXNzYWdlIjoiSldUIFJ1bGVzISIsImlhdCI6MTQ1OTQ0ODExOSwiZXhwIjoxNDU5NDU0NTE5fQ.-yIVBD5b73C75osbmwwshQNRC7frWUYrqaTjTpza2y4';
+        offAllHome();
+        await _cache.setToken(token);
+        await _cache.setRoute('/');
+      } else {
+        nexRegister();
+      }
+    });
   }
 
   Future<void> logout() async {

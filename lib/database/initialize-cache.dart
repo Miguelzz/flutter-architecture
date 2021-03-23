@@ -20,15 +20,15 @@ class InitializeCache {
     locale = (await _database.getLocale()) ?? Locale('en', 'CO');
     route = (await _database.getRoute()) ?? '/splash';
 
-    switch ((await _database.getTheme()) ?? 'light') {
-      case 'light':
-        theme = AppTheme.lightTheme;
-        break;
+    switch (await _database.getTheme()) {
       case 'dark':
         theme = AppTheme.darkTheme;
         break;
-      case 'personalized':
-        theme = AppTheme.personalizedTheme;
+      case 'custom':
+        theme = AppTheme.customTheme;
+        break;
+      default:
+        theme = AppTheme.lightTheme;
         break;
     }
   }

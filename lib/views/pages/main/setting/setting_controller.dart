@@ -20,8 +20,8 @@ class SettingController extends GetxController {
         Get.changeTheme(AppTheme.darkTheme);
         await _cache.setTheme('dark');
       }, () async {
-        Get.changeTheme(AppTheme.personalizedTheme);
-        await _cache.setTheme('personalized');
+        Get.changeTheme(AppTheme.customTheme);
+        await _cache.setTheme('custom');
       });
 
   @override

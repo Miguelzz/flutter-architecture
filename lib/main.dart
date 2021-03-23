@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:group/services/connectivity.dart';
 import 'package:group/views/pages/main/setting/setting_controller.dart';
 import 'package:group/views/routes/routes_controller.dart';
 import 'package:group/views/pages/main/main_controller.dart';
@@ -9,7 +10,8 @@ import 'views/routes/routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await InitializeCache.instance.init(useMock: false);
+  await ConnetivityService.instance.init();
+  await InitializeCache.instance.init(useMock: true);
 
   runApp(MyApp());
 }
@@ -22,10 +24,9 @@ class MyApp extends StatelessWidget {
     Get.put(RouteController());
     return GestureDetector(
       onTap: () {
-        FocusScopeNode currentFocus = FocusScope.of(context);
-        if (!currentFocus.hasPrimaryFocus) {
-          currentFocus.unfocus();
-        }
+        FocusScope.of(context).requestFocus(FocusNode());
+        // FocusScopeNode currentFocus = FocusScope.of(context);
+        // if (!currentFocus.hasPrimaryFocus) currentFocus.unfocus();
       },
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,
