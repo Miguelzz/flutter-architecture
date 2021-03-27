@@ -23,6 +23,7 @@ class TimeInCache {
 
 class Orchestrator {
   static final AppDatabase _db = Get.find<AppDatabase>();
+
   static void _clearCache() {
     Timer.periodic(new Duration(days: 1), (timer) async {
       final list = await _db.getDB('time-in-cache');
@@ -37,7 +38,7 @@ class Orchestrator {
     });
   }
 
-  static init() {
+  static Future<void> init() async {
     final _date = DateTime.now();
     final list = [
       TimeInCache('x/0', _date),
@@ -63,7 +64,7 @@ class Orchestrator {
               _date.second - 25)),
     ];
 
-    _db
+    await _db
         .setDB('time-in-cache', TimeInCache.toJsonArray(list))
         .then((value) => _clearCache());
   }

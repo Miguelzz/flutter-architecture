@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
-import 'package:group/app/data/database/initialize-cache.dart';
-import 'package:group/app/data/services/connectivity.dart';
+import 'package:group/app/data/database/app-cache.dart';
 import 'package:group/app/data/models/assets.dart';
 import 'package:group/app/data/models/factories.dart';
 import 'package:group/app/data/database/database.dart';
@@ -82,9 +81,9 @@ class ServiceCache {
 
     return HttpCache(() async* {
       try {
-        if (InitializeCache.instance.useMock) {
+        if (AppCache.useMock) {
           yield point.mock;
-        } else if (ConnetivityService.instance.connection) {
+        } else if (AppCache.connection) {
           final http = interceptor(point.base);
           final info = await http.get(
             point.url,
@@ -104,9 +103,9 @@ class ServiceCache {
           yield entity.fromJson(await _db.getDB(point.cache!));
         }
 
-        if (InitializeCache.instance.useMock) {
+        if (AppCache.useMock) {
           yield point.mock;
-        } else if (ConnetivityService.instance.connection) {
+        } else if (AppCache.connection) {
           final http = interceptor(point.base);
           final info = await http.get(
             point.url,
@@ -142,9 +141,9 @@ class ServiceCache {
 
     return HttpCache(() async* {
       try {
-        if (InitializeCache.instance.useMock) {
+        if (AppCache.useMock) {
           yield point.mock;
-        } else if (ConnetivityService.instance.connection) {
+        } else if (AppCache.connection) {
           final http = interceptor(point.base);
           final info = await http.post(
             point.url,
@@ -165,9 +164,9 @@ class ServiceCache {
         if (point.cache != null) {
           yield entity.fromJson(await _db.getDB(point.cache!));
         }
-        if (InitializeCache.instance.useMock) {
+        if (AppCache.useMock) {
           yield point.mock;
-        } else if (ConnetivityService.instance.connection) {
+        } else if (AppCache.connection) {
           final http = interceptor(point.base);
           final info = await http.post(
             point.url,

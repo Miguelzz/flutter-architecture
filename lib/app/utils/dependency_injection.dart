@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import 'package:group/app/data/database/app-cache.dart';
 import 'package:group/app/data/database/database.dart';
 import 'package:group/app/data/provider/authentication_api.dart';
 import 'package:group/app/data/repository/authentication_repository.dart';
@@ -11,6 +12,8 @@ import 'package:group/app/utils/constants.dart';
 class DependencyInjection {
   static void init() {
     Get.put(AppDatabase());
+    Get.put(AppCache());
+
     Get.put(Dio(BaseOptions(baseUrl: Constants.BASE_URL)));
     Get.put(AuthenticationApi());
     Get.put(AuthenticationRepository());
