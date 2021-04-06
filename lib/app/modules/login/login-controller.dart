@@ -14,24 +14,18 @@ class LoginController extends GetxController {
   }
 
   Future<void> login({required String prefix, required String phone}) async {
-    _services.login(prefix, phone).listen((token) async {
-      Get.offAllNamed('/');
-      await _db.setRoute('/');
+    final token = await _services.login(prefix, phone).first;
 
-      print('*****************');
-      print(token);
-      print('*****************');
-      await _db.setToken(token!);
-    }, onError: (error) async {
-      Get.offAllNamed('/register');
-      await _db.setRoute('/register');
-    });
-  }
+    Get.offAllNamed('/');
+    await _db.setRoute('/');
 
-  Future<void> getUser() async {
-    _services.getUser('8').listen((event) {
-      update();
-    });
+    print('********|*********');
+    print(token);
+    print('********|*********');
+    await _db.setToken(token!);
+
+    // Get.offAllNamed('/register');
+    // await _db.setRoute('/register');
   }
 
   @override

@@ -11,7 +11,7 @@ class ProfileController extends GetxController {
   User? user;
 
   Future<void> getUser() async {
-    _services.getUser('8').listen((event) {
+    _services.getUser('2').listen((event) {
       user = event;
 
       print('***********');

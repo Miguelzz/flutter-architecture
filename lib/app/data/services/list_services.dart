@@ -1,6 +1,6 @@
 import 'package:group/app/data/models/user.dart';
 
-enum TypeCache { PERSISTENT, TEMPORARY, EPHEMERAL }
+enum TypeCache { PERSISTENT, TEMPORARY, INTERNET }
 
 class UrlCache<T> {
   final String url;
@@ -27,7 +27,7 @@ class ListServices {
   static final login = (String url) => UrlCache<String>(
         base: jsonplaceholder,
         url: url,
-        cache: TypeCache.EPHEMERAL,
+        cache: TypeCache.INTERNET,
         mock:
             'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtZXNzYWdlIjoiSldUIFJ1bGVzISIsImlhdCI6MTQ1OTQ0ODExOSwiZXhwIjoxNDU5NDU0NTE5fQ.-yIVBD5b73C75osbmwwshQNRC7frWUYrqaTjTpza2y4',
       );
