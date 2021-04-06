@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:group/app/data/database/database.dart';
-import 'package:group/app/data/services/interceptors.dart';
+import 'package:group/app/utils/interceptors.dart';
 
 class TimeInCache {
   final String key;

@@ -4,7 +4,7 @@ import 'package:group/app/data/database/app-cache.dart';
 import 'package:group/app/data/database/database.dart';
 import 'package:group/app/data/provider/authentication_api.dart';
 import 'package:group/app/data/repository/authentication_repository.dart';
-import 'package:group/app/data/services/interceptors.dart';
+import 'package:group/app/utils/interceptors.dart';
 import 'package:group/app/data/services/services.dart';
 import 'package:group/app/modules/main/main_controller.dart';
 import 'package:group/app/modules/main/setting/setting_controller.dart';

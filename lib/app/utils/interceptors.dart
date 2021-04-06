@@ -2,17 +2,28 @@ import 'package:get/get.dart';
 import 'package:group/app/data/database/app-cache.dart';
 import 'package:group/app/data/models/factories.dart';
 import 'package:group/app/data/database/database.dart';
-import 'list_services.dart';
 import 'package:dio/dio.dart';
 import 'dart:async';
 
 enum TypeData { NATIVES, ENTITIES, LIST_NATIVES, LIST_ENTITIES }
 
+enum TypeCache { PERSISTENT, TEMPORARY, INTERNET }
+
+class UrlCache<T> {
+  final String url;
+  final String base;
+  final TypeCache? cache;
+  final T? mock;
+
+  UrlCache({required this.url, required this.base, this.cache, this.mock});
+}
+
 class Recent {
   final DateTime date;
   final String url;
+  final String body;
 
-  Recent(this.date, this.url);
+  Recent(this.date, this.url, this.body);
 }
 
 class ServiceCache {
@@ -102,7 +113,7 @@ class ServiceCache {
       recentGet.firstWhere((x) => x.url == point.url);
       recentQuery = true;
     } catch (e) {
-      recentGet.add(Recent(DateTime.now(), point.url));
+      recentGet.add(Recent(DateTime.now(), point.url, ''));
     }
 
     if (AppCache.useMock) {
@@ -188,7 +199,7 @@ class ServiceCache {
       recentPost.firstWhere((x) => x.url == point.url);
       recentQuery = true;
     } catch (e) {
-      recentPost.add(Recent(DateTime.now(), point.url));
+      recentPost.add(Recent(DateTime.now(), point.url, data.toString()));
     }
 
     if (AppCache.useMock) {
