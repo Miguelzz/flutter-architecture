@@ -7,8 +7,26 @@ class LoginController extends GetxController {
   static final AppDatabase _db = Get.find<AppDatabase>();
   static final Services _services = Services.instance;
 
+  int count = 0;
+  Future<void> addTem() async {
+    count++;
+    await _db.setTemporary('x/$count', {'init': count});
+  }
+
+  Future<void> login({required String prefix, required String phone}) async {
+    _services.login(prefix, phone).listen((token) async {
+      Get.offAllNamed('/');
+      await _db.setRoute('/');
+      await _db.setToken(token!);
+    }, onError: (error) async {
+      print(error);
+      // Get.offAllNamed('/register');
+      // await _db.setRoute('/register');
+    });
+  }
+
   Future<void> getUser() async {
-    _services.getUser('8').api().listen((event) {
+    _services.getUser('8').listen((event) {
       update();
     });
   }

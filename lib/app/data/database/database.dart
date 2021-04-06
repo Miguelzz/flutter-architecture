@@ -10,7 +10,33 @@ import 'package:sembast/sembast_io.dart';
 class AppDatabase {
   final StoreRef _store = StoreRef.main();
   static late Completer<Database> _completer;
-  static late Database db;
+  static late Database _db;
+
+  static bool _reservedRoutes(String route) {
+    try {
+      routes.firstWhere((e) => e.name == route);
+      return true;
+    } catch (e) {
+      print('la route "$route" no puede usarse como clave de routeName');
+      return false;
+    }
+  }
+
+  static bool _reservedKeys(String key) {
+    try {
+      [
+        'time-in-cache',
+        'route',
+        'locale',
+        'theme',
+        'token',
+      ].firstWhere((x) => x == key);
+      print('la key "$key" no puede usarse como clave de almacenamiento');
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 
   static init() async {
     final String dir = (await getApplicationDocumentsDirectory()).path;
@@ -18,66 +44,61 @@ class AppDatabase {
     final dbOpen = await databaseFactoryIo.openDatabase(dbPath);
     _completer = Completer();
     _completer.complete(dbOpen);
-    db = await _completer.future;
+    _db = await _completer.future;
   }
 
-  Future<String?> getTheme() async => await getDB('theme');
+  Future<String?> getTheme() async => await getKey('theme');
   Future<void> setTheme(String theme) async =>
-      await _store.record('theme').put(db, theme);
+      await _store.record('theme').put(_db, theme);
 
-  Future<String?> getToken() async => await getDB('token');
+  Future<String?> getToken() async => await getKey('token');
   Future<void> setToken(String token) async =>
-      await _store.record('token').put(db, token);
+      await _store.record('token').put(_db, token);
 
-  Future<String?> getRoute() async => await getDB('route');
-  Future<void> setRoute(String name) async {
-    var route = '/splash';
-    try {
-      route = routes.firstWhere((e) => e.name == name).name;
-    } catch (e) {}
-    await _store.record('route').put(db, route);
+  Future<String?> getRoute() async => await getKey('route');
+  Future<void> setRoute(String route) async {
+    if (!_reservedKeys(route) && _reservedRoutes(route)) {
+      await _store.record('route').put(_db, route);
+    }
+  }
+
+  Future<Locale?> getLocale() async {
+    final locale = await this.getKey('locale');
+    if (locale == null) return null;
+    return Locale(locale['languageCode'], locale['countryCode']);
   }
 
   Future<void> setLocale(Locale locale) async {
-    await _store.record('locale').put(db, {
+    await _store.record('locale').put(_db, {
       'languageCode': locale.languageCode,
       'countryCode': locale.countryCode,
     });
   }
 
-  Future<Locale?> getLocale() async {
-    final locale = await this.getDB('locale');
-    if (locale == null) return null;
-    return Locale(locale['languageCode'], locale['countryCode']);
-  }
+  Future<dynamic> getKey(String key) async => await _store.record(key).get(_db);
 
-  Future<dynamic> getDB(String key) async => await _store.record(key).get(db);
-
-  Future<dynamic> setDB(String key, dynamic data) async {
-    if (key == 'time-in-cache' ||
-        key == 'route' ||
-        key == 'locale' ||
-        key == 'theme' ||
-        key == 'token') {
-      print('palabra $key no puede usarse como clave de almacenamiento');
-    } else {
-      await _addCache(key);
-      return await _store.record(key).put(db, data);
+  Future<dynamic> setPersist(String key, dynamic data) async {
+    if (!_reservedKeys(key)) {
+      return await _store.record(key).put(_db, data);
     }
   }
 
-  Future<void> _addCache(String key) async {
-    final _list =
-        TimeInCache.fromJsonArray((await _store.record(key).get(db)) ?? []);
+  Future<dynamic> setTemporary(String key, dynamic data) async {
+    if (!_reservedKeys(key)) {
+      final _list = await getTemporary();
+      _list.add(TimeInCache(key, DateTime.now()));
 
-    _list.add(TimeInCache(key, DateTime.now()));
-
-    await _store
-        .record('time-in-cache')
-        .put(db, TimeInCache.toJsonArray(_list));
+      await _store
+          .record('time-in-cache')
+          .put(_db, TimeInCache.toJsonArray(_list));
+      return await _store.record(key).put(_db, data);
+    }
   }
 
+  Future<List<TimeInCache>> getTemporary() async => TimeInCache.fromJsonArray(
+      (await _store.record('time-in-cache').get(_db)) ?? []);
+
   Future<void> close() async {
-    await db.close();
+    await _db.close();
   }
 }

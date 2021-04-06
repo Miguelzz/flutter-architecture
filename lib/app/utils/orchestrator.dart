@@ -25,47 +25,24 @@ class Orchestrator {
   static final AppDatabase _db = Get.find<AppDatabase>();
 
   static void _clearCache() {
-    Timer.periodic(new Duration(days: 1), (timer) async {
-      final list = await _db.getDB('time-in-cache');
+    // Timer.periodic(new Duration(seconds: 10), (timer) async {
+    //   final filter = (await _db.getTemporary())
+    //       .where((x) => DateTime.now().difference(x.date).inSeconds <= 30)
+    //       .map((x) => x.key)
+    //       .toList();
+    //   print(filter);
+    // });
 
-      final filter = TimeInCache.fromJsonArray(list)
+    Timer.periodic(new Duration(days: 1), (timer) async {
+      final filter = (await _db.getTemporary())
           .where((x) => DateTime.now().difference(x.date).inDays <= 2)
           .map((x) => x.key)
           .toList();
       print(filter);
-
-      //await AppDatabase.instance.setDB('time-in-cache', list);
     });
   }
 
   static Future<void> init() async {
-    final _date = DateTime.now();
-    final list = [
-      TimeInCache('x/0', _date),
-      TimeInCache(
-          'x/5',
-          DateTime(_date.year, _date.month, _date.day, _date.hour, _date.minute,
-              _date.second - 5)),
-      TimeInCache(
-          'x/10',
-          DateTime(_date.year, _date.month, _date.day, _date.hour, _date.minute,
-              _date.second - 10)),
-      TimeInCache(
-          'x/15',
-          DateTime(_date.year, _date.month, _date.day, _date.hour, _date.minute,
-              _date.second - 15)),
-      TimeInCache(
-          'x/20',
-          DateTime(_date.year, _date.month, _date.day, _date.hour, _date.minute,
-              _date.second - 20)),
-      TimeInCache(
-          'x/25',
-          DateTime(_date.year, _date.month, _date.day, _date.hour, _date.minute,
-              _date.second - 25)),
-    ];
-
-    await _db
-        .setDB('time-in-cache', TimeInCache.toJsonArray(list))
-        .then((value) => _clearCache());
+    _clearCache();
   }
 }

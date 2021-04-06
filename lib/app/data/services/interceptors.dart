@@ -1,19 +1,12 @@
 import 'package:get/get.dart';
 import 'package:group/app/data/database/app-cache.dart';
-import 'package:group/app/data/models/assets.dart';
 import 'package:group/app/data/models/factories.dart';
 import 'package:group/app/data/database/database.dart';
+import 'list_services.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'list_services.dart';
-
-class HttpCache<T> {
-  final ValueGetter<Stream<T?>> api;
-  final ValueGetter<Stream<T?>> cache;
-  HttpCache(this.api, this.cache);
-}
+enum TypeData { NATIVES, ENTITIES, LISTS }
 
 class ServiceCache {
   static final AppDatabase _db = Get.find<AppDatabase>();
@@ -66,126 +59,110 @@ class ServiceCache {
     return _dio;
   }
 
-  HttpCache<T?> get<T extends Entity>(UrlCache<T> point,
+  TypeData _isEntity(String entity) {
+    final isNative = 'bool' == entity ||
+        'int' == entity ||
+        'num' == entity ||
+        'double' == entity ||
+        'String' == entity;
+
+    if (isNative) return TypeData.NATIVES;
+    if (RegExp(r'^List<[a-zA-Z0-9]+>$').hasMatch(entity)) return TypeData.LISTS;
+    if (factories[entity] != null) return TypeData.ENTITIES;
+    throw ('ERROR FACTORIA NO EXISTE $entity');
+  }
+
+  Stream<T?> get<T>(UrlCache<T> point,
       {Map<String, dynamic>? queryParameters,
       Options? options,
       CancelToken? cancelToken,
-      void Function(int, int)? onReceiveProgress}) {
-    if (factories[T.toString()] == null) {
-      print('\n\n***********************');
-      print('ERROR FACTORIA NO EXISTE ${T.toString()}');
-      print('***********************\n\n');
-    }
-
+      void Function(int, int)? onReceiveProgress}) async* {
     final entity = factories[T.toString()]!();
+    var type = _isEntity(T.toString());
 
-    return HttpCache(() async* {
-      try {
-        if (AppCache.useMock) {
-          yield point.mock;
-        } else if (AppCache.connection) {
-          final http = interceptor(point.base);
-          final info = await http.get(
-            point.url,
-            queryParameters: queryParameters,
-            cancelToken: cancelToken,
-            onReceiveProgress: onReceiveProgress,
-            options: options,
-          );
-          yield entity.fromJson(info.data);
-        }
-      } catch (e) {
-        print(e);
+    if (point.cache == TypeCache.TEMPORARY ||
+        point.cache == TypeCache.PERSISTENT) {
+      if (type == TypeData.ENTITIES) {
+        yield entity.fromJson(await _db.getKey(point.url)) as T?;
+      } else {
+        yield await _db.getKey(point.url) as T?;
       }
-    }, () async* {
-      try {
-        if (point.cache != null) {
-          yield entity.fromJson(await _db.getDB(point.cache!));
+    }
+    if (AppCache.useMock) {
+      yield point.mock;
+    } else if (AppCache.connection) {
+      final http = interceptor(point.base);
+      final info = await http.get(
+        point.url,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+        onReceiveProgress: onReceiveProgress,
+        options: options,
+      );
+      if (point.cache == TypeCache.PERSISTENT ||
+          point.cache == TypeCache.TEMPORARY) {
+        if (type == TypeData.ENTITIES) {
+          _db.setTemporary(
+              point.url, entity.fromJson(info.data)?.toJson() ?? {});
+        } else {
+          _db.setTemporary(point.url, info.data);
         }
-
-        if (AppCache.useMock) {
-          yield point.mock;
-        } else if (AppCache.connection) {
-          final http = interceptor(point.base);
-          final info = await http.get(
-            point.url,
-            queryParameters: queryParameters,
-            cancelToken: cancelToken,
-            onReceiveProgress: onReceiveProgress,
-            options: options,
-          );
-          if (point.cache != null) {
-            _db.setDB(point.cache!, entity.fromJson(info.data)?.toJson() ?? {});
-          }
-          yield entity.fromJson(info.data);
-        }
-      } catch (e) {
-        print(e);
       }
-    });
+      if (type == TypeData.ENTITIES) {
+        yield entity.fromJson(info.data) as T?;
+      } else {
+        yield info.data as T?;
+      }
+    }
   }
 
-  HttpCache<T?> post<T>(UrlCache<T> point,
+  Stream<T?> post<T>(UrlCache<T> point,
       {dynamic? data,
       Map<String, dynamic>? queryParameters,
       Options? options,
       CancelToken? cancelToken,
       void Function(int, int)? onSendProgress,
-      void Function(int, int)? onReceiveProgress}) {
-    if (factories[T.toString()] == null) {
-      print('\n\n***********************');
-      print('ERROR FACTORIA NO EXISTE ${T.toString()}');
-      print('***********************\n\n');
+      void Function(int, int)? onReceiveProgress}) async* {
+    print('HOLA 3');
+    final entity = factories[T.toString()]!();
+    var type = _isEntity(T.toString());
+
+    if (point.cache == TypeCache.TEMPORARY ||
+        point.cache == TypeCache.PERSISTENT) {
+      if (type == TypeData.ENTITIES) {
+        yield entity.fromJson(await _db.getKey(point.url)) as T?;
+      } else {
+        yield await _db.getKey(point.url) as T?;
+      }
     }
-    final entity = factories['User']!();
+    if (AppCache.useMock) {
+      yield point.mock;
+    } else if (AppCache.connection) {
+      final http = interceptor(point.base);
+      final info = await http.post(
+        point.url,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+        cancelToken: cancelToken,
+        onReceiveProgress: onReceiveProgress,
+        onSendProgress: onReceiveProgress,
+      );
 
-    return HttpCache(() async* {
-      try {
-        if (AppCache.useMock) {
-          yield point.mock;
-        } else if (AppCache.connection) {
-          final http = interceptor(point.base);
-          final info = await http.post(
-            point.url,
-            data: data,
-            queryParameters: queryParameters,
-            options: options,
-            cancelToken: cancelToken,
-            onReceiveProgress: onReceiveProgress,
-            onSendProgress: onReceiveProgress,
-          );
-          yield entity.fromJson(info.data);
+      if (point.cache == TypeCache.PERSISTENT ||
+          point.cache == TypeCache.TEMPORARY) {
+        if (type == TypeData.ENTITIES) {
+          _db.setTemporary(
+              point.url, entity.fromJson(info.data)?.toJson() ?? {});
+        } else {
+          _db.setTemporary(point.url, info.data);
         }
-      } catch (e) {
-        print(e);
       }
-    }, () async* {
-      try {
-        if (point.cache != null) {
-          yield entity.fromJson(await _db.getDB(point.cache!));
-        }
-        if (AppCache.useMock) {
-          yield point.mock;
-        } else if (AppCache.connection) {
-          final http = interceptor(point.base);
-          final info = await http.post(
-            point.url,
-            data: data,
-            queryParameters: queryParameters,
-            options: options,
-            cancelToken: cancelToken,
-            onReceiveProgress: onReceiveProgress,
-            onSendProgress: onReceiveProgress,
-          );
-
-          if (point.cache != null) {
-            _db.setDB(point.cache!, entity.fromJson(info.data)?.toJson() ?? {});
-          }
-          yield entity.fromJson(info.data);
-        }
-      } catch (e) {
-        print(e);
+      if (type == TypeData.ENTITIES) {
+        yield entity.fromJson(info.data) as T?;
+      } else {
+        yield info.data as T?;
       }
-    });
+    }
   }
 }

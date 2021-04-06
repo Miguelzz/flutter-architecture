@@ -8,9 +8,10 @@ class Services {
   static Services get instance => _singleton;
   final _http = ServiceCache.instance;
 
-  HttpCache<User?> getUser(String id) =>
+  Stream<User?> getUser(String id) =>
       _http.get<User>(ListServices.urlUser('/users/$id'));
 
-  HttpCache<User?> login() =>
-      _http.get<User>(ListServices.login('/user/token'));
+  Stream<String?> login(String prefix, String phone) =>
+      _http.post<String>(ListServices.login('/user/token'),
+          data: {'prefix': prefix, 'phone': phone});
 }

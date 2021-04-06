@@ -12,16 +12,16 @@ class AppCache {
   static final AppDatabase _db = Get.find<AppDatabase>();
   static final Connectivity _connectivity = Connectivity();
   static late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
   static late bool useMock;
-  static late String route;
+  static late String route, token;
   static late ThemeData theme;
   static late Locale locale;
   static late bool connection;
 
   static Future<void> init() async {
-    connection = false;
     useMock = false;
-    //await _database.clearCache();
+    connection = false;
     locale = (await _db.getLocale()) ?? Locale('en', 'CO');
     route = (await _db.getRoute()) ?? '/splash';
 

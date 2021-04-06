@@ -4,7 +4,7 @@ import 'package:group/app/modules/login/login-controller.dart';
 import 'package:group/app/routes/routes_controller.dart';
 
 class LoginPage extends StatelessWidget {
-  final login = Get.put(LoginController());
+  final controller = Get.put(LoginController());
   final RouteController route = Get.find();
   final phone = TextEditingController();
 
@@ -56,8 +56,14 @@ class LoginPage extends StatelessWidget {
               // ),
               ElevatedButton(
                 onPressed: () async {
+                  await controller?.addTem();
+                },
+                child: Text('ADD TEMPORARY'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
                   FocusScope.of(context).requestFocus(FocusNode());
-                  await route.login(prefix: '+57', phone: phone.text);
+                  await controller?.login(prefix: '+57', phone: phone.text);
                 },
                 child: Text('txt_continue'.tr),
               ),

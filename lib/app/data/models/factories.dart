@@ -1,6 +1,5 @@
-import 'package:group/app/data/models/assets.dart';
 import 'package:group/app/data/models/user.dart';
 
-final Map<String, Entity Function()> factories = {
+final Map<String, dynamic Function()> factories = {
   'User': () => User(),
 };

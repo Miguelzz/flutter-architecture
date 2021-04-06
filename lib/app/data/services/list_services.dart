@@ -1,12 +1,15 @@
 import 'package:group/app/data/models/user.dart';
 
+enum TypeCache { PERSISTENT, TEMPORARY, EPHEMERAL }
+
 class UrlCache<T> {
   final String url;
   final String base;
-  final String? cache;
+  final TypeCache cache;
   final T? mock;
 
-  UrlCache({required this.url, required this.base, this.cache, this.mock});
+  UrlCache(
+      {required this.url, required this.base, required this.cache, this.mock});
 }
 
 class ListServices {
@@ -17,14 +20,15 @@ class ListServices {
   static final urlUser = (String url) => UrlCache<User>(
         base: jsonplaceholder,
         url: url,
-        cache: 'user',
+        cache: TypeCache.TEMPORARY,
         mock: User(id: 15, name: 'Miguel', age: 29, completed: false),
       );
 
-  static final login = (String url) => UrlCache<User>(
+  static final login = (String url) => UrlCache<String>(
         base: jsonplaceholder,
         url: url,
-        cache: 'user',
-        mock: User(id: 15, name: 'Miguel', age: 29, completed: false),
+        cache: TypeCache.EPHEMERAL,
+        mock:
+            'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtZXNzYWdlIjoiSldUIFJ1bGVzISIsImlhdCI6MTQ1OTQ0ODExOSwiZXhwIjoxNDU5NDU0NTE5fQ.-yIVBD5b73C75osbmwwshQNRC7frWUYrqaTjTpza2y4',
       );
 }

@@ -11,7 +11,7 @@ class ProfileController extends GetxController {
   User? user;
 
   Future<void> getUser() async {
-    _services.getUser('8').api().listen((event) {
+    _services.getUser('8').listen((event) {
       user = event;
 
       print('***********');
@@ -24,7 +24,7 @@ class ProfileController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    _services.getUser('4').cache().listen((event) {
+    _services.getUser('4').listen((event) {
       user = event;
       update();
     });
