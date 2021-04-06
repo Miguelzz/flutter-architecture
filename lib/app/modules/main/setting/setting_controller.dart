@@ -5,7 +5,7 @@ import 'package:group/app/theme/theme.dart';
 import 'package:group/app/data/services/services.dart';
 
 class SettingController extends GetxController {
-  static final Services _services = Services.instance;
+  static final Services _services = Get.find<Services>();
   static final AppDatabase _db = Get.find<AppDatabase>();
 
   updateLocale(Locale locale) async {

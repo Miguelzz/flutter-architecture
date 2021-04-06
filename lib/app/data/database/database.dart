@@ -95,6 +95,12 @@ class AppDatabase {
     }
   }
 
+  Future<dynamic> resetTemporary(List<TimeInCache> listJson) async {
+    await _store
+        .record('time-in-cache')
+        .put(_db, TimeInCache.toJsonArray(listJson));
+  }
+
   Future<List<TimeInCache>> getTemporary() async => TimeInCache.fromJsonArray(
       (await _store.record('time-in-cache').get(_db)) ?? []);
 

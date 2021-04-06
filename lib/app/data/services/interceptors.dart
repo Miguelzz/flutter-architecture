@@ -8,11 +8,18 @@ import 'dart:async';
 
 enum TypeData { NATIVES, ENTITIES, LIST_NATIVES, LIST_ENTITIES }
 
+class Recent {
+  final DateTime date;
+  final String url;
+
+  Recent(this.date, this.url);
+}
+
 class ServiceCache {
   static final AppDatabase _db = Get.find<AppDatabase>();
-  ServiceCache._internal();
-  static ServiceCache _singleton = ServiceCache._internal();
-  static ServiceCache get instance => _singleton;
+
+  static List<Recent> recentPost = [];
+  static List<Recent> recentGet = [];
 
   final Dio _dio = Dio(
     BaseOptions(
@@ -90,6 +97,13 @@ class ServiceCache {
       CancelToken? cancelToken,
       void Function(int, int)? onReceiveProgress}) async* {
     var type = _isEntity(T.toString());
+    bool recentQuery = false;
+    try {
+      recentGet.firstWhere((x) => x.url == point.url);
+      recentQuery = true;
+    } catch (e) {
+      recentGet.add(Recent(DateTime.now(), point.url));
+    }
 
     if (AppCache.useMock) {
       yield point.mock;
@@ -108,7 +122,7 @@ class ServiceCache {
             .toList() as T?;
       }
     }
-    if (!AppCache.useMock && AppCache.connection) {
+    if (!AppCache.useMock && AppCache.connection && !recentQuery) {
       final http = interceptor(point.base);
       final info = await http.get(
         point.url,
@@ -169,6 +183,14 @@ class ServiceCache {
       void Function(int, int)? onReceiveProgress}) async* {
     var type = _isEntity(T.toString());
 
+    bool recentQuery = false;
+    try {
+      recentPost.firstWhere((x) => x.url == point.url);
+      recentQuery = true;
+    } catch (e) {
+      recentPost.add(Recent(DateTime.now(), point.url));
+    }
+
     if (AppCache.useMock) {
       yield point.mock;
     } else if (point.cache == TypeCache.TEMPORARY ||
@@ -186,7 +208,7 @@ class ServiceCache {
             .toList() as T?;
       }
     }
-    if (!AppCache.useMock && AppCache.connection) {
+    if (!AppCache.useMock && AppCache.connection && !recentQuery) {
       final http = interceptor(point.base);
       final info = await http.post(
         point.url,

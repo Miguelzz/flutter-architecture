@@ -5,7 +5,7 @@ import 'package:group/app/data/services/services.dart';
 
 class LoginController extends GetxController {
   static final AppDatabase _db = Get.find<AppDatabase>();
-  static final Services _services = Services.instance;
+  static final Services _services = Get.find<Services>();
 
   int count = 0;
   Future<void> addTem() async {
