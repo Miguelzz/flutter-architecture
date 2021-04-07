@@ -1,9 +1,11 @@
 import 'package:get/get.dart';
+import 'package:group/app/data/models/request_token.dart';
 import 'package:group/app/data/models/user.dart';
 import 'package:group/app/utils/interceptors.dart';
 
 class Services {
   static final ServiceCache _http = Get.find<ServiceCache>();
+  static final mockapi = 'https://606ce51b603ded0017502c35.mockapi.io/api';
   static final jsonplaceholder = 'https://jsonplaceholder.typicode.com';
   static final local = 'http://172.30.240.1:4000';
 
@@ -14,13 +16,16 @@ class Services {
         mock: User(id: 15, name: 'Miguel', age: 29, completed: false),
       ));
 
-  Stream<String?> login(String prefix, String phone) => _http.post<String>(
-      UrlCache(
-        base: jsonplaceholder,
-        url: '/user/token',
+  Stream<RequestToken?> login(String prefix, String phone) =>
+      _http.get<RequestToken>(UrlCache(
+        base: mockapi,
+        url: '/user/tokens/1',
         cache: TypeCache.INTERNET,
-        mock:
-            'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtZXNzYWdlIjoiSldUIFJ1bGVzISIsImlhdCI6MTQ1OTQ0ODExOSwiZXhwIjoxNDU5NDU0NTE5fQ.-yIVBD5b73C75osbmwwshQNRC7frWUYrqaTjTpza2y4',
-      ),
-      data: {'prefix': prefix, 'phone': phone});
+        mock: RequestToken(
+            expiresAt: DateTime.parse('2021-09-24T03:57:08.568Z'),
+            requestToken:
+                'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtZXNzYWdlIjoiSldUIFJ1bGVzISIsImlhdCI6MTQ1OTQ0ODExOSwiZXhwIjoxNDU5NDU0NTE5fQ.-yIVBD5b73C75osbmwwshQNRC7frWUYrqaTjTpza2y4',
+            success: true),
+      ));
+  //data: {'prefix': prefix, 'phone': phone});
 }

@@ -1,23 +1,34 @@
-class RequestToken {
-  RequestToken({
-    required this.success,
-    required this.expiresAt,
-    required this.requestToken,
-  });
+import 'package:group/app/data/models/assets.dart';
 
-  final bool success;
-  final String expiresAt;
-  final String requestToken;
+class RequestToken extends Entity {
+  final bool? success;
+  final DateTime? expiresAt;
+  final String? requestToken;
 
-  factory RequestToken.fromJson(Map<String, dynamic> json) => RequestToken(
-        success: json["success"],
-        expiresAt: json["expires_at"],
-        requestToken: json["request_token"],
-      );
+  RequestToken({this.success, this.expiresAt, this.requestToken});
 
+  @override
   Map<String, dynamic> toJson() => {
-        "success": success,
-        "expires_at": expiresAt,
-        "request_token": requestToken,
+        ...addIfNotNull('success', success),
+        ...addIfNotNull('expiresAt', expiresAt),
+        ...addIfNotNull('requestToken', requestToken),
       };
+  @override
+  RequestToken? fromJson(dynamic json) {
+    if (json != null) {
+      try {
+        final valid =
+            json['success'] ?? json['expiresAt'] ?? json['requestToken'];
+        if (valid == null) throw '';
+        return RequestToken(
+          success: json['success'],
+          expiresAt: DateTime.parse(json['expiresAt']),
+          requestToken: json['requestToken'],
+        );
+      } catch (e) {
+        print('ERROR VALIDATING JSON');
+      }
+    }
+    return null;
+  }
 }
