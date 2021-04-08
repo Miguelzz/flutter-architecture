@@ -1,31 +1,33 @@
 import 'package:group/app/data/models/assets.dart';
 
 class User extends Entity {
-  final num? age, id;
-  final String? name;
-  final bool? completed;
+  //final num? age;
+  final String? id, token, prefix, phone;
 
-  User({this.age, this.name, this.completed, this.id});
+  User({this.id, this.token, this.prefix, this.phone});
+
+  @override
+  User createMock() => User(id: '15', prefix: '57', phone: '3016992677');
 
   @override
   Map<String, dynamic> toJson() => {
         ...addIfNotNull('id', id),
-        ...addIfNotNull('userId', age),
-        ...addIfNotNull('name', name),
-        ...addIfNotNull('completed', completed),
+        ...addIfNotNull('token', token),
+        ...addIfNotNull('prefix', prefix),
+        ...addIfNotNull('phone', phone),
       };
   @override
   User? fromJson(dynamic json) {
     if (json != null) {
       try {
         final valid =
-            json['id'] ?? json['age'] ?? json['name'] ?? json['completed'];
+            json['id'] ?? json['token'] ?? json['prefix'] ?? json['phone'];
         if (valid == null) throw '';
         return User(
           id: json['id'],
-          age: json['age'],
-          name: json['name'],
-          completed: json['completed'],
+          token: json['token'],
+          prefix: json['prefix'],
+          phone: json['phone'],
         );
       } catch (e) {
         print('ERROR VALIDATING JSON');

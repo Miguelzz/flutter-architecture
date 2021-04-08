@@ -1,29 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:group/app/theme/colors.dart';
 
 class AppTheme {
   static final lightTheme = ThemeData(
-    primaryColor: Colors.redAccent,
-    buttonColor: Colors.redAccent,
+    primaryColor: primaryColor,
+    buttonColor: buttonColor,
     brightness: Brightness.light,
-    accentColor: Colors.redAccent,
+    accentColor: accentColor,
     buttonTheme: ButtonThemeData(
-      buttonColor: Colors.redAccent,
+      buttonColor: buttonColor,
       textTheme: ButtonTextTheme.primary,
     ),
   );
 
   static final darkTheme = ThemeData(
-    primaryColor: Colors.redAccent,
-    buttonColor: Colors.redAccent,
+    primaryColor: primaryColor,
+    buttonColor: buttonColor,
     brightness: Brightness.dark,
-    accentColor: Colors.redAccent,
+    accentColor: accentColor,
   );
 
   static final customTheme = ThemeData(
-    primaryColor: Colors.redAccent,
-    buttonColor: Colors.redAccent,
+    primaryColor: primaryColor,
+    buttonColor: buttonColor,
     brightness: Brightness.dark,
-    accentColor: Colors.redAccent,
+    accentColor: accentColor,
   );
 }
 

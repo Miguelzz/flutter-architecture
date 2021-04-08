@@ -20,9 +20,9 @@ class LoginController extends GetxController {
     await _db.setRoute('/');
 
     print('********|*********');
-    print(request);
+    print(request!.toJson());
     print('********|*********');
-    await _db.setToken(request!.requestToken!);
+    await _db.setToken(request.token ?? 'no hay token');
 
     // Get.offAllNamed('/register');
     // await _db.setRoute('/register');

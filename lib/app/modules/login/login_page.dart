@@ -6,7 +6,7 @@ import 'package:group/app/routes/routes_controller.dart';
 class LoginPage extends StatelessWidget {
   final controller = Get.put(LoginController());
   final RouteController route = Get.find();
-  final phone = TextEditingController();
+  final phone = TextEditingController()..text = '3016992677';
 
   @override
   Widget build(BuildContext context) {

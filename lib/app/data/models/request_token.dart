@@ -1,29 +1,25 @@
 import 'package:group/app/data/models/assets.dart';
 
 class RequestToken extends Entity {
-  final bool? success;
   final DateTime? expiresAt;
-  final String? requestToken;
+  final String? token;
 
-  RequestToken({this.success, this.expiresAt, this.requestToken});
+  RequestToken({this.expiresAt, this.token});
 
   @override
   Map<String, dynamic> toJson() => {
-        ...addIfNotNull('success', success),
         ...addIfNotNull('expiresAt', expiresAt),
-        ...addIfNotNull('requestToken', requestToken),
+        ...addIfNotNull('token', token),
       };
   @override
   RequestToken? fromJson(dynamic json) {
     if (json != null) {
       try {
-        final valid =
-            json['success'] ?? json['expiresAt'] ?? json['requestToken'];
+        final valid = json['expiresAt'] ?? json['requestToken'];
         if (valid == null) throw '';
         return RequestToken(
-          success: json['success'],
           expiresAt: DateTime.parse(json['expiresAt']),
-          requestToken: json['requestToken'],
+          token: json['token'],
         );
       } catch (e) {
         print('ERROR VALIDATING JSON');
@@ -31,4 +27,11 @@ class RequestToken extends Entity {
     }
     return null;
   }
+
+  @override
+  createMock() => RequestToken(
+        expiresAt: DateTime.parse('2021-09-24T03:57:08.568Z'),
+        token:
+            'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtZXNzYWdlIjoiSldUIFJ1bGVzISIsImlhdCI6MTQ1OTQ0ODExOSwiZXhwIjoxNDU5NDU0NTE5fQ.-yIVBD5b73C75osbmwwshQNRC7frWUYrqaTjTpza2y4',
+      );
 }

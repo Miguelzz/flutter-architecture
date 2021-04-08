@@ -6,7 +6,6 @@ import 'package:group/app/routes/routes.dart';
 import 'package:group/app/translations/main_translation.dart';
 import 'package:group/app/utils/dependency_injection.dart';
 import 'package:group/app/utils/orchestrator.dart';
-
 import 'app/data/database/database.dart';
 
 void main() async {
@@ -17,6 +16,7 @@ void main() async {
   await AppCache.init();
   await Orchestrator.init();
   AppCache.useMock = false;
+
   runApp(MyApp());
 }
 
