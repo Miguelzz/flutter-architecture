@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:get/get.dart';
+import 'package:group/app/data/database/app-cache.dart';
 import 'package:group/app/data/database/database.dart';
 import 'package:group/app/data/models/user.dart';
 import 'package:group/app/data/services/services.dart';
@@ -10,25 +11,12 @@ class ProfileController extends GetxController {
 
   User? user;
 
-  Future<void> getUser() async {
-    _services.getUser('2').listen((event) {
-      user = event;
-
-      print('***********');
-      print(user?.toJson());
-      print('***********');
-      update();
-    });
-  }
+  Future<void> getUser() async {}
 
   @override
   void onInit() async {
     super.onInit();
-    _services.getUser('4').listen((event) {
-      user = event;
-      update();
-    });
-
+    user = AppCache.user;
     print('PROFILE');
   }
 }

@@ -16,7 +16,6 @@ void main() async {
   await AppCache.init();
   await Orchestrator.init();
   AppCache.useMock = false;
-
   runApp(MyApp());
 }
 

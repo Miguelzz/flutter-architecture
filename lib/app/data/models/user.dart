@@ -2,9 +2,9 @@ import 'package:group/app/data/models/assets.dart';
 
 class User extends Entity {
   //final num? age;
-  final String? id, token, prefix, phone;
+  final String? id, prefix, phone;
 
-  User({this.id, this.token, this.prefix, this.phone});
+  User({this.id, this.prefix, this.phone});
 
   @override
   User createMock() => User(id: '15', prefix: '57', phone: '3016992677');
@@ -12,7 +12,6 @@ class User extends Entity {
   @override
   Map<String, dynamic> toJson() => {
         ...addIfNotNull('id', id),
-        ...addIfNotNull('token', token),
         ...addIfNotNull('prefix', prefix),
         ...addIfNotNull('phone', phone),
       };
@@ -20,12 +19,10 @@ class User extends Entity {
   User? fromJson(dynamic json) {
     if (json != null) {
       try {
-        final valid =
-            json['id'] ?? json['token'] ?? json['prefix'] ?? json['phone'];
+        final valid = json['id'] ?? json['prefix'] ?? json['phone'];
         if (valid == null) throw '';
         return User(
           id: json['id'],
-          token: json['token'],
           prefix: json['prefix'],
           phone: json['phone'],
         );

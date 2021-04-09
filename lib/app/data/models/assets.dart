@@ -21,6 +21,17 @@ abstract class Entity<T> {
     }
   }
 
+  int? convertToInt(String? value) {
+    try {
+      if (value == null) {
+        throw 'number null';
+      }
+      return int.parse(value);
+    } catch (e) {
+      return null;
+    }
+  }
+
   T createMock();
   Map<String, dynamic> toJson();
   T? fromJson(dynamic json);

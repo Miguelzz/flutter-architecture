@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:group/app/data/database/database.dart';
+import 'package:group/app/data/models/user.dart';
 import 'package:group/app/theme/theme.dart';
 
 class AppCache {
@@ -18,12 +19,14 @@ class AppCache {
   static late ThemeData theme;
   static late Locale locale;
   static late bool connection;
+  static late User user;
 
   static Future<void> init() async {
     useMock = false;
     connection = false;
     locale = (await _db.getLocale()) ?? Locale('en', 'CO');
     route = (await _db.getRoute()) ?? '/splash';
+    user = User().fromJson(await _db.getKey('user')) ?? User();
 
     await _initConnectivity();
     _connectivitySubscription =

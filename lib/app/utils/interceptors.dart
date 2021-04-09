@@ -75,6 +75,7 @@ class ServiceCache {
         'int' == entity ||
         'num' == entity ||
         'double' == entity ||
+        'dynamic' == entity ||
         'String' == entity;
 
     if (isNative) return TypeData.NATIVES;

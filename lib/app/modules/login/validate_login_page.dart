@@ -3,10 +3,10 @@ import 'package:get/get.dart';
 import 'package:group/app/modules/login/login_controller.dart';
 import 'package:group/app/routes/routes_controller.dart';
 
-class LoginPage extends StatelessWidget {
+class ValidateLoginPage extends StatelessWidget {
   final controller = Get.put(LoginController());
   final RouteController route = Get.find();
-  final phone = TextEditingController()..text = '3016992677';
+  final code = TextEditingController()..text = '';
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,7 @@ class LoginPage extends StatelessWidget {
           Container(
             height: size.height * 0.3,
             child: Center(
-              child: Text('txt_login'.tr),
+              child: Text('Autenticate'),
             ),
           ),
           Container(
@@ -26,11 +26,11 @@ class LoginPage extends StatelessWidget {
             child: Column(
               children: [
                 TextField(
-                  controller: phone,
+                  controller: code,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'Celular',
+                    labelText: 'Codigo',
                   ),
                 ),
               ],
@@ -42,7 +42,7 @@ class LoginPage extends StatelessWidget {
               ElevatedButton(
                 onPressed: () async {
                   FocusScope.of(context).requestFocus(FocusNode());
-                  await controller?.login(prefix: '+57', phone: phone.text);
+                  await controller?.validateLogin(code: code.text);
                 },
                 child: Text('txt_continue'.tr),
               ),
