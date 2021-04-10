@@ -7,8 +7,6 @@ import 'dart:async';
 
 enum TypeData { NATIVES, ENTITIES, LIST_NATIVES, LIST_ENTITIES }
 
-enum TypeCache { PERSISTENT, TEMPORARY, INTERNET }
-
 class Recent {
   final DateTime date;
   final String url;
@@ -37,17 +35,16 @@ class ServiceCache {
 
     _dio.interceptors.add(
       InterceptorsWrapper(
-        onRequest: (options, handler) async {
+        onRequest: (options, handler) {
           print('interceptor');
-          options
-            ..headers = {...options.headers, 'token': await _db.getToken()};
+          options.headers["x-token"] = AppCache.token;
           handler.next(options);
         },
         onResponse: (response, handler) {
           print('onResponse $response');
           handler.next(response);
         },
-        onError: (error, handler) async {
+        onError: (error, handler) {
           print('onError ${error.message}');
           if (error.response?.statusCode == 403) {
             _dio.interceptors.requestLock.lock();
@@ -96,16 +93,17 @@ class ServiceCache {
     throw ('ERROR FACTORIA NO EXISTE $entity');
   }
 
-  Stream<T?> get<T>(
+  Stream<T> get<T>(
       {required String url,
       String base = '',
-      required TypeCache? cache,
+      bool cache = false,
       Map<String, dynamic>? queryParameters,
       Options? options,
       CancelToken? cancelToken,
       void Function(int, int)? onReceiveProgress}) async* {
     var type = _isEntity(T.toString());
     bool recentQuery = false;
+    print(url);
     try {
       recentGet.firstWhere((x) => x.url == url);
       recentQuery = true;
@@ -115,20 +113,19 @@ class ServiceCache {
 
     if (AppCache.useMock) {
       yield factories[T.toString()]!().createMock() as T;
-    } else if (cache == TypeCache.TEMPORARY || cache == TypeCache.PERSISTENT) {
+    } else if (cache) {
       if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
-        yield await _db.getKey(url) as T?;
+        yield await _db.getKey(url) as T;
       } else if (type == TypeData.ENTITIES) {
-        yield factories[T.toString()]!().fromJson(await _db.getKey(url)) as T?;
+        yield factories[T.toString()]!().fromJson(await _db.getKey(url)) as T;
       } else if (type == TypeData.LIST_ENTITIES) {
         final matches = RegExp(r"List<(\w+)>").allMatches(T.toString());
         final name = matches.toList()[0].group(1);
         yield (await _db.getKey(url))
             .map((x) => factories[name]!().fromJson(x))
-            .toList() as T?;
+            .toList() as T;
       }
-    }
-    if (!AppCache.useMock && AppCache.connection && !recentQuery) {
+    } else if (AppCache.connection && !recentQuery) {
       final http = interceptor(base);
       final info = await http.get(
         url,
@@ -138,51 +135,39 @@ class ServiceCache {
         options: options,
       );
 
-      if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
-        if (cache == TypeCache.PERSISTENT)
-          _db.setPersist(url, info.data);
-        else if (cache == TypeCache.TEMPORARY) _db.setTemporary(url, info.data);
-      } else if (type == TypeData.ENTITIES) {
-        if (cache == TypeCache.PERSISTENT)
-          _db.setPersist(url,
-              factories[T.toString()]!().fromJson(info.data)?.toJson() ?? {});
-        else if (cache == TypeCache.TEMPORARY)
+      if (cache) {
+        if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
+          _db.setTemporary(url, info.data);
+        } else if (type == TypeData.ENTITIES) {
           _db.setTemporary(url,
               factories[T.toString()]!().fromJson(info.data)?.toJson() ?? {});
-      } else if (type == TypeData.LIST_ENTITIES) {
-        if (cache == TypeCache.PERSISTENT)
-          _db.setPersist(
-              url,
-              info.data
-                  .map((x) =>
-                      factories[T.toString()]!().fromJson(x)?.toJson() ?? {})
-                  .toList());
-        else if (cache == TypeCache.TEMPORARY)
+        } else if (type == TypeData.LIST_ENTITIES) {
           _db.setTemporary(
               url,
               info.data
                   .map((x) =>
                       factories[T.toString()]!().fromJson(x)?.toJson() ?? {})
                   .toList());
+        }
       }
 
       if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
-        yield info.data as T?;
+        yield info.data as T;
       } else if (type == TypeData.ENTITIES) {
-        yield factories[T.toString()]!().fromJson(info.data) as T?;
+        yield factories[T.toString()]!().fromJson(info.data) as T;
       } else if (type == TypeData.LIST_ENTITIES) {
         final matches = RegExp(r"List<(\w+)>").allMatches(T.toString());
         final name = matches.toList()[0].group(1);
         yield info.data.map((x) => factories[name]!().fromJson(x)).toList()
-            as T?;
+            as T;
       }
     }
   }
 
-  Stream<T?> post<T>(
+  Stream<T> post<T>(
       {required String url,
       String base = '',
-      required TypeCache? cache,
+      bool cache = false,
       dynamic? data,
       Map<String, dynamic>? queryParameters,
       Options? options,
@@ -201,20 +186,19 @@ class ServiceCache {
 
     if (AppCache.useMock) {
       yield factories[T.toString()]!().createMock() as T;
-    } else if (cache == TypeCache.TEMPORARY || cache == TypeCache.PERSISTENT) {
+    } else if (cache) {
       if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
-        yield await _db.getKey(url) as T?;
+        yield await _db.getKey(url) as T;
       } else if (type == TypeData.ENTITIES) {
-        yield factories[T.toString()]!().fromJson(await _db.getKey(url)) as T?;
+        yield factories[T.toString()]!().fromJson(await _db.getKey(url)) as T;
       } else if (type == TypeData.LIST_ENTITIES) {
         final matches = RegExp(r"List<(\w+)>").allMatches(T.toString());
         final name = matches.toList()[0].group(1);
         yield (await _db.getKey(url))
             .map((x) => factories[name]!().fromJson(x))
-            .toList() as T?;
+            .toList() as T;
       }
-    }
-    if (!AppCache.useMock && AppCache.connection && !recentQuery) {
+    } else if (AppCache.connection && !recentQuery) {
       final http = interceptor(base);
       final info = await http.post(
         url,
@@ -226,43 +210,31 @@ class ServiceCache {
         onSendProgress: onReceiveProgress,
       );
 
-      if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
-        if (cache == TypeCache.PERSISTENT)
-          _db.setPersist(url, info.data);
-        else if (cache == TypeCache.TEMPORARY) _db.setTemporary(url, info.data);
-      } else if (type == TypeData.ENTITIES) {
-        if (cache == TypeCache.PERSISTENT)
-          _db.setPersist(url,
-              factories[T.toString()]!().fromJson(info.data)?.toJson() ?? {});
-        else if (cache == TypeCache.TEMPORARY)
+      if (cache) {
+        if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
+          _db.setTemporary(url, info.data);
+        } else if (type == TypeData.ENTITIES) {
           _db.setTemporary(url,
               factories[T.toString()]!().fromJson(info.data)?.toJson() ?? {});
-      } else if (type == TypeData.LIST_ENTITIES) {
-        if (cache == TypeCache.PERSISTENT)
-          _db.setPersist(
-              url,
-              info.data
-                  .map((x) =>
-                      factories[T.toString()]!().fromJson(x)?.toJson() ?? {})
-                  .toList());
-        else if (cache == TypeCache.TEMPORARY)
+        } else if (type == TypeData.LIST_ENTITIES) {
           _db.setTemporary(
               url,
               info.data
                   .map((x) =>
                       factories[T.toString()]!().fromJson(x)?.toJson() ?? {})
                   .toList());
+        }
       }
 
       if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
-        yield info.data as T?;
+        yield info.data as T;
       } else if (type == TypeData.ENTITIES) {
-        yield factories[T.toString()]!().fromJson(info.data) as T?;
+        yield factories[T.toString()]!().fromJson(info.data) as T;
       } else if (type == TypeData.LIST_ENTITIES) {
         final matches = RegExp(r"List<(\w+)>").allMatches(T.toString());
         final name = matches.toList()[0].group(1);
         yield info.data.map((x) => factories[name]!().fromJson(x)).toList()
-            as T?;
+            as T;
       }
     }
   }

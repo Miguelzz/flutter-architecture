@@ -27,6 +27,7 @@ class AppCache {
     locale = (await _db.getLocale()) ?? Locale('en', 'CO');
     route = (await _db.getRoute()) ?? '/splash';
     user = User().fromJson(await _db.getKey('user')) ?? User();
+    token = (await _db.getToken()) ?? '';
 
     await _initConnectivity();
     _connectivitySubscription =

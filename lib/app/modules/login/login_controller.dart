@@ -19,12 +19,13 @@ class LoginController extends GetxController {
     final request = await _services
         .validateLogin(AppCache.user.prefix!, AppCache.user.phone!, code)
         .first;
-    if (request!.token != null) {
-      Get.offAllNamed('/');
-      await _db.setRoute('/');
+
+    if (request.token != null) {
       await _db.setToken(request.token!);
       final user = await _services.me().first;
-      AppCache.user = user!;
+      AppCache.user = user;
+      Get.offAllNamed('/');
+      await _db.setRoute('/');
     } else {
       Get.toNamed('/login');
     }
