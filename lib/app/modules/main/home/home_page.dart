@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/app/modules/main/home/home_controller.dart';
-import 'package:group/app/modules/main/main_controller.dart';
-import 'package:group/app/routes/routes_controller.dart';
+import 'package:flutter_architecture/app/modules/main/home/home_controller.dart';
+import 'package:flutter_architecture/app/modules/main/main_controller.dart';
+import 'package:flutter_architecture/app/routes/routes_controller.dart';
 
 class HomePage extends StatelessWidget {
   final home = Get.put(HomeController());

@@ -1,11 +1,28 @@
 import 'dart:async';
-import 'package:group/app/routes/routes.dart';
-import 'package:group/app/utils/orchestrator.dart';
+import 'package:flutter_architecture/app/routes/routes.dart';
 import 'package:sembast/sembast.dart';
 import 'package:flutter/rendering.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sembast/sembast_io.dart';
+
+class TemporaryData {
+  final String key;
+  final DateTime date;
+  TemporaryData(this.key, this.date);
+
+  Map<String, dynamic> toJson() => {'key': key, 'date': date.toString()};
+
+  static TemporaryData fromJson(dynamic json) =>
+      TemporaryData(json['key'], DateTime.parse(json['date']));
+
+  static List<TemporaryData> fromJsonArray(List<dynamic> json) {
+    return json.map((x) => TemporaryData.fromJson(x)).toList();
+  }
+
+  static List<Map<String, dynamic>> toJsonArray(List<TemporaryData> listJson) =>
+      listJson.map((x) => {'key': x.key, 'date': x.date.toString()}).toList();
+}
 
 class AppDatabase {
   final StoreRef _store = StoreRef.main();
@@ -86,23 +103,24 @@ class AppDatabase {
   Future<dynamic> setTemporary(String key, dynamic data) async {
     if (!_reservedKeys(key)) {
       final _list = await getTemporary();
-      _list.add(TimeInCache(key, DateTime.now()));
+      _list.add(TemporaryData(key, DateTime.now()));
 
       await _store
           .record('time-in-cache')
-          .put(_db, TimeInCache.toJsonArray(_list));
+          .put(_db, TemporaryData.toJsonArray(_list));
       return await _store.record(key).put(_db, data);
     }
   }
 
-  Future<dynamic> resetTemporary(List<TimeInCache> listJson) async {
+  Future<dynamic> resetTemporary(List<TemporaryData> listJson) async {
     await _store
         .record('time-in-cache')
-        .put(_db, TimeInCache.toJsonArray(listJson));
+        .put(_db, TemporaryData.toJsonArray(listJson));
   }
 
-  Future<List<TimeInCache>> getTemporary() async => TimeInCache.fromJsonArray(
-      (await _store.record('time-in-cache').get(_db)) ?? []);
+  Future<List<TemporaryData>> getTemporary() async =>
+      TemporaryData.fromJsonArray(
+          (await _store.record('time-in-cache').get(_db)) ?? []);
 
   Future<void> close() async {
     await _db.close();

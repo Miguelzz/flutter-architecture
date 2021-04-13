@@ -1,4 +1,4 @@
-import 'package:group/app/data/models/assets.dart';
+import 'package:flutter_architecture/app/data/models/assets.dart';
 
 class Token extends Entity {
   final DateTime? expiresAt;

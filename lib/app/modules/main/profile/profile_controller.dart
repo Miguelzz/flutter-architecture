@@ -1,12 +1,10 @@
 import 'dart:async';
 import 'package:get/get.dart';
-import 'package:group/app/data/database/app-cache.dart';
-import 'package:group/app/data/database/database.dart';
-import 'package:group/app/data/models/user.dart';
-import 'package:group/app/data/services/services.dart';
+import 'package:flutter_architecture/app/data/database/data-preloaded.dart';
+import 'package:flutter_architecture/app/data/database/database.dart';
+import 'package:flutter_architecture/app/data/models/user.dart';
 
 class ProfileController extends GetxController {
-  static final Services _services = Get.find<Services>();
   static final AppDatabase _db = Get.find<AppDatabase>();
 
   User? user;
@@ -16,7 +14,7 @@ class ProfileController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    user = AppCache.user;
+    user = DataPreloaded.user;
     print('PROFILE');
   }
 }

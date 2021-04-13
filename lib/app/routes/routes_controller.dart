@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:get/get.dart';
-import 'package:group/app/data/database/database.dart';
-import 'package:group/app/routes/routes.dart';
+import 'package:flutter_architecture/app/data/database/database.dart';
+import 'package:flutter_architecture/app/routes/routes.dart';
 
 class RouteController extends GetxController {
   static final AppDatabase _db = Get.find<AppDatabase>();

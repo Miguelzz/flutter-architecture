@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
-import 'package:group/app/data/database/app-cache.dart';
-import 'package:group/app/data/models/factories.dart';
-import 'package:group/app/data/database/database.dart';
+import 'package:flutter_architecture/app/data/database/data-preloaded.dart';
+import 'package:flutter_architecture/app/data/models/factories.dart';
+import 'package:flutter_architecture/app/data/database/database.dart';
 import 'package:dio/dio.dart';
 import 'dart:async';
 
@@ -15,7 +15,7 @@ class Recent {
   Recent(this.date, this.url, this.body);
 }
 
-class ServiceCache {
+class ServiceTemporary {
   static final AppDatabase _db = Get.find<AppDatabase>();
 
   static List<Recent> recentPost = [];
@@ -37,7 +37,7 @@ class ServiceCache {
       InterceptorsWrapper(
         onRequest: (options, handler) {
           print('interceptor');
-          options.headers["x-token"] = AppCache.token;
+          options.headers["x-token"] = DataPreloaded.token;
           handler.next(options);
         },
         onResponse: (response, handler) {
@@ -96,14 +96,14 @@ class ServiceCache {
   Stream<T> get<T>(
       {required String url,
       String base = '',
-      bool cache = false,
+      bool temporary = false,
       Map<String, dynamic>? queryParameters,
       Options? options,
       CancelToken? cancelToken,
       void Function(int, int)? onReceiveProgress}) async* {
     var type = _isEntity(T.toString());
     bool recentQuery = false;
-    print(url);
+
     try {
       recentGet.firstWhere((x) => x.url == url);
       recentQuery = true;
@@ -111,9 +111,9 @@ class ServiceCache {
       recentGet.add(Recent(DateTime.now(), url, ''));
     }
 
-    if (AppCache.useMock) {
+    if (DataPreloaded.useMock) {
       yield factories[T.toString()]!().createMock() as T;
-    } else if (cache) {
+    } else if (temporary && !DataPreloaded.connection) {
       if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
         yield await _db.getKey(url) as T;
       } else if (type == TypeData.ENTITIES) {
@@ -125,7 +125,7 @@ class ServiceCache {
             .map((x) => factories[name]!().fromJson(x))
             .toList() as T;
       }
-    } else if (AppCache.connection && !recentQuery) {
+    } else if (DataPreloaded.connection && !recentQuery) {
       final http = interceptor(base);
       final info = await http.get(
         url,
@@ -135,7 +135,7 @@ class ServiceCache {
         options: options,
       );
 
-      if (cache) {
+      if (temporary) {
         if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
           _db.setTemporary(url, info.data);
         } else if (type == TypeData.ENTITIES) {
@@ -167,7 +167,7 @@ class ServiceCache {
   Stream<T> post<T>(
       {required String url,
       String base = '',
-      bool cache = false,
+      bool temporary = false,
       dynamic? data,
       Map<String, dynamic>? queryParameters,
       Options? options,
@@ -184,9 +184,9 @@ class ServiceCache {
       recentPost.add(Recent(DateTime.now(), url, data.toString()));
     }
 
-    if (AppCache.useMock) {
+    if (DataPreloaded.useMock) {
       yield factories[T.toString()]!().createMock() as T;
-    } else if (cache) {
+    } else if (temporary && !DataPreloaded.connection) {
       if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
         yield await _db.getKey(url) as T;
       } else if (type == TypeData.ENTITIES) {
@@ -198,7 +198,7 @@ class ServiceCache {
             .map((x) => factories[name]!().fromJson(x))
             .toList() as T;
       }
-    } else if (AppCache.connection && !recentQuery) {
+    } else if (DataPreloaded.connection && !recentQuery) {
       final http = interceptor(base);
       final info = await http.post(
         url,
@@ -210,7 +210,7 @@ class ServiceCache {
         onSendProgress: onReceiveProgress,
       );
 
-      if (cache) {
+      if (temporary) {
         if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
           _db.setTemporary(url, info.data);
         } else if (type == TypeData.ENTITIES) {

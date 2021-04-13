@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/app/modules/main/setting/setting_controller.dart';
-import 'package:group/app/routes/routes_controller.dart';
+import 'package:flutter_architecture/app/modules/main/setting/setting_controller.dart';
+import 'package:flutter_architecture/app/routes/routes_controller.dart';
 
 class SettingPage extends StatelessWidget {
   final RouteController route = Get.find();

@@ -1,4 +1,4 @@
-package com.mercaky.group
+package com.mercaky.flutter_architecture
 
 import io.flutter.embedding.android.FlutterActivity
 

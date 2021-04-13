@@ -1,6 +1,6 @@
 {
-    "name": "group",
-    "short_name": "group",
+    "name": "flutter_architecture",
+    "short_name": "flutter_architecture",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

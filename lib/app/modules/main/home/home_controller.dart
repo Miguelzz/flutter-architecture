@@ -1,9 +1,7 @@
 import 'package:get/get.dart';
-import 'package:group/app/data/database/database.dart';
-import 'package:group/app/data/services/services.dart';
+import 'package:flutter_architecture/app/data/database/database.dart';
 
 class HomeController extends GetxController {
-  static final Services _services = Get.find<Services>();
   static final AppDatabase _db = Get.find<AppDatabase>();
 
   String? token;

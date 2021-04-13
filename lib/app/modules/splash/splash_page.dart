@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/app/modules/splash/splash_controller.dart';
+import 'package:flutter_architecture/app/modules/splash/splash_controller.dart';
 
 class SplashPage extends StatelessWidget {
   @override

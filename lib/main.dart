@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/app/data/database/app-cache.dart';
-import 'package:group/app/modules/splash/splash_binding.dart';
-import 'package:group/app/routes/routes.dart';
-import 'package:group/app/translations/main_translation.dart';
-import 'package:group/app/utils/dependency_injection.dart';
-import 'package:group/app/utils/orchestrator.dart';
+import 'package:flutter_architecture/app/data/database/data-preloaded.dart';
+import 'package:flutter_architecture/app/modules/splash/splash_binding.dart';
+import 'package:flutter_architecture/app/routes/routes.dart';
+import 'package:flutter_architecture/app/translations/main_translation.dart';
+import 'package:flutter_architecture/app/utils/injections.dart';
+import 'package:flutter_architecture/app/utils/orchestrator.dart';
 import 'app/data/database/database.dart';
 
 void main() async {
@@ -13,9 +13,9 @@ void main() async {
   DependencyInjection.init();
 
   await AppDatabase.init();
-  await AppCache.init();
+  await DataPreloaded.init();
   await Orchestrator.init();
-  AppCache.useMock = false;
+  DataPreloaded.useMock = false;
   runApp(MyApp());
 }
 
@@ -31,9 +31,9 @@ class MyApp extends StatelessWidget {
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,
         translations: AppTranslations(),
-        initialRoute: AppCache.route,
-        locale: AppCache.locale,
-        theme: AppCache.theme,
+        initialRoute: DataPreloaded.route,
+        locale: DataPreloaded.locale,
+        theme: DataPreloaded.theme,
         getPages: routes,
         initialBinding: SplashBinding(),
       ),

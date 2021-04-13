@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:group/app/modules/main/profile/profile_controller.dart';
-import 'package:group/app/routes/routes_controller.dart';
+import 'package:flutter_architecture/app/modules/main/profile/profile_controller.dart';
+import 'package:flutter_architecture/app/routes/routes_controller.dart';
 
 class ProfilePage extends StatelessWidget {
   final controller = Get.put(ProfileController());

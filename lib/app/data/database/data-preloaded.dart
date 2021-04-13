@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:group/app/data/database/database.dart';
-import 'package:group/app/data/models/user.dart';
-import 'package:group/app/theme/theme.dart';
+import 'package:flutter_architecture/app/data/database/database.dart';
+import 'package:flutter_architecture/app/data/models/user.dart';
+import 'package:flutter_architecture/app/theme/theme.dart';
 
-class AppCache {
+class DataPreloaded {
   static final AppDatabase _db = Get.find<AppDatabase>();
   static final Connectivity _connectivity = Connectivity();
   static late StreamSubscription<ConnectivityResult> _connectivitySubscription;
