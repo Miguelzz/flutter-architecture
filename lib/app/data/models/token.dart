@@ -8,11 +8,11 @@ class Token extends Entity {
 
   @override
   Map<String, dynamic> toJson() {
-    // final seconds =
-    //     DateTime.now().difference(expiresAt ?? DateTime.now()).inSeconds;
+    final seconds =
+        (expiresAt ?? DateTime.now()).difference(DateTime.now()).inSeconds;
 
     return {
-      //...addIfNotNull('expiresAt', '${seconds <= 0 ? 0 : seconds}'),
+      ...addIfNotNull('expiresAt', seconds),
       ...addIfNotNull('token', token),
     };
   }
@@ -20,20 +20,14 @@ class Token extends Entity {
   @override
   Token? fromJson(dynamic json) {
     if (json != null) {
-      try {
-        //json['expiresAt'] ??
-        final valid = json['token'];
-        if (valid == null) throw '';
-        // DateTime now = new DateTime.now();
-        // final expired = convertToInt(json['expiresAt']) ?? 0;
+      parametersExist(json, ['token', 'expiresAt']);
+      DateTime now = new DateTime.now();
+      final expired = convertToInt(json['expiresAt']) ?? 0;
 
-        return Token(
-          //expiresAt: now.add(Duration(seconds: expired)),
-          token: json['token'],
-        );
-      } catch (e) {
-        print('ERROR VALIDATING JSON');
-      }
+      return Token(
+        expiresAt: now.add(Duration(seconds: expired)),
+        token: json['token'],
+      );
     }
     return null;
   }

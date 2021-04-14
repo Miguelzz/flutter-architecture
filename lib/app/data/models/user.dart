@@ -18,17 +18,12 @@ class User extends Entity {
   @override
   User? fromJson(dynamic json) {
     if (json != null) {
-      try {
-        final valid = json['id'] ?? json['prefix'] ?? json['phone'];
-        if (valid == null) throw '';
-        return User(
-          id: json['id'],
-          prefix: json['prefix'],
-          phone: json['phone'],
-        );
-      } catch (e) {
-        print('ERROR VALIDATING JSON');
-      }
+      parametersExist(json, ['id', 'prefix', 'phone', 'code']);
+      return User(
+        id: json['id'],
+        prefix: json['prefix'],
+        phone: json['phone'],
+      );
     }
     return null;
   }

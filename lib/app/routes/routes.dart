@@ -24,4 +24,6 @@ List<GetPage> routes = [
   GetPage(name: '/splash', page: () => SplashPage()),
   GetPage(name: '/login', page: () => LoginPage()),
   GetPage(name: '/validate-login', page: () => ValidateLoginPage()),
+
+  //GetPage(name: '/login', page: () => ExamplePage()),
 ];

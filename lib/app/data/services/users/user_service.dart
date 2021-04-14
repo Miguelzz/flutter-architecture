@@ -1,11 +1,12 @@
+import 'package:flutter_architecture/app/config/constants.dart';
 import 'package:flutter_architecture/app/data/services/users/user_gateway.dart';
 import 'package:flutter_architecture/app/data/models/user.dart';
-import 'package:flutter_architecture/app/utils/interceptors.dart';
+import 'package:flutter_architecture/app/config/interceptors.dart';
 import 'package:get/get.dart';
 
 class UserService extends UserGateway {
   static final ServiceTemporary _http = Get.find<ServiceTemporary>();
-  static final identity = 'https://identityapptest.herokuapp.com/api';
+  static final identity = Constants.IDENTITY;
 
   @override
   Stream<User> getUser() {

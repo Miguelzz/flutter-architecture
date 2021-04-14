@@ -1,3 +1,5 @@
+import 'package:flutter_architecture/app/config/constants.dart';
+import 'package:flutter_architecture/app/data/models/message_error.dart';
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/data/database/data-preloaded.dart';
 import 'package:flutter_architecture/app/data/models/factories.dart';
@@ -32,12 +34,12 @@ class ServiceTemporary {
 
   Dio interceptor(String baseUrl) {
     _dio.interceptors.clear();
-
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
           print('interceptor');
-          options.headers["x-token"] = DataPreloaded.token;
+          print('TOKEN: ${DataPreloaded.token.token}');
+          options.headers["x-token"] = DataPreloaded.token.token ?? '';
           handler.next(options);
         },
         onResponse: (response, handler) {
@@ -45,21 +47,13 @@ class ServiceTemporary {
           handler.next(response);
         },
         onError: (error, handler) {
-          print('onError ${error.message}');
-          if (error.response?.statusCode == 403) {
-            _dio.interceptors.requestLock.lock();
-            _dio.interceptors.responseLock.lock();
-            //RequestOptions options = error.response?.request;
-            // FirebaseUser user = await FirebaseAuth.instance.currentUser();
-            // token = await user.getIdToken(refresh: true);
-            // await writeAuthKey(token);
-            // options.headers["Authorization"] = "Bearer " + token;
-
-            // _dio.interceptors.requestLock.unlock();
-            // _dio.interceptors.responseLock.unlock();
-            // return _dio.request(options.path, options: options);
-            handler.next(error);
-          }
+          print('onError');
+          // if (error.response?.statusCode == 403) {
+          //   _dio.interceptors.requestLock.lock();
+          //   _dio.interceptors.responseLock.lock();
+          //   handler.next(error);
+          // }
+          handler.next(error);
         },
       ),
     );
@@ -126,40 +120,46 @@ class ServiceTemporary {
             .toList() as T;
       }
     } else if (DataPreloaded.connection && !recentQuery) {
-      final http = interceptor(base);
-      final info = await http.get(
-        url,
-        queryParameters: queryParameters,
-        cancelToken: cancelToken,
-        onReceiveProgress: onReceiveProgress,
-        options: options,
-      );
+      try {
+        final http = interceptor(base);
+        final info = await http.get(
+          url,
+          queryParameters: queryParameters,
+          cancelToken: cancelToken,
+          onReceiveProgress: onReceiveProgress,
+          options: options,
+        );
 
-      if (temporary) {
-        if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
-          _db.setTemporary(url, info.data);
-        } else if (type == TypeData.ENTITIES) {
-          _db.setTemporary(url,
-              factories[T.toString()]!().fromJson(info.data)?.toJson() ?? {});
-        } else if (type == TypeData.LIST_ENTITIES) {
-          _db.setTemporary(
-              url,
-              info.data
-                  .map((x) =>
-                      factories[T.toString()]!().fromJson(x)?.toJson() ?? {})
-                  .toList());
+        if (temporary) {
+          if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
+            _db.setTemporary(url, info.data);
+          } else if (type == TypeData.ENTITIES) {
+            _db.setTemporary(url,
+                factories[T.toString()]!().fromJson(info.data)?.toJson() ?? {});
+          } else if (type == TypeData.LIST_ENTITIES) {
+            _db.setTemporary(
+                url,
+                info.data
+                    .map((x) =>
+                        factories[T.toString()]!().fromJson(x)?.toJson() ?? {})
+                    .toList());
+          }
         }
-      }
 
-      if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
-        yield info.data as T;
-      } else if (type == TypeData.ENTITIES) {
-        yield factories[T.toString()]!().fromJson(info.data) as T;
-      } else if (type == TypeData.LIST_ENTITIES) {
-        final matches = RegExp(r"List<(\w+)>").allMatches(T.toString());
-        final name = matches.toList()[0].group(1);
-        yield info.data.map((x) => factories[name]!().fromJson(x)).toList()
-            as T;
+        if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
+          yield info.data as T;
+        } else if (type == TypeData.ENTITIES) {
+          yield factories[T.toString()]!().fromJson(info.data) as T;
+        } else if (type == TypeData.LIST_ENTITIES) {
+          final matches = RegExp(r"List<(\w+)>").allMatches(T.toString());
+          final name = matches.toList()[0].group(1);
+          yield info.data.map((x) => factories[name]!().fromJson(x)).toList()
+              as T;
+        }
+      } on DioError catch (e) {
+        throw MessageError(message: e.message, response: e.response);
+      } catch (e) {
+        print(e);
       }
     }
   }
@@ -199,42 +199,49 @@ class ServiceTemporary {
             .toList() as T;
       }
     } else if (DataPreloaded.connection && !recentQuery) {
-      final http = interceptor(base);
-      final info = await http.post(
-        url,
-        data: data,
-        queryParameters: queryParameters,
-        options: options,
-        cancelToken: cancelToken,
-        onReceiveProgress: onReceiveProgress,
-        onSendProgress: onReceiveProgress,
-      );
+      try {
+        final http = interceptor(base);
 
-      if (temporary) {
-        if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
-          _db.setTemporary(url, info.data);
-        } else if (type == TypeData.ENTITIES) {
-          _db.setTemporary(url,
-              factories[T.toString()]!().fromJson(info.data)?.toJson() ?? {});
-        } else if (type == TypeData.LIST_ENTITIES) {
-          _db.setTemporary(
-              url,
-              info.data
-                  .map((x) =>
-                      factories[T.toString()]!().fromJson(x)?.toJson() ?? {})
-                  .toList());
+        final info = await http.post(
+          url,
+          data: data,
+          queryParameters: queryParameters,
+          options: options,
+          cancelToken: cancelToken,
+          onReceiveProgress: onReceiveProgress,
+          onSendProgress: onReceiveProgress,
+        );
+
+        if (temporary) {
+          if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
+            _db.setTemporary(url, info.data);
+          } else if (type == TypeData.ENTITIES) {
+            _db.setTemporary(url,
+                factories[T.toString()]!().fromJson(info.data)?.toJson() ?? {});
+          } else if (type == TypeData.LIST_ENTITIES) {
+            _db.setTemporary(
+                url,
+                info.data
+                    .map((x) =>
+                        factories[T.toString()]!().fromJson(x)?.toJson() ?? {})
+                    .toList());
+          }
         }
-      }
 
-      if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
-        yield info.data as T;
-      } else if (type == TypeData.ENTITIES) {
-        yield factories[T.toString()]!().fromJson(info.data) as T;
-      } else if (type == TypeData.LIST_ENTITIES) {
-        final matches = RegExp(r"List<(\w+)>").allMatches(T.toString());
-        final name = matches.toList()[0].group(1);
-        yield info.data.map((x) => factories[name]!().fromJson(x)).toList()
-            as T;
+        if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
+          yield info.data as T;
+        } else if (type == TypeData.ENTITIES) {
+          yield factories[T.toString()]!().fromJson(info.data) as T;
+        } else if (type == TypeData.LIST_ENTITIES) {
+          final matches = RegExp(r"List<(\w+)>").allMatches(T.toString());
+          final name = matches.toList()[0].group(1);
+          yield info.data.map((x) => factories[name]!().fromJson(x)).toList()
+              as T;
+        }
+      } on DioError catch (e) {
+        throw MessageError(message: e.message, response: e.response);
+      } catch (e) {
+        print(e);
       }
     }
   }

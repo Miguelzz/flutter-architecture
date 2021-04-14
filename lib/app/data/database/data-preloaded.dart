@@ -1,13 +1,15 @@
 import 'dart:async';
 
+import 'package:flutter_architecture/app/data/models/message_error.dart';
+import 'package:flutter_architecture/app/data/models/token.dart';
+import 'package:flutter_architecture/app/data/database/database.dart';
+import 'package:flutter_architecture/app/data/models/user.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:flutter_architecture/app/data/database/database.dart';
-import 'package:flutter_architecture/app/data/models/user.dart';
-import 'package:flutter_architecture/app/theme/theme.dart';
+import 'package:flutter_architecture/app/config/theme.dart';
 
 class DataPreloaded {
   static final AppDatabase _db = Get.find<AppDatabase>();
@@ -15,7 +17,8 @@ class DataPreloaded {
   static late StreamSubscription<ConnectivityResult> _connectivitySubscription;
 
   static late bool useMock;
-  static late String route, token;
+  static late String route, previousCode;
+  static late Token token;
   static late ThemeData theme;
   static late Locale locale;
   static late bool connection;
@@ -26,8 +29,9 @@ class DataPreloaded {
     connection = false;
     locale = (await _db.getLocale()) ?? Locale('en', 'CO');
     route = (await _db.getRoute()) ?? '/splash';
-    user = User().fromJson(await _db.getKey('user')) ?? User();
-    token = (await _db.getToken()) ?? '';
+    user = (await _db.getUser()) ?? User();
+    token = (await _db.getToken()) ?? Token();
+    previousCode = (await _db.getPreviousCode()) ?? '0';
 
     await _initConnectivity();
     _connectivitySubscription =

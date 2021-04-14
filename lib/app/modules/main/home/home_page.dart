@@ -26,7 +26,7 @@ class HomePage extends StatelessWidget {
             Container(
               width: size.width * 0.7,
               child: GetBuilder<HomeController>(
-                builder: (_) => Text('${home?.token}'),
+                builder: (_) => Text('${home?.token.toJson()}'),
               ),
             ),
             Row(

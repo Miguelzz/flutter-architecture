@@ -1,7 +1,7 @@
 import 'package:flutter/painting.dart';
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/data/database/database.dart';
-import 'package:flutter_architecture/app/theme/theme.dart';
+import 'package:flutter_architecture/app/config/theme.dart';
 
 class SettingController extends GetxController {
   static final AppDatabase _db = Get.find<AppDatabase>();

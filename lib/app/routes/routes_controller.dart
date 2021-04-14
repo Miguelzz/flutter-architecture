@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/data/database/database.dart';
+import 'package:flutter_architecture/app/data/models/token.dart';
 import 'package:flutter_architecture/app/routes/routes.dart';
 
 class RouteController extends GetxController {
@@ -8,7 +9,7 @@ class RouteController extends GetxController {
 
   Future<void> logout() async {
     Get.offAllNamed('/splash');
-    await _db.setToken('');
+    await _db.setToken(Token());
     await _db.setRoute('/login');
   }
 

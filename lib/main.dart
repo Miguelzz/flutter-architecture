@@ -4,8 +4,8 @@ import 'package:flutter_architecture/app/data/database/data-preloaded.dart';
 import 'package:flutter_architecture/app/modules/splash/splash_binding.dart';
 import 'package:flutter_architecture/app/routes/routes.dart';
 import 'package:flutter_architecture/app/translations/main_translation.dart';
-import 'package:flutter_architecture/app/utils/injections.dart';
-import 'package:flutter_architecture/app/utils/orchestrator.dart';
+import 'package:flutter_architecture/app/config/injections.dart';
+import 'package:flutter_architecture/app/config/orchestrator.dart';
 import 'app/data/database/database.dart';
 
 void main() async {
@@ -16,6 +16,7 @@ void main() async {
   await DataPreloaded.init();
   await Orchestrator.init();
   DataPreloaded.useMock = false;
+
   runApp(MyApp());
 }
 
