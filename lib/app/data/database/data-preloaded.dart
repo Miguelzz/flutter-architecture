@@ -1,15 +1,15 @@
 import 'dart:async';
-
-import 'package:flutter_architecture/app/data/models/message_error.dart';
 import 'package:flutter_architecture/app/data/models/token.dart';
 import 'package:flutter_architecture/app/data/database/database.dart';
 import 'package:flutter_architecture/app/data/models/user.dart';
+import 'package:flutter_architecture/app/config/theme/dark.dart';
+import 'package:flutter_architecture/app/config/theme/custom.dart';
+import 'package:flutter_architecture/app/config/theme/light.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:flutter_architecture/app/config/theme.dart';
 
 class DataPreloaded {
   static final AppDatabase _db = Get.find<AppDatabase>();
@@ -39,13 +39,13 @@ class DataPreloaded {
 
     switch (await _db.getTheme()) {
       case 'dark':
-        theme = AppTheme.darkTheme;
+        theme = darkTheme;
         break;
       case 'custom':
-        theme = AppTheme.customTheme;
+        theme = customTheme;
         break;
       default:
-        theme = AppTheme.lightTheme;
+        theme = lightTheme;
         break;
     }
   }
@@ -76,3 +76,11 @@ class DataPreloaded {
     _connectivitySubscription.cancel();
   }
 }
+
+// class SelectTheme {
+//   ValueGetter<Future<void>> light;
+//   ValueGetter<Future<void>> dark;
+//   ValueGetter<Future<void>> custom;
+
+//   SelectTheme(this.light, this.dark, this.custom);
+// }

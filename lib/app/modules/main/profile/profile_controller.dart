@@ -12,8 +12,15 @@ class ProfileController extends GetxController {
   User? user;
 
   Future<void> getUser() async {
-    final slave = await _userService.getUser().first;
-    print(slave);
+    user = await _userService.getUser().first;
+    await _db.setUser(user!);
+    update();
+  }
+
+  Future<void> updateUser(User userInput) async {
+    user = await _userService.updateUser(userInput).first;
+    await _db.setUser(user!);
+    update();
   }
 
   @override

@@ -20,6 +20,6 @@ class UserService extends UserGateway {
 
   @override
   Stream<User> updateUser(User user) {
-    throw UnimplementedError();
+    return _http.put<User>(url: '$identity/users/me', data: user.toJson());
   }
 }

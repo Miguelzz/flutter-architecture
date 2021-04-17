@@ -20,7 +20,7 @@ class Token extends Entity {
   @override
   Token? fromJson(dynamic json) {
     if (json != null) {
-      parametersExist(json, ['token', 'expiresAt']);
+      parametersExist(json, ['expiresAt', 'token']);
       DateTime now = new DateTime.now();
       final expired = convertToInt(json['expiresAt']) ?? 0;
 

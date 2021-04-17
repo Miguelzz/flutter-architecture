@@ -16,10 +16,13 @@ class Orchestrator {
   static void _cleanRecents() {
     Timer.periodic(Duration(seconds: 5), (timer) {
       ServiceTemporary.recentPost = ServiceTemporary.recentPost
-          .where((x) => DateTime.now().difference(x.date).inSeconds <= 10)
+          .where((x) => DateTime.now().difference(x.date).inSeconds <= 3)
+          .toList();
+      ServiceTemporary.recentPut = ServiceTemporary.recentPut
+          .where((x) => DateTime.now().difference(x.date).inSeconds <= 3)
           .toList();
       ServiceTemporary.recentGet = ServiceTemporary.recentGet
-          .where((x) => DateTime.now().difference(x.date).inSeconds <= 10)
+          .where((x) => DateTime.now().difference(x.date).inSeconds <= 3)
           .toList();
     });
   }
@@ -44,24 +47,22 @@ class Orchestrator {
       '/login',
       '/validate-login',
     ];
+
     bool wait = false;
     Timer.periodic(Duration(seconds: 1), (timer) async {
       final expiresAt = (DataPreloaded.token.expiresAt ?? DateTime.now())
           .difference(DateTime.now())
           .inSeconds;
 
-      //print(expiresAt);
-
       await _db.setToken(Token().fromJson(
           {'token': DataPreloaded.token.token, 'expiresAt': expiresAt})!);
 
       if (!wait &&
-          expiresAt <= 1 &&
+          expiresAt <= 15 &&
           !routes.any((x) => Get.currentRoute == x)) {
         print('Reset Token');
         wait = true;
         try {
-          print(DataPreloaded.user.toJson());
           final token = await _loginService
               .resetToken(
                 DataPreloaded.user.prefix!,
@@ -74,12 +75,17 @@ class Orchestrator {
         } on MessageError catch (e) {
           final RouteController _route = Get.find();
           await _route.logout();
-          print('aaaaaaaaaaaaaa');
-          print(e.response);
-          print('aaaaaaaaaaaaaa');
         }
         wait = false;
       }
+    });
+  }
+
+  static void _updateRoute() {
+    Timer.periodic(Duration(seconds: 5), (timer) {
+      final previos = Get.currentRoute;
+      if (Get.previousRoute.trim() == '') Get.offAllNamed('/');
+      _db.setRoute(previos);
     });
   }
 
@@ -87,5 +93,6 @@ class Orchestrator {
     _clearTemporary();
     _cleanRecents();
     _resetToken();
+    _updateRoute();
   }
 }

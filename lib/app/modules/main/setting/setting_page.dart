@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_architecture/app/modules/common/components/fullscreen.dart';
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/modules/main/setting/setting_controller.dart';
 import 'package:flutter_architecture/app/routes/routes_controller.dart';
@@ -11,7 +12,7 @@ class SettingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
-      body: SafeArea(
+      body: FullScreen(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -39,12 +40,12 @@ class SettingPage extends StatelessWidget {
                       },
                       child: Text('txt_light'.tr),
                     ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        await setting.theme.custom();
-                      },
-                      child: Text('txt_custom'.tr),
-                    ),
+                    // ElevatedButton(
+                    //   onPressed: () async {
+                    //     await setting.theme.custom();
+                    //   },
+                    //   child: Text('txt_custom'.tr),
+                    // ),
                   ],
                 ),
               ],
@@ -75,7 +76,7 @@ class SettingPage extends StatelessWidget {
               onPressed: () async {
                 route.nexBack();
               },
-              child: Text('txt_back'.tr),
+              child: Text('txt_home'.tr),
             )
           ],
         ),

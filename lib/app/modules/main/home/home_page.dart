@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_architecture/app/modules/common/components/fullscreen.dart';
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/modules/main/home/home_controller.dart';
 import 'package:flutter_architecture/app/modules/main/main_controller.dart';
@@ -13,7 +14,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
-      body: SafeArea(
+      body: FullScreen(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

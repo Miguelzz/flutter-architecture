@@ -1,5 +1,6 @@
-import 'package:flutter_architecture/app/config/constants.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_architecture/app/data/models/message_error.dart';
+import 'package:flutter_architecture/app/modules/main/main_controller.dart';
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/data/database/data-preloaded.dart';
 import 'package:flutter_architecture/app/data/models/factories.dart';
@@ -21,6 +22,7 @@ class ServiceTemporary {
   static final AppDatabase _db = Get.find<AppDatabase>();
 
   static List<Recent> recentPost = [];
+  static List<Recent> recentPut = [];
   static List<Recent> recentGet = [];
 
   final Dio _dio = Dio(
@@ -47,7 +49,7 @@ class ServiceTemporary {
           handler.next(response);
         },
         onError: (error, handler) {
-          print('onError');
+          print('onError ${error.message}');
           // if (error.response?.statusCode == 403) {
           //   _dio.interceptors.requestLock.lock();
           //   _dio.interceptors.responseLock.lock();
@@ -157,8 +159,18 @@ class ServiceTemporary {
               as T;
         }
       } on DioError catch (e) {
-        throw MessageError(message: e.message, response: e.response);
+        final data = e.response?.data ?? {'message': 'Error!', 'errors': []};
+        Get.defaultDialog(
+          title: data['message'] ?? 'Error!',
+          content: Column(
+            children: [
+              ...(data['errors'] ?? []).map((x) => Text('• $x')).toList()
+            ],
+          ),
+        );
+        recentPut.removeWhere((x) => x.url == url);
       } catch (e) {
+        recentPut.removeWhere((x) => x.url == url);
         print(e);
       }
     }
@@ -239,9 +251,111 @@ class ServiceTemporary {
               as T;
         }
       } on DioError catch (e) {
-        throw MessageError(message: e.message, response: e.response);
+        final data = e.response?.data ?? {'message': 'Error!', 'errors': []};
+        Get.defaultDialog(
+          title: data['message'] ?? 'Error!',
+          content: Column(
+            children: [
+              ...(data['errors'] ?? []).map((x) => Text('• $x')).toList()
+            ],
+          ),
+        );
+        recentPut.removeWhere((x) => x.url == url);
+      } catch (e) {
+        recentPut.removeWhere((x) => x.url == url);
+        print(e);
+      }
+    }
+  }
+
+  Stream<T> put<T>(
+      {required String url,
+      String base = '',
+      bool temporary = false,
+      dynamic? data,
+      Map<String, dynamic>? queryParameters,
+      Options? options,
+      CancelToken? cancelToken,
+      void Function(int, int)? onSendProgress,
+      void Function(int, int)? onReceiveProgress}) async* {
+    var type = _isEntity(T.toString());
+
+    bool recentQuery = false;
+    try {
+      recentPut.firstWhere((x) => x.url == url);
+      recentQuery = true;
+    } catch (e) {
+      recentPut.add(Recent(DateTime.now(), url, data.toString()));
+    }
+
+    if (DataPreloaded.useMock) {
+      yield factories[T.toString()]!().createMock() as T;
+    } else if (temporary && !DataPreloaded.connection) {
+      if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
+        yield await _db.getKey(url) as T;
+      } else if (type == TypeData.ENTITIES) {
+        yield factories[T.toString()]!().fromJson(await _db.getKey(url)) as T;
+      } else if (type == TypeData.LIST_ENTITIES) {
+        final matches = RegExp(r"List<(\w+)>").allMatches(T.toString());
+        final name = matches.toList()[0].group(1);
+        yield (await _db.getKey(url))
+            .map((x) => factories[name]!().fromJson(x))
+            .toList() as T;
+      }
+    } else if (DataPreloaded.connection && !recentQuery) {
+      try {
+        final http = interceptor(base);
+
+        final info = await http.put(
+          url,
+          data: data,
+          queryParameters: queryParameters,
+          options: options,
+          cancelToken: cancelToken,
+          onReceiveProgress: onReceiveProgress,
+          onSendProgress: onReceiveProgress,
+        );
+
+        if (temporary) {
+          if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
+            _db.setTemporary(url, info.data);
+          } else if (type == TypeData.ENTITIES) {
+            _db.setTemporary(url,
+                factories[T.toString()]!().fromJson(info.data)?.toJson() ?? {});
+          } else if (type == TypeData.LIST_ENTITIES) {
+            _db.setTemporary(
+                url,
+                info.data
+                    .map((x) =>
+                        factories[T.toString()]!().fromJson(x)?.toJson() ?? {})
+                    .toList());
+          }
+        }
+
+        if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
+          yield info.data as T;
+        } else if (type == TypeData.ENTITIES) {
+          yield factories[T.toString()]!().fromJson(info.data) as T;
+        } else if (type == TypeData.LIST_ENTITIES) {
+          final matches = RegExp(r"List<(\w+)>").allMatches(T.toString());
+          final name = matches.toList()[0].group(1);
+          yield info.data.map((x) => factories[name]!().fromJson(x)).toList()
+              as T;
+        }
+      } on DioError catch (e) {
+        final data = e.response?.data ?? {'message': 'Error!', 'errors': []};
+        Get.defaultDialog(
+          title: data['message'] ?? 'Error!',
+          content: Column(
+            children: [
+              ...(data['errors'] ?? []).map((x) => Text('• $x')).toList()
+            ],
+          ),
+        );
+        recentPut.removeWhere((x) => x.url == url);
       } catch (e) {
         print(e);
+        recentPut.removeWhere((x) => x.url == url);
       }
     }
   }

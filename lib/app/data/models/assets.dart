@@ -3,7 +3,7 @@ abstract class Entity<T> {
   bool nul<T>(T obj) => obj == null;
 
   Map<String, dynamic> addIfNotNull(String key, dynamic? variable) {
-    if (variable != null) {
+    if (variable != null && variable != '') {
       return {'$key': variable};
     } else {
       return {};
@@ -17,6 +17,20 @@ abstract class Entity<T> {
       } else if (value is String) {
         return num.parse(value);
       } else if (value is num) {
+        return value;
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
+  DateTime? convertToDate(dynamic? value) {
+    try {
+      if (value == null) {
+        throw 'date null';
+      } else if (value is String) {
+        return DateTime.parse(value);
+      } else if (value is DateTime) {
         return value;
       }
     } catch (e) {
@@ -38,6 +52,22 @@ abstract class Entity<T> {
     }
   }
 
+  // void parametersExist(dynamic json) {
+  //   try {
+  //     final isExist = json.keys.toList().any((x) {
+  //       try {
+  //         return json[x] != null;
+  //       } catch (e) {
+  //         return false;
+  //       }
+  //     });
+  //     if (!isExist) throw '';
+  //   } catch (e) {
+  //     print(e);
+  //     throw 'ERROR VALIDATING JSON';
+  //   }
+  // }
+  //
   void parametersExist(dynamic json, List<String> params) {
     final isExist = params.any((x) {
       try {

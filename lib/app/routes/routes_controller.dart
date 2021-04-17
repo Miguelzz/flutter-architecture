@@ -24,7 +24,6 @@ class RouteController extends GetxController {
     }
     if (route != null) {
       Get.toNamed(route);
-      await _db.setRoute(route);
     }
   }
 
@@ -39,7 +38,6 @@ class RouteController extends GetxController {
     }
     if (route != null) {
       Get.offAllNamed(route);
-      await _db.setRoute(route);
     }
   }
 
@@ -64,7 +62,6 @@ class RouteController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-
     print('ROUTES');
   }
 }

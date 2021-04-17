@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_architecture/app/config/constants.dart';
 
 class FullScreen extends StatelessWidget {
+  final bool safeArea;
   final Widget child;
-
-  const FullScreen({required this.child});
+  final EdgeInsetsGeometry? padding;
+  FullScreen({required this.child, this.padding, this.safeArea = false});
 
   @override
   Widget build(BuildContext context) {
+    return safeArea ? SafeArea(child: full()) : full();
+  }
+
+  Widget full() {
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       return SingleChildScrollView(
@@ -14,7 +20,9 @@ class FullScreen extends StatelessWidget {
         child: ConstrainedBox(
           constraints: constraints.copyWith(
               minHeight: constraints.maxHeight, maxHeight: double.infinity),
-          child: child,
+          child: Container(
+              padding: padding ?? EdgeInsets.all(Constants.FULL_SCREEN_PADDING),
+              child: child),
         ),
       );
     });
