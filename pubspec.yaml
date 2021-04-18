@@ -23,6 +23,7 @@ dependencies:
   connectivity: ^3.0.3
   dio: ^4.0.0-prev2
   flutter_native_splash: ^1.1.7+1
+  navigation_history_observer: ^1.1.0
 
   cupertino_icons: ^1.0.2
 

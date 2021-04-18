@@ -1,3 +1,4 @@
+import 'package:flutter_architecture/app/modules/common/components/input.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_architecture/app/modules/common/components/button.dart';
@@ -28,13 +29,11 @@ class ValidateLoginPage extends StatelessWidget {
               width: size.width * 0.7,
               child: Column(
                 children: [
-                  TextField(
-                    controller: code,
+                  Input(
                     keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Codigo',
-                    ),
+                    textAlign: TextAlign.center,
+                    controller: code,
+                    labelText: 'Codigo',
                   ),
                 ],
               ),

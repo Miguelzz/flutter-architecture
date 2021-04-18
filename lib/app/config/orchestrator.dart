@@ -5,6 +5,7 @@ import 'package:flutter_architecture/app/data/services/login/login_service.dart'
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/data/database/database.dart';
 import 'package:flutter_architecture/app/config/interceptors.dart';
+import 'package:navigation_history_observer/navigation_history_observer.dart';
 
 import '../data/models/token.dart';
 import '../routes/routes_controller.dart';
@@ -12,6 +13,17 @@ import '../routes/routes_controller.dart';
 class Orchestrator {
   static final AppDatabase _db = Get.find<AppDatabase>();
   static final LoginService _loginService = Get.find<LoginService>();
+  static final NavigationHistoryObserver historyObserver =
+      NavigationHistoryObserver();
+
+  static final routes = [
+    '/register',
+    '/register/step2',
+    '/register/step3',
+    '/splash',
+    '/login',
+    '/validate-login',
+  ];
 
   static void _cleanRecents() {
     Timer.periodic(Duration(seconds: 5), (timer) {
@@ -39,15 +51,6 @@ class Orchestrator {
   static Future<void> _resetToken() async {
     // resetToken
 
-    final routes = [
-      '/register',
-      '/register/step2',
-      '/register/step3',
-      '/splash',
-      '/login',
-      '/validate-login',
-    ];
-
     bool wait = false;
     Timer.periodic(Duration(seconds: 1), (timer) async {
       final expiresAt = (DataPreloaded.token.expiresAt ?? DateTime.now())
@@ -73,6 +76,9 @@ class Orchestrator {
           print(token.toJson());
           await _db.setToken(token);
         } on MessageError catch (e) {
+          print('************************');
+          print(e);
+          print('************************');
           final RouteController _route = Get.find();
           await _route.logout();
         }
@@ -81,18 +87,47 @@ class Orchestrator {
     });
   }
 
-  static void _updateRoute() {
-    Timer.periodic(Duration(seconds: 5), (timer) {
-      final previos = Get.currentRoute;
-      if (Get.previousRoute.trim() == '') Get.offAllNamed('/');
-      _db.setRoute(previos);
+  static void _updateRoute() async {
+    final history = (await _db.getHistoryRoute()) ?? {'list': []};
+    var list = history['list'];
+    if (list.length > 5) list = list.sublist(list.length - 5, list.length);
+
+    await Future.delayed(Duration(seconds: 2), () {
+      Get.offAllNamed('/');
+      if (list.length == 0) {
+        Get.offAllNamed('/');
+        list = ['/'];
+      }
+      if (list[0] != '/') list = ['/', ...list];
+      list.forEach((route) => Get.toNamed(route));
+    });
+    await _db.setHistoryRoute({'list': list});
+
+    print(list);
+
+    historyObserver.historyChangeStream.listen((change) {
+      final route = Get.currentRoute;
+      _db.getHistoryRoute().then((value) {
+        final history = value ?? {'list': []};
+        var list = history['list'];
+
+        if (Get.previousRoute == route) {
+          print(list.sublist(0, list.length - 1));
+          _db.setHistoryRoute({'list': list.sublist(0, list.length - 1)});
+        } else {
+          if (!routes.any((x) => Get.currentRoute == x))
+            _db.setHistoryRoute({
+              'list': [...list, route]
+            });
+        }
+      });
     });
   }
 
   static Future<void> init() async {
+    _updateRoute();
     _clearTemporary();
     _cleanRecents();
     _resetToken();
-    _updateRoute();
   }
 }

@@ -52,6 +52,7 @@ class AppDatabase {
         'theme',
         'previousCode',
         'token',
+        'histoy-route-8'
       ].firstWhere((x) => x == key);
       print('la key "$key" no puede usarse como clave de almacenamiento');
       return true;
@@ -96,6 +97,12 @@ class AppDatabase {
     if (!_reservedKeys(route) && _reservedRoutes(route)) {
       await _store.record('route').put(_db, route);
     }
+  }
+
+  Future<Map<String, dynamic>?> getHistoryRoute() async =>
+      await getKey('histoy-route-8');
+  Future<void> setHistoryRoute(Map<String, dynamic> routes) async {
+    await _store.record('histoy-route-8').put(_db, routes);
   }
 
   Future<Locale?> getLocale() async {

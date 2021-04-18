@@ -14,6 +14,28 @@ class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => _ProfilePageState();
 }
 
+class ShowProps {
+  late bool showNames = false,
+      showSurnames = false,
+      showEmail = false,
+      showBirthday = false,
+      showAddress = false;
+
+  final String? names;
+  final String? surnames;
+  final String? email;
+  final String? address;
+  final DateTime? birthday;
+  ShowProps(
+      this.names, this.surnames, this.birthday, this.email, this.address) {
+    showNames = !empity(names);
+  }
+
+  bool empity(String? value) {
+    return value != null && value != '';
+  }
+}
+
 class _ProfilePageState extends State<ProfilePage> {
   final RouteController routeController = Get.find();
   final controller = Get.put(ProfileController());
@@ -25,16 +47,20 @@ class _ProfilePageState extends State<ProfilePage> {
   final List<String> showParams = [];
 
   late DateTime birthday;
-
   @override
   void initState() {
     final user = controller?.user;
     names..text = user?.names ?? '';
     surnames..text = user?.surnames ?? '';
+    birthday = user?.birthday ?? DateTime(DateTime.now().year - 18);
     email..text = user?.email ?? '';
     address..text = user?.address ?? '';
-    birthday = user?.birthday ?? DateTime(DateTime.now().year - 18);
+
     super.initState();
+  }
+
+  bool empity(String? value) {
+    return !(value != null && value != '');
   }
 
   @override
@@ -45,57 +71,57 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('txt_profile'.tr),
+            Center(child: Text('txt_profile'.tr)),
 
-            Box(
-              child: Column(
-                children: [
-                  Text('Cual es su fecha de nacimiento?'),
-                  SizedBox(
-                    height: 10,
+            Text('${controller?.user?.toJson()}'),
+
+            GetBuilder<ProfileController>(builder: (_) {
+              return Column(children: [
+                Input(
+                  controller: names,
+                  labelText: 'Cual es nombre?',
+                  margin: EdgeInsets.only(bottom: 5),
+                ),
+                Input(
+                  controller: surnames,
+                  labelText: 'Cual es tu Apellido?',
+                  margin: EdgeInsets.only(bottom: 5),
+                ),
+                Input(
+                  controller: email,
+                  labelText: 'Cual es tu correo electronico?',
+                  margin: EdgeInsets.only(bottom: 5),
+                ),
+                Input(
+                  controller: address,
+                  labelText: 'Cual es tu dereccion?',
+                  margin: EdgeInsets.only(bottom: 5),
+                ),
+                Box(
+                  child: Column(
+                    children: [
+                      Text('Cual es su fecha de nacimiento?'),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Container(
+                        height: 150,
+                        child: CupertinoDatePicker(
+                          mode: CupertinoDatePickerMode.date,
+                          initialDateTime: birthday,
+                          onDateTimeChanged: (DateTime newDateTime) {
+                            birthday = newDateTime;
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                  Container(
-                    height: 150,
-                    child: CupertinoDatePicker(
-                      mode: CupertinoDatePickerMode.date,
-                      initialDateTime: birthday,
-                      onDateTimeChanged: (DateTime newDateTime) {
-                        birthday = newDateTime;
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                ),
+              ]);
+            }),
 
-            //if (names.text == '')
-            // Box(
-            //   child: Input(
-            //     controller: names,
-            //     labelText: 'Nombres',
-            //     margin: EdgeInsets.only(bottom: 5),
-            //   ),
-            // ),
-
-            // Input(
-            //   controller: surnames,
-            //   labelText: 'Apellidos',
-            //   margin: EdgeInsets.only(bottom: 5),
-            // ),
-            // Input(
-            //   controller: email,
-            //   labelText: 'Email',
-            //   keyboardType: TextInputType.emailAddress,
-            //   margin: EdgeInsets.only(bottom: 5),
-            // ),
-            // Input(
-            //   controller: address,
-            //   labelText: 'Direccion',
-            //   margin: EdgeInsets.only(bottom: 5),
-            // ),
             ButtonLoading(
               onPressed: () async {
-                print(birthday.toIso8601String());
                 await controller?.updateUser(User(
                   names: names.text,
                   surnames: surnames.text,
