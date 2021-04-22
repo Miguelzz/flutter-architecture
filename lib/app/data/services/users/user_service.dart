@@ -9,17 +9,25 @@ class UserService extends UserGateway {
   static final identity = Constants.IDENTITY;
 
   @override
-  Stream<User> getUser() {
-    return _http.get<User>(url: '$identity/users/me');
-  }
+  Stream<User> getUser() => _http.get<User>(url: '$identity/user');
 
   @override
-  Stream<bool> deleteUser() {
-    throw UnimplementedError();
-  }
+  Stream<User> updateNames(String names) =>
+      _http.put<User>(url: '$identity/user/names', data: {'names': names});
 
   @override
-  Stream<User> updateUser(User user) {
-    return _http.put<User>(url: '$identity/users/me', data: user.toJson());
-  }
+  Stream<User> updateSurnames(String surnames) => _http
+      .put<User>(url: '$identity/user/surnames', data: {'surnames': surnames});
+
+  @override
+  Stream<User> updateAddress(String address) => _http
+      .put<User>(url: '$identity/user/address', data: {'address': address});
+
+  @override
+  Stream<User> updateBirthday(String birthday) => _http
+      .put<User>(url: '$identity/user/birthday', data: {'birthday': birthday});
+
+  @override
+  Stream<User> updateEmail(String email) =>
+      _http.put<User>(url: '$identity/user/email', data: {'email': email});
 }

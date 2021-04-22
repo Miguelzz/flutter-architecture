@@ -24,6 +24,8 @@ dependencies:
   dio: ^4.0.0-prev2
   flutter_native_splash: ^1.1.7+1
   navigation_history_observer: ^1.1.0
+  intl: ^0.17.0
+  image_picker: ^0.7.4
 
   cupertino_icons: ^1.0.2
 

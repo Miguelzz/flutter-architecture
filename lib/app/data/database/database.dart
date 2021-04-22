@@ -99,12 +99,6 @@ class AppDatabase {
     }
   }
 
-  Future<Map<String, dynamic>?> getHistoryRoute() async =>
-      await getKey('histoy-route-8');
-  Future<void> setHistoryRoute(Map<String, dynamic> routes) async {
-    await _store.record('histoy-route-8').put(_db, routes);
-  }
-
   Future<Locale?> getLocale() async {
     final locale = await this.getKey('locale');
     if (locale == null) return null;

@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_architecture/app/data/models/user.dart';
 import 'package:flutter_architecture/app/modules/common/components/box.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_architecture/app/modules/common/components/button.dart';
 import 'package:flutter_architecture/app/modules/common/components/fullscreen.dart';
 import 'package:flutter_architecture/app/modules/common/components/input.dart';
@@ -9,138 +12,168 @@ import 'package:get/get.dart';
 import 'package:flutter_architecture/app/modules/main/profile/profile_controller.dart';
 import 'package:flutter_architecture/app/routes/routes_controller.dart';
 
-class ProfilePage extends StatefulWidget {
-  @override
-  _ProfilePageState createState() => _ProfilePageState();
-}
-
-class ShowProps {
-  late bool showNames = false,
-      showSurnames = false,
-      showEmail = false,
-      showBirthday = false,
-      showAddress = false;
-
-  final String? names;
-  final String? surnames;
-  final String? email;
-  final String? address;
-  final DateTime? birthday;
-  ShowProps(
-      this.names, this.surnames, this.birthday, this.email, this.address) {
-    showNames = !empity(names);
-  }
-
-  bool empity(String? value) {
-    return value != null && value != '';
-  }
-}
-
-class _ProfilePageState extends State<ProfilePage> {
+class ProfilePage extends StatelessWidget {
   final RouteController routeController = Get.find();
   final controller = Get.put(ProfileController());
   final names = TextEditingController();
   final surnames = TextEditingController();
   final email = TextEditingController();
   final address = TextEditingController();
-
-  final List<String> showParams = [];
-
-  late DateTime birthday;
-  @override
-  void initState() {
-    final user = controller?.user;
-    names..text = user?.names ?? '';
-    surnames..text = user?.surnames ?? '';
-    birthday = user?.birthday ?? DateTime(DateTime.now().year - 18);
-    email..text = user?.email ?? '';
-    address..text = user?.address ?? '';
-
-    super.initState();
-  }
-
-  bool empity(String? value) {
-    return !(value != null && value != '');
-  }
+  final birthdayText = TextEditingController();
+  late File? _image;
+  final picker = ImagePicker();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: FullScreen(
         safeArea: true,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Center(child: Text('txt_profile'.tr)),
-
-            Text('${controller?.user?.toJson()}'),
-
-            GetBuilder<ProfileController>(builder: (_) {
-              return Column(children: [
+        child: GetBuilder<ProfileController>(builder: (_) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Center(child: Text('txt_profile'.tr)),
+              Center(
+                child: InkWell(
+                  onTap: () async {
+                    await _showSelectionDialog(context, _);
+                  },
+                  child: CircleAvatar(
+                    radius: 40.0,
+                    backgroundImage: ExactAssetImage(
+                        _.user.photo ?? "assets/images/user.png"),
+                    backgroundColor: Colors.transparent,
+                  ),
+                ),
+              ),
+              Column(children: [
                 Input(
-                  controller: names,
+                  controller: TextEditingController(text: _.user.names),
+                  debounce: 2000,
+                  onChanged: _.updateNames,
                   labelText: 'Cual es nombre?',
                   margin: EdgeInsets.only(bottom: 5),
                 ),
                 Input(
-                  controller: surnames,
+                  controller: TextEditingController(text: _.user.surnames),
+                  debounce: 2000,
+                  onChanged: _.updateSurnames,
                   labelText: 'Cual es tu Apellido?',
                   margin: EdgeInsets.only(bottom: 5),
                 ),
                 Input(
-                  controller: email,
+                  keyboardType: TextInputType.emailAddress,
+                  controller: TextEditingController(text: _.user.email),
+                  debounce: 7000,
+                  onChanged: _.updateEmail,
                   labelText: 'Cual es tu correo electronico?',
                   margin: EdgeInsets.only(bottom: 5),
                 ),
                 Input(
-                  controller: address,
+                  controller: TextEditingController(text: _.user.address),
+                  debounce: 2000,
+                  onChanged: _.updateEmail,
                   labelText: 'Cual es tu dereccion?',
                   margin: EdgeInsets.only(bottom: 5),
                 ),
-                Box(
-                  child: Column(
-                    children: [
-                      Text('Cual es su fecha de nacimiento?'),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Container(
-                        height: 150,
-                        child: CupertinoDatePicker(
-                          mode: CupertinoDatePickerMode.date,
-                          initialDateTime: birthday,
-                          onDateTimeChanged: (DateTime newDateTime) {
-                            birthday = newDateTime;
-                          },
-                        ),
-                      ),
-                    ],
+                InkWell(
+                  onTap: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text('Cual es su fecha de nacimiento?'),
+                            content: Container(
+                              height: 150,
+                              child: CupertinoDatePicker(
+                                mode: CupertinoDatePickerMode.date,
+                                initialDateTime: _.user.birthday ??
+                                    DateTime(DateTime.now().year - 18),
+                                onDateTimeChanged: (DateTime newDateTime) {
+                                  _.user.birthday = newDateTime;
+                                },
+                              ),
+                            ),
+                            actions: [
+                              ButtonLoading(
+                                child: Text("OK"),
+                                onPressed: () async {
+                                  await _.updateBirthday(
+                                      _.user.birthday!.toIso8601String());
+                                  Navigator.of(context, rootNavigator: true)
+                                      .pop();
+                                },
+                              ),
+                            ],
+                          );
+                        });
+                  }, // Handle your callback
+                  child: Input(
+                    controller: TextEditingController(
+                        text: DateFormat('MM/dd/yyyy').format(_.user.birthday ??
+                            DateTime(DateTime.now().year - 18))),
+                    enabled: false,
+                    labelText: 'Cual es su fecha de nacimiento?',
+                    margin: EdgeInsets.only(bottom: 5),
                   ),
-                ),
-              ]);
-            }),
-
-            ButtonLoading(
-              onPressed: () async {
-                await controller?.updateUser(User(
-                  names: names.text,
-                  surnames: surnames.text,
-                  email: email.text,
-                  address: address.text,
-                  birthday: birthday,
-                ));
-              },
-              child: Text('Actualizar'),
-            ),
-            // ElevatedButton(
-            //   onPressed: () async {
-            //     routeController.nexBack();
-            //   },
-            //   child: Text('txt_home'.tr),
-            // )
-          ],
-        ),
+                )
+              ])
+            ],
+          );
+        }),
       ),
     );
+  }
+
+  Future<void> _showSelectionDialog(BuildContext context, ProfileController _) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: Text("Cambiar imagen de perfil"),
+              content: SingleChildScrollView(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                      child: Text("Gallery"),
+                      onPressed: () {
+                        _openGallery(context, _);
+                      },
+                    ),
+                    ElevatedButton(
+                      child: Text("Camera"),
+                      onPressed: () {
+                        _openCamera(context, _);
+                      },
+                    )
+                  ],
+                ),
+              ));
+        });
+  }
+
+  void _openGallery(BuildContext context, ProfileController _) async {
+    var pickedFile = await picker.getImage(source: ImageSource.gallery);
+    // setState(() {
+    //   if (pickedFile != null) {
+    //     _image = File(pickedFile.path);
+    //   } else {
+    //     print('No image selected.');
+    //   }
+    // });
+    Navigator.of(context).pop();
+  }
+
+  void _openCamera(BuildContext context, ProfileController _) async {
+    var pickedFile = await picker.getImage(source: ImageSource.camera);
+    // setState(() {
+    //   if (pickedFile != null) {
+    //     _image = File(pickedFile.path);
+    //   } else {
+    //     print('No image selected.');
+    //   }
+    // });
+    Navigator.of(context).pop();
   }
 }

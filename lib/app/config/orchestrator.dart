@@ -76,9 +76,6 @@ class Orchestrator {
           print(token.toJson());
           await _db.setToken(token);
         } on MessageError catch (e) {
-          print('************************');
-          print(e);
-          print('************************');
           final RouteController _route = Get.find();
           await _route.logout();
         }
@@ -87,45 +84,12 @@ class Orchestrator {
     });
   }
 
-  static void _updateRoute() async {
-    final history = (await _db.getHistoryRoute()) ?? {'list': []};
-    var list = history['list'];
-    if (list.length > 5) list = list.sublist(list.length - 5, list.length);
-
-    await Future.delayed(Duration(seconds: 2), () {
-      Get.offAllNamed('/');
-      if (list.length == 0) {
-        Get.offAllNamed('/');
-        list = ['/'];
-      }
-      if (list[0] != '/') list = ['/', ...list];
-      list.forEach((route) => Get.toNamed(route));
-    });
-    await _db.setHistoryRoute({'list': list});
-
-    print(list);
-
-    historyObserver.historyChangeStream.listen((change) {
-      final route = Get.currentRoute;
-      _db.getHistoryRoute().then((value) {
-        final history = value ?? {'list': []};
-        var list = history['list'];
-
-        if (Get.previousRoute == route) {
-          print(list.sublist(0, list.length - 1));
-          _db.setHistoryRoute({'list': list.sublist(0, list.length - 1)});
-        } else {
-          if (!routes.any((x) => Get.currentRoute == x))
-            _db.setHistoryRoute({
-              'list': [...list, route]
-            });
-        }
-      });
-    });
-  }
-
   static Future<void> init() async {
-    _updateRoute();
+    // final route = Get.currentRoute;
+    // if (!routes.any((x) => Get.currentRoute == x) && Get.previousRoute == '') {
+    //   Future.delayed(Duration())
+    // }
+
     _clearTemporary();
     _cleanRecents();
     _resetToken();

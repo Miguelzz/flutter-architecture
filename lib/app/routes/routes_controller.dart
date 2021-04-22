@@ -8,7 +8,7 @@ class RouteController extends GetxController {
   static final AppDatabase _db = Get.find<AppDatabase>();
 
   Future<void> logout() async {
-    Get.offAllNamed('/splash');
+    Get.offAllNamed('/login');
     await _db.setToken(Token());
     await _db.setRoute('/login');
   }
@@ -24,6 +24,7 @@ class RouteController extends GetxController {
     }
     if (route != null) {
       Get.toNamed(route);
+      await _db.setRoute(name);
     }
   }
 
@@ -38,6 +39,7 @@ class RouteController extends GetxController {
     }
     if (route != null) {
       Get.offAllNamed(route);
+      await _db.setRoute(name);
     }
   }
 

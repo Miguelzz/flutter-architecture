@@ -74,6 +74,12 @@ class SettingPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
+                route.nexProfile();
+              },
+              child: Text('txt_profile'.tr),
+            ),
+            ElevatedButton(
+              onPressed: () async {
                 route.nexBack();
               },
               child: Text('txt_home'.tr),

@@ -1,8 +1,8 @@
 import 'package:flutter_architecture/app/data/models/assets.dart';
 
 class User extends Entity {
-  final String? id, prefix, phone, names, surnames, email, address, photo;
-  final DateTime? birthday;
+  String? id, prefix, phone, names, surnames, email, address, photo;
+  DateTime? birthday;
 
   User(
       {this.id,

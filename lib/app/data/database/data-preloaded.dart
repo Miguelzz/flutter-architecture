@@ -33,6 +33,10 @@ class DataPreloaded {
     token = (await _db.getToken()) ?? Token();
     previousCode = (await _db.getPreviousCode()) ?? '0';
 
+    if (Get.previousRoute == '') {
+      route = '/splash';
+    }
+
     await _initConnectivity();
     _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
