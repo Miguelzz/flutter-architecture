@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_architecture/app/data/models/message_error.dart';
-import 'package:flutter_architecture/app/modules/main/main_controller.dart';
+import 'package:flutter_architecture/app/config/app_events.dart';
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/data/database/data-preloaded.dart';
 import 'package:flutter_architecture/app/data/models/factories.dart';
@@ -40,8 +39,8 @@ class ServiceTemporary {
       InterceptorsWrapper(
         onRequest: (options, handler) {
           print('interceptor');
-          print('TOKEN: ${DataPreloaded.token.token}');
-          options.headers["x-token"] = DataPreloaded.token.token ?? '';
+          print('TOKEN: ${EventsApp.stringToken}');
+          options.headers["x-token"] = EventsApp.stringToken;
           handler.next(options);
         },
         onResponse: (response, handler) {

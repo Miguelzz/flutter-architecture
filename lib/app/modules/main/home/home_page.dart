@@ -1,61 +1,189 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_architecture/app/modules/common/components/fullscreen.dart';
-import 'package:get/get.dart';
-import 'package:flutter_architecture/app/modules/main/home/home_controller.dart';
-import 'package:flutter_architecture/app/modules/main/main_controller.dart';
+import 'package:flutter_architecture/app/modules/main/home/home_body.dart';
 import 'package:flutter_architecture/app/routes/routes_controller.dart';
+import 'package:get/get.dart';
 
-class HomePage extends StatelessWidget {
-  final home = Get.put(HomeController());
-  final MainController mainController = Get.find();
-  final RouteController routeController = Get.find();
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
+  late TabController _controller;
+  final RouteController _route = Get.find();
+  ScrollController? _scrollViewController;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TabController(length: 3, vsync: this);
+    _controller.index = 1;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Scaffold(
-      body: FullScreen(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              height: size.height * 0.3,
-              child: Center(
-                child: Text('txt_home'.tr),
+      body: NestedScrollView(
+        controller: _scrollViewController,
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return [
+            SliverAppBar(
+              title: Text('Arquitecture'),
+              pinned: true,
+              floating: true,
+              forceElevated: innerBoxIsScrolled,
+              bottom: TabBar(
+                tabs: [
+                  Tab(icon: Text('OPCION')),
+                  Tab(icon: Text('txt_home'.tr)),
+                  Tab(icon: Text('OPCION')),
+                ],
+                controller: _controller,
               ),
-            ),
-            Container(
-              width: size.width * 0.7,
-              child: GetBuilder<HomeController>(
-                builder: (_) => Text('${home?.token.toJson()}'),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () async {
-                    routeController.nexSetting();
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () {
+                    showSearch(
+                        context: context, delegate: DataSearch(listWords));
                   },
-                  child: Text('txt_setting'.tr),
                 ),
-                ElevatedButton(
-                  onPressed: () async {
-                    routeController.nexProfile();
+                PopupMenuButton(
+                  child: Padding(
+                    padding: EdgeInsets.only(right: 10),
+                    child: Icon(Icons.more_vert),
+                  ),
+                  onSelected: (value) {
+                    switch (value) {
+                      case 'setting':
+                        _route.nexSetting();
+                        break;
+                      case 'profile':
+                        _route.nexProfile();
+                        break;
+                      case 'login':
+                        _route.logout();
+                        break;
+                    }
                   },
-                  child: Text('txt_profile'.tr),
+                  itemBuilder: (context) {
+                    return [
+                      PopupMenuItem(
+                        value: 'setting',
+                        child: Text('txt_setting'.tr),
+                      ),
+                      PopupMenuItem(
+                        value: 'profile',
+                        child: Text('txt_profile'.tr),
+                      ),
+                      PopupMenuItem(
+                        value: 'login',
+                        child: Text('txt_login'.tr),
+                      )
+                    ];
+                  },
                 ),
               ],
             ),
-            ElevatedButton(
-              onPressed: () async {
-                routeController.logout();
-              },
-              child: Text('txt_login'.tr),
-            )
+          ];
+        },
+        body: TabBarView(
+          children: [
+            Text('opcion'),
+            HomeBody(),
+            Text('opcion'),
           ],
+          controller: _controller,
         ),
       ),
+    );
+  }
+}
+
+List<ListWords> listWords = [
+  ListWords('oneWord', 'OneWord definition'),
+  ListWords('twoWord', 'TwoWord definition.'),
+  ListWords('TreeWord', 'TreeWord definition'),
+];
+
+class ListWords {
+  final String titlelist;
+  final String definitionlist;
+
+  ListWords(this.titlelist, this.definitionlist);
+}
+
+class DataSearch extends SearchDelegate<String> {
+  final List<ListWords> listWords;
+
+  DataSearch(this.listWords);
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    //Actions for app bar
+    return [
+      IconButton(
+          icon: Icon(Icons.clear),
+          onPressed: () {
+            query = '';
+          })
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    //leading icon on the left of the app bar
+    return IconButton(
+        icon: AnimatedIcon(
+          icon: AnimatedIcons.menu_arrow,
+          progress: transitionAnimation,
+        ),
+        onPressed: () {
+          close(context, 'null');
+        });
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    // show some result based on the selection
+    return Center(
+      child: Text(query),
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    // show when someone searches for something
+    final suggestionList = query.isEmpty
+        ? listWords
+        : listWords; //.where((p) => p.startsWith(query)).toList();
+
+    return ListView.builder(
+      itemBuilder: (context, index) => ListTile(
+        onTap: () {
+          showResults(context);
+        },
+        trailing: Icon(Icons.remove_red_eye),
+        title: RichText(
+          text: TextSpan(
+              text: suggestionList[index].titlelist.substring(0, query.length),
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              children: [
+                TextSpan(
+                    text:
+                        suggestionList[index].titlelist.substring(query.length),
+                    style: TextStyle(color: Colors.grey))
+              ]),
+        ),
+      ),
+      itemCount: suggestionList.length,
     );
   }
 }

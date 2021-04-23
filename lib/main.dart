@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/data/database/data-preloaded.dart';
-import 'package:flutter_architecture/app/modules/splash/splash_binding.dart';
 import 'package:flutter_architecture/app/routes/routes.dart';
 import 'package:flutter_architecture/app/translations/main_translation.dart';
 import 'package:flutter_architecture/app/config/injections.dart';
 import 'package:flutter_architecture/app/config/orchestrator.dart';
 import 'package:navigation_history_observer/navigation_history_observer.dart';
+import 'app/config/app_events.dart';
 import 'app/data/database/database.dart';
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   DependencyInjection.init();
+  DataPreloaded.useMock = false;
 
   await AppDatabase.init();
   await DataPreloaded.init();
   await Orchestrator.init();
-  DataPreloaded.useMock = false;
+  await EventsApp.init();
 
   runApp(MyApp());
 }
@@ -39,7 +40,6 @@ class MyApp extends StatelessWidget {
         locale: DataPreloaded.locale,
         theme: DataPreloaded.theme,
         getPages: routes,
-        initialBinding: SplashBinding(),
       ),
     );
   }

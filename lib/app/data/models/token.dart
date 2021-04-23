@@ -1,18 +1,21 @@
 import 'package:flutter_architecture/app/data/models/assets.dart';
 
 class Token extends Entity {
-  final DateTime? expiresAt;
-  final String? token;
+  DateTime? expiresAt;
+  String? token;
+
+  int get expirationSeconds =>
+      (expiresAt ?? DateTime.now()).difference(DateTime.now()).inSeconds;
+
+  static DateTime expirationDate(int seconds) =>
+      DateTime.now().add(Duration(seconds: seconds));
 
   Token({this.expiresAt, this.token});
 
   @override
   Map<String, dynamic> toJson() {
-    final seconds =
-        (expiresAt ?? DateTime.now()).difference(DateTime.now()).inSeconds;
-
     return {
-      ...addIfNotNull('expiresAt', seconds),
+      ...addIfNotNull('expiresAt', expirationSeconds),
       ...addIfNotNull('token', token),
     };
   }
@@ -21,11 +24,10 @@ class Token extends Entity {
   Token? fromJson(dynamic json) {
     if (json != null) {
       parametersExist(json, ['expiresAt', 'token']);
-      DateTime now = new DateTime.now();
       final expired = convertToInt(json['expiresAt']) ?? 0;
 
       return Token(
-        expiresAt: now.add(Duration(seconds: expired)),
+        expiresAt: expirationDate(expired),
         token: json['token'],
       );
     }

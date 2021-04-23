@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'package:flutter_architecture/app/data/models/token.dart';
 import 'package:flutter_architecture/app/data/database/database.dart';
-import 'package:flutter_architecture/app/data/models/user.dart';
 import 'package:flutter_architecture/app/config/theme/dark.dart';
 import 'package:flutter_architecture/app/config/theme/custom.dart';
 import 'package:flutter_architecture/app/config/theme/light.dart';
@@ -16,26 +14,24 @@ class DataPreloaded {
   static final Connectivity _connectivity = Connectivity();
   static late StreamSubscription<ConnectivityResult> _connectivitySubscription;
 
-  static late bool useMock;
-  static late String route, previousCode;
-  static late Token token;
+  static bool useMock = false;
+  static bool connection = false;
+
+  static late String route;
   static late ThemeData theme;
   static late Locale locale;
-  static late bool connection;
-  static late User user;
 
   static Future<void> init() async {
-    useMock = false;
-    connection = false;
     locale = (await _db.getLocale()) ?? Locale('en', 'CO');
-    route = (await _db.getRoute()) ?? '/splash';
-    user = (await _db.getUser()) ?? User();
-    token = (await _db.getToken()) ?? Token();
-    previousCode = (await _db.getPreviousCode()) ?? '0';
 
-    if (Get.previousRoute == '') {
-      route = '/splash';
-    }
+    final getRoute = await _db.getRoute();
+
+    if (getRoute == null || await _db.getToken() == null)
+      route = '/login';
+    else if (Get.previousRoute == '')
+      route = '/';
+    else
+      route = getRoute;
 
     await _initConnectivity();
     _connectivitySubscription =
@@ -80,11 +76,3 @@ class DataPreloaded {
     _connectivitySubscription.cancel();
   }
 }
-
-// class SelectTheme {
-//   ValueGetter<Future<void>> light;
-//   ValueGetter<Future<void>> dark;
-//   ValueGetter<Future<void>> custom;
-
-//   SelectTheme(this.light, this.dark, this.custom);
-// }

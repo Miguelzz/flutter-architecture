@@ -48,7 +48,8 @@ class _InputState extends State<Input> {
         onChanged: widget.onChanged != null
             ? (value) {
                 if (_debounce.isActive) _debounce.cancel();
-                _debounce = Timer(Duration(milliseconds: 500), () {
+                _debounce =
+                    Timer(Duration(milliseconds: widget.debounce ?? 0), () {
                   widget.onChanged!(value);
                 });
               }

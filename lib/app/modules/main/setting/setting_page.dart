@@ -12,16 +12,11 @@ class SettingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
+      appBar: AppBar(title: Text('txt_setting'.tr)),
       body: FullScreen(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              height: size.height * 0.3,
-              child: Center(
-                child: Text('txt_setting'.tr),
-              ),
-            ),
             Column(
               children: [
                 Text('txt_theme'.tr),
@@ -40,12 +35,6 @@ class SettingPage extends StatelessWidget {
                       },
                       child: Text('txt_light'.tr),
                     ),
-                    // ElevatedButton(
-                    //   onPressed: () async {
-                    //     await setting.theme.custom();
-                    //   },
-                    //   child: Text('txt_custom'.tr),
-                    // ),
                   ],
                 ),
               ],
@@ -72,18 +61,6 @@ class SettingPage extends StatelessWidget {
                 ),
               ],
             ),
-            ElevatedButton(
-              onPressed: () async {
-                route.nexProfile();
-              },
-              child: Text('txt_profile'.tr),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                route.nexBack();
-              },
-              child: Text('txt_home'.tr),
-            )
           ],
         ),
       ),

@@ -75,22 +75,21 @@ class AppDatabase {
       await _store.record('theme').put(_db, theme);
 
   Future<Token?> getToken() async => Token().fromJson(await getKey('token'));
-  Future<void> setToken(Token token) async {
-    DataPreloaded.token = token;
-    return await _store.record('token').put(_db, token.toJson());
-  }
+  Future<void> deleteToken() async => await _store.record('token').delete(_db);
+  Future<void> setToken(Token token) async =>
+      await _store.record('token').put(_db, token.toJson());
 
   Future<String?> getPreviousCode() async => await getKey('previousCode');
-  Future<void> setPreviousCode(String code) async {
-    DataPreloaded.previousCode = code;
-    return await _store.record('previousCode').put(_db, code);
-  }
+  Future<void> setPreviousCode(String code) async =>
+      await _store.record('previousCode').put(_db, code);
 
+  Future<void> deletePreviousCode() async =>
+      await _store.record('previousCode').delete(_db);
+
+  Future<void> deleteUser() async => await _store.record('user').delete(_db);
   Future<User?> getUser() async => User().fromJson(await getKey('user'));
-  Future<void> setUser(User user) async {
-    DataPreloaded.user = user;
-    return await _store.record('user').put(_db, user.toJson());
-  }
+  Future<void> setUser(User user) async =>
+      await _store.record('user').put(_db, user.toJson());
 
   Future<String?> getRoute() async => await getKey('route');
   Future<void> setRoute(String route) async {
