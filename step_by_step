@@ -1,0 +1,16 @@
+https://flutter.dev/docs/deployment/android
+
+// COPY IN ===> android => app => keys => key.jks
+
+storePassword=architecture
+keyPassword=architecture
+keyAlias=architecture
+storeFile=keys//key.jks
+
+// RUN COMANDAD
+
+keytool -genkey -v -keystore C:\Users\migue\OneDrive\Escritorio\APPS\flutter-architecture\android\app\keys\key.jks -storetype JKS -keyalg RSA -keysize 2048 -validity 10000 -alias architecture
+
+
+
+flutter build appbundle
