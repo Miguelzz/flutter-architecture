@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_architecture/app/data/services/login/login_service.dart';
 import 'package:flutter_architecture/app/data/services/users/user_service.dart';
+import 'package:flutter_architecture/app/modules/login/login_controller.dart';
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/data/database/database.dart';
 import 'package:flutter_architecture/app/config/interceptors.dart';
@@ -20,6 +21,7 @@ class DependencyInjection {
     Get.put(UserService());
 
     // Controllers
+    Get.put(LoginController());
     Get.put(MainController());
     Get.put(SettingController());
     Get.put(RouteController());

@@ -12,6 +12,7 @@ class Input extends StatefulWidget {
   final int? debounce;
   final EdgeInsetsGeometry? margin;
   final void Function(String)? onChanged;
+  final double? width;
 
   Input(
       {this.controller,
@@ -21,7 +22,8 @@ class Input extends StatefulWidget {
       this.enabled,
       this.debounce,
       this.textAlign,
-      this.onChanged});
+      this.onChanged,
+      this.width});
 
   @override
   _InputState createState() => _InputState();
@@ -40,6 +42,7 @@ class _InputState extends State<Input> {
   @override
   Widget build(BuildContext context) {
     return Box(
+      width: widget.width,
       margin: widget.margin,
       child: TextField(
         controller: widget.controller,

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_architecture/app/config/constants.dart';
+import 'package:flutter_architecture/app/config/theme/theme.dart';
 import 'package:flutter_architecture/app/modules/main/home/home_body.dart';
 import 'package:flutter_architecture/app/routes/routes_controller.dart';
 import 'package:get/get.dart';
@@ -35,15 +37,15 @@ class _HomePageState extends State<HomePage>
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return [
             SliverAppBar(
-              title: Text('Arquitecture'),
+              title: Text(Constants.NAME_APP),
               pinned: true,
               floating: true,
               forceElevated: innerBoxIsScrolled,
               bottom: TabBar(
                 tabs: [
-                  Tab(icon: Text('OPCION')),
+                  Tab(icon: Text('OPCIÓN')),
                   Tab(icon: Text('txt_home'.tr)),
-                  Tab(icon: Text('OPCION')),
+                  Tab(icon: Text('OPCIÓN')),
                 ],
                 controller: _controller,
               ),
@@ -174,7 +176,8 @@ class DataSearch extends SearchDelegate<String> {
         title: RichText(
           text: TextSpan(
               text: suggestionList[index].titlelist.substring(0, query.length),
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              style:
+                  TextStyle(color: PRIMARY_COLOR, fontWeight: FontWeight.bold),
               children: [
                 TextSpan(
                     text:

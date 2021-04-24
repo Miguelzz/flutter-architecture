@@ -1,3 +1,4 @@
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/data/database/data-preloaded.dart';
@@ -40,6 +41,13 @@ class MyApp extends StatelessWidget {
         locale: DataPreloaded.locale,
         theme: DataPreloaded.theme,
         getPages: routes,
+        supportedLocales: [
+          Locale('en'),
+          Locale('es'),
+        ],
+        localizationsDelegates: [
+          CountryLocalizations.delegate,
+        ],
       ),
     );
   }

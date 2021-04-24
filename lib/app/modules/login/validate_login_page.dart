@@ -1,13 +1,15 @@
-import 'package:flutter_architecture/app/modules/common/components/input.dart';
-import 'package:get/get.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_architecture/app/modules/common/components/button.dart';
+import 'package:flutter_architecture/app/config/constants.dart';
+import 'package:flutter_architecture/app/config/theme/theme.dart';
+import 'package:flutter_architecture/app/modules/common/components/box.dart';
+import 'package:flutter_architecture/app/modules/common/components/fonts.dart';
 import 'package:flutter_architecture/app/modules/common/components/fullscreen.dart';
 import 'package:flutter_architecture/app/modules/login/login_controller.dart';
 import 'package:flutter_architecture/app/routes/routes_controller.dart';
+import 'package:sms_autofill/sms_autofill.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ValidateLoginPage extends StatelessWidget {
-  final controller = Get.put(LoginController());
   final RouteController route = Get.find();
   final code = TextEditingController()..text = '';
 
@@ -15,43 +17,59 @@ class ValidateLoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
-      body: FullScreen(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Container(
-              height: size.height * 0.3,
-              child: Center(
-                child: Text('Autenticate'),
-              ),
-            ),
-            Container(
-              width: size.width * 0.7,
-              child: Column(
+      body: GetBuilder<LoginController>(builder: (_) {
+        return FullScreen(
+          safeArea: true,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
                 children: [
-                  Input(
-                    keyboardType: TextInputType.number,
+                  H4(
+                    'Verificar +${_.codePhone} ${_.phone}',
                     textAlign: TextAlign.center,
-                    controller: code,
-                    labelText: 'Codigo',
+                    color: PRIMARY_COLOR,
+                  ),
+                  SizedBox(height: 20),
+                  P(
+                    'Se te envió un mensaje a tu numero de WhatsApp. Revisa tus mensajes.',
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ButtonLoading(
-                  onPressed: () async {
-                    await controller?.validateLogin(code: code.text);
-                  },
-                  child: Text('txt_continue'.tr),
-                )
-              ],
-            ),
-          ],
-        ),
-      ),
+              Box(
+                  maxWidth: 200,
+                  child: Column(
+                    children: [
+                      H4(
+                        'Código',
+                        textAlign: TextAlign.center,
+                        color: PRIMARY_COLOR,
+                      ),
+                      PinFieldAutoFill(
+                        codeLength: 4,
+                        decoration: UnderlineDecoration(
+                          textStyle:
+                              TextStyle(fontSize: 20, color: Colors.black),
+                          colorBuilder:
+                              FixedColorBuilder(Colors.black.withOpacity(0.3)),
+                        ),
+                        currentCode: _.code,
+                        onCodeChanged: (code) async {
+                          _.changeCode(code!);
+                          if (code.length == 4) {
+                            FocusScope.of(context).requestFocus(FocusNode());
+                            await _.validateLogin();
+                          }
+                        },
+                      ),
+                    ],
+                  )),
+              Text(Constants.NAME_APP)
+            ],
+          ),
+        );
+      }),
     );
   }
 }

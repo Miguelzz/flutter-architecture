@@ -32,7 +32,7 @@ class HomeBody extends StatelessWidget {
           Container(
             width: size.width * 0.7,
             child: GetBuilder<HomeController>(
-              builder: (_) => Text('${_.token.toJson()} ${_.user.names}'),
+              builder: (_) => Text('${_.token.toJson()}'),
             ),
           ),
         ],

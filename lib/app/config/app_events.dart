@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_architecture/app/config/theme/theme.dart';
 import 'package:flutter_architecture/app/data/database/database.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter_architecture/app/data/models/token.dart';
@@ -31,55 +33,62 @@ class EventsApp {
     await _db.setUser(user);
   }
 
-  static Future<void> initToken() async {
-    Token token = (await _db.getToken()) ?? Token();
-    changueToken(token);
-    int max = token.expirationSeconds;
+  static Future<void> initToken(Token internalToken) async {
+    int max = internalToken.expirationSeconds;
     bool resetAttempt = false;
-    bool logout = false;
 
     Timer.periodic(Duration(seconds: 1), (timer) async {
-      if (max < 15) {
-        if (!resetAttempt) {
-          resetAttempt = true;
-          print('resetToken');
-          final user = await _db.getUser();
-          final previousCode = await _db.getPreviousCode();
+      try {
+        if (token.expirationSeconds < 15) {
+          if (!resetAttempt) {
+            print('resetToken');
+            resetAttempt = true;
+            final user = EventsApp.user;
+            final previousCode = await _db.getPreviousCode();
 
-          if (user == null || previousCode == null) {
-            if (!logout) {
-              await route.logout();
-              logout = true;
-              print('logout');
-            }
-            resetAttempt = false;
-          } else {
-            try {
-              token = await _loginService
+            if (previousCode != null) {
+              internalToken = await _loginService
                   .resetToken(user.prefix!, user.phone!, previousCode)
                   .first;
-              max = token.expirationSeconds;
-              await _db.setToken(token);
+              max = internalToken.expirationSeconds;
+              await changueToken(internalToken);
               resetAttempt = false;
-            } catch (e) {}
+            }
           }
+        } else {
+          max--;
+          internalToken.expiresAt = Token.expirationDate(max);
+          await changueToken(token);
         }
-      } else {
-        max--;
-        token.expiresAt = Token.expirationDate(max);
-        changueToken(token);
-      }
+      } catch (e) {}
     });
   }
 
-  static Future<void> initUser() async {
-    User user = (await _db.getUser()) ?? User();
-    changueUser(user);
+  static Future<void> initUser(User internalUser) async {
+    changueUser(internalUser);
   }
 
   static Future<void> init() async {
-    await initToken();
-    await initUser();
+    final user = (await _db.getUser()) ?? User();
+    final token = (await _db.getToken()) ?? Token();
+    await changueToken(token);
+    await changueUser(user);
+    await initUser(user);
+    await initToken(token);
+  }
+
+  static Future<T> dialogLoading<T>(
+      String title, Future<T> Function() callback) async {
+    final _stop = BehaviorSubject<bool>();
+    Get.defaultDialog(
+        title: title,
+        content: CircularProgressIndicator(backgroundColor: PRIMARY_COLOR),
+        onWillPop: () async => await _stop.first);
+    final result = await callback();
+    Get.back();
+    _stop.add(true);
+    _stop.close();
+    return result;
   }
 
   close() {

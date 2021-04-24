@@ -251,6 +251,7 @@ class ServiceTemporary {
         }
       } on DioError catch (e) {
         final data = e.response?.data ?? {'message': 'Error!', 'errors': []};
+        Get.back();
         Get.defaultDialog(
           title: data['message'] ?? 'Error!',
           content: Column(
@@ -343,6 +344,7 @@ class ServiceTemporary {
         }
       } on DioError catch (e) {
         final data = e.response?.data ?? {'message': 'Error!', 'errors': []};
+        Get.back();
         Get.defaultDialog(
           title: data['message'] ?? 'Error!',
           content: Column(

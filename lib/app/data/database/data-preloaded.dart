@@ -7,6 +7,7 @@ import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+
 import 'package:get/get.dart';
 
 class DataPreloaded {
@@ -26,11 +27,11 @@ class DataPreloaded {
 
     final getRoute = await _db.getRoute();
 
-    if (getRoute == null || await _db.getToken() == null)
-      route = '/login';
-    else if (Get.previousRoute == '')
-      route = '/';
-    else
+    print(await _db.getPreviousCode());
+
+    if ((await _db.getPreviousCode()) == null || getRoute == null) {
+      route = '/terms';
+    } else
       route = getRoute;
 
     await _initConnectivity();

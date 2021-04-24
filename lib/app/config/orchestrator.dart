@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter_architecture/app/data/services/login/login_service.dart';
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/data/database/database.dart';
 import 'package:flutter_architecture/app/config/interceptors.dart';
@@ -7,20 +6,20 @@ import 'package:navigation_history_observer/navigation_history_observer.dart';
 
 class Orchestrator {
   static final AppDatabase _db = Get.find<AppDatabase>();
-  static final LoginService _loginService = Get.find<LoginService>();
   static final NavigationHistoryObserver historyObserver =
       NavigationHistoryObserver();
 
   static final routes = [
-    '/register',
-    '/register/step2',
-    '/register/step3',
+    '/terms',
     '/splash',
     '/login',
     '/validate-login',
+    '/terms',
+    '/read-terms',
+    '/number',
   ];
 
-  static void _cleanRecents() {
+  static void _cleanRecent() {
     Timer.periodic(Duration(seconds: 5), (timer) {
       ServiceTemporary.recentPost = ServiceTemporary.recentPost
           .where((x) => DateTime.now().difference(x.date).inSeconds <= 3)
@@ -45,6 +44,6 @@ class Orchestrator {
 
   static Future<void> init() async {
     _clearTemporary();
-    _cleanRecents();
+    _cleanRecent();
   }
 }
