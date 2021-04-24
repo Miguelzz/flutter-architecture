@@ -13,10 +13,10 @@ class Orchestrator {
     '/terms',
     '/splash',
     '/login',
-    '/validate-login',
+    '/validate-code',
     '/terms',
     '/read-terms',
-    '/number',
+    '/validate-number',
   ];
 
   static void _cleanRecent() {

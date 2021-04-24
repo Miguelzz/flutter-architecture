@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_architecture/app/modules/common/components/box.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter_architecture/app/modules/common/components/button.dart';
+import 'package:flutter/cupertino.dart';
 
 class Input extends StatefulWidget {
   final TextEditingController? controller;
@@ -62,6 +65,59 @@ class _InputState extends State<Input> {
           // border: OutlineInputBorder(),
           labelText: widget.labelText,
         ),
+      ),
+    );
+  }
+}
+
+class InputDate extends StatelessWidget {
+  final DateTime? initialDateTime;
+  final void Function(DateTime) onDateTimeChanged;
+  final double? width;
+
+  final int? debounce;
+
+  InputDate(
+      {this.initialDateTime,
+      this.width,
+      this.debounce,
+      required this.onDateTimeChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    Timer _debounce = Timer(Duration(milliseconds: debounce ?? 0), () {});
+
+    return InkWell(
+      onTap: () {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text('Cual es su fecha de nacimiento?'),
+                content: Container(
+                  height: 150,
+                  child: CupertinoDatePicker(
+                      mode: CupertinoDatePickerMode.date,
+                      initialDateTime: initialDateTime,
+                      onDateTimeChanged: (value) {
+                        if (_debounce.isActive) _debounce.cancel();
+                        _debounce =
+                            Timer(Duration(milliseconds: debounce ?? 0), () {
+                          onDateTimeChanged(value);
+                        });
+                      }),
+                ),
+              );
+            });
+      }, // Handle your callback
+      child: Input(
+        width: width,
+        controller: TextEditingController(
+            text: DateFormat('MM/dd/yyyy')
+                .format(initialDateTime ?? DateTime(DateTime.now().year - 18))),
+        enabled: false,
+        labelText: 'Cual es su fecha de nacimiento?',
+        margin: EdgeInsets.only(bottom: 5),
       ),
     );
   }

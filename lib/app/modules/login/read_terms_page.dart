@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_architecture/app/modules/common/components/box.dart';
 import 'package:flutter_architecture/app/modules/common/components/fonts.dart';
 import 'package:flutter_architecture/app/modules/common/components/fullscreen.dart';
 import 'package:flutter_architecture/app/modules/login/login_controller.dart';
@@ -16,13 +15,13 @@ class ReadTermsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Terminos y Condiciones'),
+        title: Text('Términos y Condiciones'),
       ),
       body: FullScreen(
         safeArea: true,
         child: Column(
           children: [
-            H5('TERMINOS Y CONDICIONES DE USO DE LA APLICACIÓN'),
+            H5('TÉRMINOS Y CONDICIONES DE USO DE LA APLICACIÓN'),
             P('Estos Términos y Condiciones regulan la descarga, acceso y utilización de la aplicación móvil (en adelante, la “APLICACIÓN”), que PRODUCCIONES ERTAL, S.L. ponen a disposición de los usuarios.'),
             P('Esta versión de la APLICACIÓN está disponible de forma gratuita.'),
             P('El acceso a la APLICACIÓN supone que el usuario reconoce ha aceptado y consentido sin reservas de las presentes condiciones de uso.'),

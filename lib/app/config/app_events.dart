@@ -34,14 +34,17 @@ class EventsApp {
   }
 
   static Future<void> initToken(Token internalToken) async {
+    await changueToken(token);
+
     int max = internalToken.expirationSeconds;
     bool resetAttempt = false;
 
     Timer.periodic(Duration(seconds: 1), (timer) async {
       try {
-        if (token.expirationSeconds < 15) {
+        final previousCode = await _db.getPreviousCode();
+
+        if (token.expirationSeconds < 15 && previousCode != null) {
           if (!resetAttempt) {
-            print('resetToken');
             resetAttempt = true;
             final user = EventsApp.user;
             final previousCode = await _db.getPreviousCode();
@@ -55,24 +58,26 @@ class EventsApp {
               resetAttempt = false;
             }
           }
-        } else {
-          max--;
-          internalToken.expiresAt = Token.expirationDate(max);
-          await changueToken(token);
         }
-      } catch (e) {}
+        max--;
+        internalToken.expiresAt = Token.expirationDate(max);
+        await changueToken(token);
+      } catch (e) {
+        //resetAttempt = false;
+        //await route.logout();
+      }
     });
   }
 
   static Future<void> initUser(User internalUser) async {
-    changueUser(internalUser);
+    await changueUser(internalUser);
   }
 
   static Future<void> init() async {
     final user = (await _db.getUser()) ?? User();
     final token = (await _db.getToken()) ?? Token();
-    await changueToken(token);
-    await changueUser(user);
+    print(token.toJson());
+    print(user.toJson());
     await initUser(user);
     await initToken(token);
   }

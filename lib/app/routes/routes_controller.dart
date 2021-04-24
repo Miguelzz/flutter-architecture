@@ -13,7 +13,7 @@ class RouteController extends GetxController {
     await _db.deleteUser();
     await _db.deletePreviousCode();
     await EventsApp.changueToken(Token());
-    await nexTerms();
+    await offAllTerms();
   }
 
   Future<void> _nexRoute(String name) async {
@@ -67,15 +67,17 @@ class RouteController extends GetxController {
       Get.back();
   }
 
-  Future<void> nexHome() async => await _nexRoute('/');
   Future<void> offAllHome() async => await _offAllNamedRoute('/');
 
-  Future<void> nexSetting() async => await _nexRoute('/setting');
-  Future<void> nexProfile() async => await _nexRoute('/profile');
+  Future<void> nexSetting() async => await _nexRouteNoSave('/setting');
+  Future<void> nexProfile() async => await _nexRouteNoSave('/profile');
 
-  Future<void> nexTerms() async => await _offAllNamedRoute('/terms');
+  Future<void> offAllTerms() async => await _offAllNamedRoute('/terms');
   Future<void> nexReadTerms() async => await _nexRouteNoSave('/read-terms');
-  Future<void> nexNumber() async => await _nexRouteNoSave('/number');
+  Future<void> nexNumber() async => await _nexRouteNoSave('/validate-number');
+  Future<void> nexValidateCode() async =>
+      await _nexRouteNoSave('/validate-code');
+  Future<void> offAllUserInfo() async => await _offAllNamedRoute('/user-info');
 
   Future<void> nexNone() async => await _nexRouteNoSave('/none');
 

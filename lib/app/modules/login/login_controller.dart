@@ -5,10 +5,15 @@ import 'package:flutter_architecture/app/data/services/users/user_service.dart';
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/data/database/database.dart';
 
+import 'package:flutter_architecture/app/routes/routes_controller.dart';
+
+import '../main/profile/profile_controller.dart';
+
 class LoginController extends GetxController {
   static final AppDatabase _db = Get.find<AppDatabase>();
   static final LoginService _loginService = Get.find<LoginService>();
   static final UserService _userService = Get.find<UserService>();
+  static final RouteController route = Get.find();
 
   String country = 'Colombia';
   String codePhone = '57';
@@ -34,25 +39,24 @@ class LoginController extends GetxController {
     update();
   }
 
-  Future<void> login() async {
-    await EventsApp.dialogLoading<bool>('Validando...', () async {
+  Future<void> validateNumber() async {
+    await EventsApp.dialogLoading('Validando...', () async {
       return await _loginService.login(codePhone, phone, 'code [code]').first;
     });
-
-    Get.toNamed('/validate-login');
+    route.nexValidateCode();
   }
 
-  Future<void> validateLogin() async {
+  Future<void> validateCode() async {
     await _db.setPreviousCode(code);
     final token = await EventsApp.dialogLoading('Verificando...', () async {
       return await _loginService.validateLogin(codePhone, phone, code).first;
     });
 
     await EventsApp.changueToken(token);
-    Get.offAllNamed('/');
-    await _db.setRoute('/');
     final user = await _userService.getUser().first;
     await EventsApp.changueUser(user);
+
+    await route.offAllUserInfo();
   }
 
   @override

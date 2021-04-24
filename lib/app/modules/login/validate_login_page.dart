@@ -15,7 +15,6 @@ class ValidateLoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Scaffold(
       body: GetBuilder<LoginController>(builder: (_) {
         return FullScreen(
@@ -59,7 +58,7 @@ class ValidateLoginPage extends StatelessWidget {
                           _.changeCode(code!);
                           if (code.length == 4) {
                             FocusScope.of(context).requestFocus(FocusNode());
-                            await _.validateLogin();
+                            await _.validateCode();
                           }
                         },
                       ),

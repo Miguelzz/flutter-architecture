@@ -7,6 +7,7 @@ import 'package:flutter_architecture/app/data/database/database.dart';
 import 'package:flutter_architecture/app/config/interceptors.dart';
 import 'package:flutter_architecture/app/modules/main/main_controller.dart';
 import 'package:flutter_architecture/app/modules/main/setting/setting_controller.dart';
+import 'package:flutter_architecture/app/modules/main/profile/profile_controller.dart';
 import 'package:flutter_architecture/app/routes/routes_controller.dart';
 import 'package:flutter_architecture/app/config/constants.dart';
 
@@ -22,6 +23,7 @@ class DependencyInjection {
 
     // Controllers
     Get.put(LoginController());
+    Get.put(ProfileController());
     Get.put(MainController());
     Get.put(SettingController());
     Get.put(RouteController());

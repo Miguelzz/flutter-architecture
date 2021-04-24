@@ -23,6 +23,13 @@ class ServiceTemporary {
   static List<Recent> recentPost = [];
   static List<Recent> recentPut = [];
   static List<Recent> recentGet = [];
+  static String _token = '';
+
+  static init() {
+    EventsApp.token$.listen((value) {
+      _token = value.token ?? '';
+    });
+  }
 
   final Dio _dio = Dio(
     BaseOptions(
@@ -39,8 +46,8 @@ class ServiceTemporary {
       InterceptorsWrapper(
         onRequest: (options, handler) {
           print('interceptor');
-          print('TOKEN: ${EventsApp.stringToken}');
-          options.headers["x-token"] = EventsApp.stringToken;
+          print('TOKEN: $_token');
+          options.headers["x-token"] = _token;
           handler.next(options);
         },
         onResponse: (response, handler) {

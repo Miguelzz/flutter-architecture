@@ -29,7 +29,9 @@ class DataPreloaded {
 
     print(await _db.getPreviousCode());
 
-    if ((await _db.getPreviousCode()) == null || getRoute == null) {
+    if (getRoute == '/user-info')
+      route = '/user-info';
+    else if ((await _db.getPreviousCode()) == null || getRoute == null) {
       route = '/terms';
     } else
       route = getRoute;

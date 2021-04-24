@@ -8,6 +8,7 @@ import 'package:flutter_architecture/app/config/injections.dart';
 import 'package:flutter_architecture/app/config/orchestrator.dart';
 import 'package:navigation_history_observer/navigation_history_observer.dart';
 import 'app/config/app_events.dart';
+import 'app/config/interceptors.dart';
 import 'app/data/database/database.dart';
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
@@ -20,7 +21,7 @@ void main() async {
   await DataPreloaded.init();
   await Orchestrator.init();
   await EventsApp.init();
-
+  ServiceTemporary.init();
   runApp(MyApp());
 }
 

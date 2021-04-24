@@ -11,12 +11,7 @@ import 'package:flutter_architecture/app/config/constants.dart';
 import 'package:flutter_architecture/app/routes/routes_controller.dart';
 import 'package:get/get.dart';
 
-class NumberPage extends StatefulWidget {
-  @override
-  _NumberPageState createState() => _NumberPageState();
-}
-
-class _NumberPageState extends State<NumberPage> {
+class NumberPage extends StatelessWidget {
   final RouteController route = Get.find();
   @override
   Widget build(BuildContext context) {
@@ -92,7 +87,7 @@ class _NumberPageState extends State<NumberPage> {
                       ButtonLoading(
                         onPressed: _.phone.length > 4
                             ? () async {
-                                await _.login();
+                                await _.validateNumber();
                               }
                             : null,
                         child: Text('txt_continue'.tr),
