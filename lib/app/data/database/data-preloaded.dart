@@ -23,11 +23,9 @@ class DataPreloaded {
   static late Locale locale;
 
   static Future<void> init() async {
-    locale = (await _db.getLocale()) ?? Locale('en', 'CO');
+    locale = (await _db.getLocale()) ?? Locale('es');
 
     final getRoute = await _db.getRoute();
-
-    print(await _db.getPreviousCode());
 
     if (getRoute == '/user-info')
       route = '/user-info';

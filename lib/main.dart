@@ -6,7 +6,6 @@ import 'package:flutter_architecture/app/routes/routes.dart';
 import 'package:flutter_architecture/app/translations/main_translation.dart';
 import 'package:flutter_architecture/app/config/injections.dart';
 import 'package:flutter_architecture/app/config/orchestrator.dart';
-import 'package:navigation_history_observer/navigation_history_observer.dart';
 import 'app/config/app_events.dart';
 import 'app/config/interceptors.dart';
 import 'app/data/database/database.dart';
@@ -35,53 +34,14 @@ class MyApp extends StatelessWidget {
         // if (!currentFocus.hasPrimaryFocus) currentFocus.unfocus();
       },
       child: GetMaterialApp(
-        navigatorObservers: [NavigationHistoryObserver()],
         debugShowCheckedModeBanner: false,
         translations: AppTranslations(),
         initialRoute: DataPreloaded.route,
         locale: DataPreloaded.locale,
+        fallbackLocale: Locale('en', 'US'),
         theme: DataPreloaded.theme,
         getPages: routes,
-        supportedLocales: [
-          Locale('en'),
-          Locale('es'),
-        ],
-        localizationsDelegates: [
-          CountryLocalizations.delegate,
-        ],
       ),
     );
   }
-}
-
-class RouteAwareWidget extends StatefulWidget {
-  State<RouteAwareWidget> createState() => RouteAwareWidgetState();
-}
-
-// Implement RouteAware in a widget's state and subscribe it to the RouteObserver.
-class RouteAwareWidgetState extends State<RouteAwareWidget> with RouteAware {
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    //routeObserver.subscribe(this, ModalRoute.of(context));
-  }
-
-  @override
-  void dispose() {
-    routeObserver.unsubscribe(this);
-    super.dispose();
-  }
-
-  @override
-  void didPush() {
-    print('didPush');
-  }
-
-  @override
-  void didPopNext() {
-    // Covering route was popped off the navigator.
-  }
-
-  @override
-  Widget build(BuildContext context) => Container();
 }

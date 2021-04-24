@@ -90,7 +90,7 @@ class NumberPage extends StatelessWidget {
                                 await _.validateNumber();
                               }
                             : null,
-                        child: Text('txt_continue'.tr),
+                        child: Text('txt_f590ead4'.tr),
                       )
                     ],
                   ),

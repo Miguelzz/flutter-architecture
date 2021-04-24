@@ -5,65 +5,80 @@ import 'package:flutter_architecture/app/modules/main/setting/setting_controller
 import 'package:flutter_architecture/app/routes/routes_controller.dart';
 
 class SettingPage extends StatelessWidget {
-  final RouteController route = Get.find();
+  final RouteController _route = Get.find();
   final SettingController setting = Get.find();
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(title: Text('txt_setting'.tr)),
-      body: FullScreen(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              children: [
-                Text('txt_theme'.tr),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () async {
-                        await setting.theme.dark();
-                      },
-                      child: Text('txt_dart'.tr),
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        await setting.theme.light();
-                      },
-                      child: Text('txt_light'.tr),
-                    ),
-                  ],
+      appBar: AppBar(title: Text('txt_1f5bb020'.tr)),
+      body: GetBuilder<SettingController>(builder: (_) {
+        return FullScreen(
+          child: Column(
+            children: [
+              ListTile(
+                title: Text(_.user.names ?? ''),
+                subtitle: Text(_.user.surnames ?? ''),
+                leading: CircleAvatar(
+                  backgroundImage: AssetImage('assets/images/camera.png'),
                 ),
-              ],
-            ),
-            Column(
-              children: [
-                Text('txt_lenguage'.tr),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () async {
-                        await setting.updateLocale(Locale('es'));
-                      },
-                      child: Text('txt_lenguage_es'.tr),
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        await setting.updateLocale(Locale('en'));
-                      },
-                      child: Text('txt_lenguage_en'.tr),
-                    ),
-                  ],
+                onTap: _route.nexProfile,
+              ),
+              ListTile(
+                title: Text('txt_2c2f3bd7'.tr),
+                subtitle: Text(_.theme ? 'txt_6687a8f0'.tr : 'txt_312d2a25'.tr),
+                leading: Container(
+                  height: double.infinity,
+                  child: Icon(Icons.brightness_medium),
                 ),
-              ],
-            ),
-          ],
-        ),
-      ),
+                trailing: Switch(
+                  value: _.theme,
+                  onChanged: _.updateTheme,
+                  activeTrackColor: Colors.grey[300],
+                  activeColor: Colors.red,
+                ),
+              ),
+              ListTile(
+                title: Text('txt_77f525fe'.tr),
+                subtitle: Text('txt_7f182d53'.tr),
+                leading: Container(
+                  height: double.infinity,
+                  child: Icon(Icons.language),
+                ),
+                trailing: InkWell(
+                    child: PopupMenuButton(
+                  child: Padding(
+                    padding: EdgeInsets.only(right: 10),
+                    child: Icon(Icons.more_vert),
+                  ),
+                  onSelected: setting.updateLocale,
+                  itemBuilder: (context) {
+                    return [
+                      PopupMenuItem(
+                        value: 'es',
+                        child: Text('txt_16043365'.tr),
+                      ),
+                      PopupMenuItem(
+                        value: 'en',
+                        child: Text('txt_761fa136'.tr),
+                      ),
+                    ];
+                  },
+                )),
+              ),
+              ListTile(
+                title: Text('txt_26b78d0b'.tr),
+                subtitle: Text('txt_d4e2cd3f'.tr),
+                leading: Container(
+                  height: double.infinity,
+                  child: Icon(Icons.delete),
+                ),
+                onTap: _route.logout,
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 }

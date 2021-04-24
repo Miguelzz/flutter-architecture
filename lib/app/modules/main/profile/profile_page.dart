@@ -29,8 +29,9 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(title: Text('txt_profile'.tr)),
+      appBar: AppBar(title: Text('txt_d1bee5ff'.tr)),
       body: FullScreen(
         safeArea: true,
         child: GetBuilder<ProfileController>(builder: (_) {
@@ -40,6 +41,7 @@ class ProfilePage extends StatelessWidget {
               Center(child: UploadImage()),
               Column(children: [
                 Input(
+                  width: size.width * 0.8,
                   controller: TextEditingController(text: _.user.names)
                     ..selection = endText(_.user.names?.length),
                   debounce: 2000,
@@ -48,6 +50,7 @@ class ProfilePage extends StatelessWidget {
                   margin: EdgeInsets.only(bottom: 5),
                 ),
                 Input(
+                  width: size.width * 0.8,
                   controller: TextEditingController(text: _.user.surnames)
                     ..selection = endText(_.user.surnames?.length),
                   debounce: 2000,
@@ -56,6 +59,7 @@ class ProfilePage extends StatelessWidget {
                   margin: EdgeInsets.only(bottom: 5),
                 ),
                 Input(
+                  width: size.width * 0.8,
                   keyboardType: TextInputType.emailAddress,
                   controller: TextEditingController(text: _.user.email)
                     ..selection = endText(_.user.email?.length),
@@ -65,6 +69,7 @@ class ProfilePage extends StatelessWidget {
                   margin: EdgeInsets.only(bottom: 5),
                 ),
                 Input(
+                  width: size.width * 0.8,
                   controller: TextEditingController(text: _.user.address)
                     ..selection = endText(_.user.address?.length),
                   debounce: 2000,
@@ -73,6 +78,7 @@ class ProfilePage extends StatelessWidget {
                   margin: EdgeInsets.only(bottom: 5),
                 ),
                 Input(
+                  width: size.width * 0.8,
                   controller: TextEditingController(
                     text: DateFormat('MM/dd/yyyy').format(
                       _.user.birthday ?? DateTime(DateTime.now().year - 18),

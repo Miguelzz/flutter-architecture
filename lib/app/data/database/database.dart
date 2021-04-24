@@ -101,14 +101,11 @@ class AppDatabase {
   Future<Locale?> getLocale() async {
     final locale = await this.getKey('locale');
     if (locale == null) return null;
-    return Locale(locale['languageCode'], locale['countryCode']);
+    return Locale(locale);
   }
 
   Future<void> setLocale(Locale locale) async {
-    await _store.record('locale').put(_db, {
-      'languageCode': locale.languageCode,
-      'countryCode': locale.countryCode,
-    });
+    await _store.record('locale').put(_db, locale.languageCode);
   }
 
   Future<dynamic> getKey(String key) async => await _store.record(key).get(_db);

@@ -15,12 +15,19 @@ class _HomePageState extends State<HomePage>
   late TabController _controller;
   final RouteController _route = Get.find();
   ScrollController? _scrollViewController;
+  int _tabIndex = 1;
 
   @override
   void initState() {
     super.initState();
     _controller = TabController(length: 3, vsync: this);
-    _controller.index = 1;
+    _controller.index = _tabIndex;
+    _controller.addListener(() {
+      setState(() {
+        _tabIndex = _controller.index;
+      });
+      print("Selected Index: " + _controller.index.toString());
+    });
   }
 
   @override
@@ -43,9 +50,9 @@ class _HomePageState extends State<HomePage>
               forceElevated: innerBoxIsScrolled,
               bottom: TabBar(
                 tabs: [
-                  Tab(icon: Text('OPCIÓN')),
-                  Tab(icon: Text('txt_home'.tr)),
-                  Tab(icon: Text('OPCIÓN')),
+                  Tab(icon: Text('ONE')),
+                  Tab(icon: Text('txt_2a0c1b1a'.tr.toUpperCase())),
+                  Tab(icon: Text('THREE')),
                 ],
                 controller: _controller,
               ),
@@ -57,55 +64,99 @@ class _HomePageState extends State<HomePage>
                         context: context, delegate: DataSearch(listWords));
                   },
                 ),
-                PopupMenuButton(
-                  child: Padding(
-                    padding: EdgeInsets.only(right: 10),
-                    child: Icon(Icons.more_vert),
-                  ),
-                  onSelected: (value) {
-                    switch (value) {
-                      case 'setting':
-                        _route.nexSetting();
-                        break;
-                      case 'profile':
-                        _route.nexProfile();
-                        break;
-                      case 'login':
-                        _route.logout();
-                        break;
-                    }
-                  },
-                  itemBuilder: (context) {
-                    return [
-                      PopupMenuItem(
-                        value: 'setting',
-                        child: Text('txt_setting'.tr),
-                      ),
-                      PopupMenuItem(
-                        value: 'profile',
-                        child: Text('txt_profile'.tr),
-                      ),
-                      PopupMenuItem(
-                        value: 'login',
-                        child: Text('txt_login'.tr),
-                      )
-                    ];
-                  },
-                ),
+                optionsTab(_tabIndex)
               ],
             ),
           ];
         },
         body: TabBarView(
           children: [
-            Text('opcion'),
+            Text('ONE'),
             HomeBody(),
-            Text('opcion'),
+            Text('THREE'),
           ],
           controller: _controller,
         ),
       ),
     );
+  }
+
+  Widget optionsTab(int index) {
+    void onSelected(Object? value) {
+      switch (value) {
+        case 'setting':
+          _route.nexSetting();
+          break;
+        case 'profile':
+          _route.nexProfile();
+          break;
+        case 'login':
+          _route.logout();
+          break;
+      }
+    }
+
+    final options = [
+      PopupMenuButton(
+        child: Padding(
+          padding: EdgeInsets.only(right: 10),
+          child: Icon(Icons.more_vert),
+        ),
+        onSelected: onSelected,
+        itemBuilder: (context) {
+          return [
+            PopupMenuItem(
+              value: 'ONE ',
+              child: Text('ONE'),
+            ),
+            PopupMenuItem(
+              value: 'setting',
+              child: Text('txt_1f5bb020'.tr),
+            ),
+          ];
+        },
+      ),
+      PopupMenuButton(
+        child: Padding(
+          padding: EdgeInsets.only(right: 10),
+          child: Icon(Icons.more_vert),
+        ),
+        onSelected: onSelected,
+        itemBuilder: (context) {
+          return [
+            PopupMenuItem(
+              value: 'HOME',
+              child: Text('HOME'),
+            ),
+            PopupMenuItem(
+              value: 'setting',
+              child: Text('txt_1f5bb020'.tr),
+            ),
+          ];
+        },
+      ),
+      PopupMenuButton(
+        child: Padding(
+          padding: EdgeInsets.only(right: 10),
+          child: Icon(Icons.more_vert),
+        ),
+        onSelected: onSelected,
+        itemBuilder: (context) {
+          return [
+            PopupMenuItem(
+              value: 'THREE ',
+              child: Text('THREE'),
+            ),
+            PopupMenuItem(
+              value: 'setting',
+              child: Text('txt_1f5bb020'.tr),
+            ),
+          ];
+        },
+      )
+    ];
+
+    return options[index];
   }
 }
 

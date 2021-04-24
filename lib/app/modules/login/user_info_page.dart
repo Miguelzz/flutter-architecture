@@ -34,7 +34,7 @@ class UserInfoPage extends StatelessWidget {
                     color: PRIMARY_COLOR,
                   ),
                   SizedBox(height: 20),
-                  P('Por favor, ingresa tu nombre y una foto de perfil. ${_.user.names}',
+                  P('Por favor, ingresa tu nombre y una foto de perfil.',
                       textAlign: TextAlign.center),
                   Center(child: UploadImage()),
                   Input(
@@ -75,7 +75,7 @@ class UserInfoPage extends StatelessWidget {
                 children: [
                   ButtonLoading(
                     onPressed: _.home,
-                    child: Text('txt_continue'.tr),
+                    child: Text('txt_f590ead4'.tr),
                   )
                 ],
               ),

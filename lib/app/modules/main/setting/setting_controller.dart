@@ -2,32 +2,49 @@ import 'package:flutter/painting.dart';
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/data/database/database.dart';
 import 'package:flutter_architecture/app/config/theme/dark.dart';
-import 'package:flutter_architecture/app/config/theme/custom.dart';
 import 'package:flutter_architecture/app/config/theme/light.dart';
-import 'package:flutter_architecture/app/config/theme/theme.dart';
+import 'package:flutter_architecture/app/config/app_events.dart';
+import 'package:flutter_architecture/app/data/models/user.dart';
 
 class SettingController extends GetxController {
   static final AppDatabase _db = Get.find<AppDatabase>();
 
-  updateLocale(Locale locale) async {
-    Get.updateLocale(locale);
-    await _db.setLocale(locale);
+  User user = EventsApp.user;
+  bool theme = true;
+
+  updateTheme(bool value) async {
+    theme = value;
+    if (value) {
+      Get.changeTheme(lightTheme);
+      await _db.setTheme('light');
+    } else {
+      Get.changeTheme(darkTheme);
+      await _db.setTheme('dark');
+    }
+    update();
   }
 
-  SelectTheme get theme => SelectTheme(() async {
-        Get.changeTheme(lightTheme);
-        await _db.setTheme('light');
-      }, () async {
-        Get.changeTheme(darkTheme);
-        await _db.setTheme('dark');
-      }, () async {
-        Get.changeTheme(customTheme);
-        await _db.setTheme('custom');
-      });
+  updateLocale(String locale) async {
+    switch (locale) {
+      case 'es':
+        Get.updateLocale(Locale('es', 'CO'));
+        await _db.setLocale(Locale('es', 'CO'));
+        break;
+
+      case 'en':
+        Get.updateLocale(Locale('en', 'US'));
+        await _db.setLocale(Locale('en', 'US'));
+        break;
+    }
+  }
 
   @override
   void onInit() async {
     super.onInit();
+    EventsApp.user$.listen((value) {
+      user = value;
+      update();
+    });
     print('SETTINGS');
   }
 }

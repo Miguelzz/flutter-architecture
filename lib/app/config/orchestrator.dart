@@ -2,12 +2,9 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/data/database/database.dart';
 import 'package:flutter_architecture/app/config/interceptors.dart';
-import 'package:navigation_history_observer/navigation_history_observer.dart';
 
 class Orchestrator {
   static final AppDatabase _db = Get.find<AppDatabase>();
-  static final NavigationHistoryObserver historyObserver =
-      NavigationHistoryObserver();
 
   static final routes = [
     '/terms',
