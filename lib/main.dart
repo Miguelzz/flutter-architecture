@@ -1,13 +1,13 @@
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_architecture/app/config/app_interceptor.dart';
 import 'package:get/get.dart';
-import 'package:flutter_architecture/app/data/database/data-preloaded.dart';
+import 'package:flutter_architecture/app/config/app-preloaded.dart';
 import 'package:flutter_architecture/app/routes/routes.dart';
 import 'package:flutter_architecture/app/translations/main_translation.dart';
 import 'package:flutter_architecture/app/config/injections.dart';
 import 'package:flutter_architecture/app/config/orchestrator.dart';
 import 'app/config/app_events.dart';
-import 'app/config/interceptors.dart';
 import 'app/data/database/database.dart';
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
@@ -20,7 +20,7 @@ void main() async {
   await DataPreloaded.init();
   await Orchestrator.init();
   await EventsApp.init();
-  ServiceTemporary.init();
+
   runApp(MyApp());
 }
 

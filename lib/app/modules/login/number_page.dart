@@ -46,14 +46,11 @@ class NumberPage extends StatelessWidget {
                           countryListTheme: CountryListThemeData(),
                           context: context,
                           showPhoneCode: true,
-                          onSelect: (country) {
-                            _.changeCountry(country.name);
-                            _.changeCodePhone(country.phoneCode);
-                          },
+                          onSelect: _.changeCountry,
                         );
                       },
                       child: Input(
-                        enabled: false,
+                        ignoring: true,
                         labelText: _.country,
                         textAlign: TextAlign.center,
                       ),
@@ -62,7 +59,7 @@ class NumberPage extends StatelessWidget {
                       Input(
                         width: size.width * 0.15,
                         labelText: '+${_.codePhone}',
-                        enabled: false,
+                        ignoring: true,
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(width: 10),

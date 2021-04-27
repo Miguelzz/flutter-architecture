@@ -21,7 +21,7 @@ class Token extends Entity {
   }
 
   @override
-  Token? fromJson(dynamic json) {
+  Token fromJson(dynamic json) {
     if (json != null) {
       parametersExist(json, ['expiresAt', 'token']);
       final expired = convertToInt(json['expiresAt']) ?? 0;
@@ -31,7 +31,7 @@ class Token extends Entity {
         token: json['token'],
       );
     }
-    return null;
+    return Token();
   }
 
   @override
@@ -40,4 +40,7 @@ class Token extends Entity {
         token:
             'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtZXNzYWdlIjoiSldUIFJ1bGVzISIsImlhdCI6MTQ1OTQ0ODExOSwiZXhwIjoxNDU5NDU0NTE5fQ.-yIVBD5b73C75osbmwwshQNRC7frWUYrqaTjTpza2y4',
       );
+
+  @override
+  List<Token> fromArray(json) => [];
 }

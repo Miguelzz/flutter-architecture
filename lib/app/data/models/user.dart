@@ -40,7 +40,7 @@ class User extends Entity {
         ...addIfNotNull('birthday', birthday.toString()),
       };
   @override
-  User? fromJson(dynamic json) {
+  User fromJson(dynamic json) {
     if (json != null) {
       parametersExist(json, [
         'id',
@@ -66,6 +66,9 @@ class User extends Entity {
         birthday: convertToDate(json['birthday']),
       );
     }
-    return null;
+    return User();
   }
+
+  @override
+  List<User> fromArray(json) => [];
 }

@@ -1,13 +1,11 @@
 import 'dart:async';
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter_architecture/app/config/app_events.dart';
 import 'package:flutter_architecture/app/data/services/login/login_service.dart';
 import 'package:flutter_architecture/app/data/services/users/user_service.dart';
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/data/database/database.dart';
-
 import 'package:flutter_architecture/app/routes/routes_controller.dart';
-
-import '../main/profile/profile_controller.dart';
 
 class LoginController extends GetxController {
   static final AppDatabase _db = Get.find<AppDatabase>();
@@ -18,42 +16,33 @@ class LoginController extends GetxController {
   String country = 'Colombia';
   String codePhone = '57';
   String phone = '';
-  String code = '';
-
-  changeCodePhone(String value) {
-    codePhone = value;
-    update();
-  }
 
   changePhone(String value) {
     phone = value;
     update();
   }
 
-  changeCode(String value) {
-    code = value;
-  }
-
-  changeCountry(String value) {
-    country = value;
+  changeCountry(Country value) {
+    country = value.name;
+    codePhone = value.phoneCode;
     update();
   }
 
   Future<void> validateNumber() async {
     await EventsApp.dialogLoading('Validando...', () async {
-      return await _loginService.login(codePhone, phone, 'code [code]').first;
+      return await _loginService.login(codePhone, phone, 'code [code]');
     });
     route.nexValidateCode();
   }
 
-  Future<void> validateCode() async {
-    await _db.setPreviousCode(code);
+  Future<void> validateCode(String code) async {
     final token = await EventsApp.dialogLoading('Verificando...', () async {
-      return await _loginService.validateLogin(codePhone, phone, code).first;
+      return await _loginService.validateLogin(codePhone, phone, code);
     });
-
+    await _db.setPreviousCode(code);
     await EventsApp.changueToken(token);
-    final user = await _userService.getUser().first;
+
+    final user = await _userService.getUser();
     await EventsApp.changueUser(user);
 
     await route.offAllUserInfo();

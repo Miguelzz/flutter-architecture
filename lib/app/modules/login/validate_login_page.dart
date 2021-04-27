@@ -53,12 +53,11 @@ class ValidateLoginPage extends StatelessWidget {
                           colorBuilder:
                               FixedColorBuilder(Colors.black.withOpacity(0.3)),
                         ),
-                        currentCode: _.code,
+                        currentCode: '',
                         onCodeChanged: (code) async {
-                          _.changeCode(code!);
-                          if (code.length == 4) {
+                          if (code?.length == 4) {
                             FocusScope.of(context).requestFocus(FocusNode());
-                            await _.validateCode();
+                            await _.validateCode(code!);
                           }
                         },
                       ),

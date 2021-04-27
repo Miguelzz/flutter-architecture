@@ -82,5 +82,6 @@ abstract class Entity<T> {
 
   T createMock();
   Map<String, dynamic> toJson();
-  T? fromJson(dynamic json);
+  T fromJson(dynamic json);
+  List<T> fromArray(dynamic json);
 }

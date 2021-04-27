@@ -1,10 +1,10 @@
 import 'package:flutter_architecture/app/data/models/user.dart';
 
 abstract class UserGateway {
-  Stream<User> getUser();
-  Stream<User> updateNames(String names);
-  Stream<User> updateSurnames(String surnames);
-  Stream<User> updateEmail(String email);
-  Stream<User> updateAddress(String address);
-  Stream<User> updateBirthday(String birthday);
+  Future<User> getUser();
+  Future<User> updateNames(String names);
+  Future<User> updateSurnames(String surnames);
+  Future<User> updateEmail(String email);
+  Future<User> updateAddress(String address);
+  Future<User> updateBirthday(String birthday);
 }

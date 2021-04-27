@@ -1,7 +1,8 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_architecture/app/config/app_events.dart';
 import 'package:get/get.dart';
-import 'package:flutter_architecture/app/data/database/data-preloaded.dart';
+import 'package:flutter_architecture/app/config/app-preloaded.dart';
 import 'package:flutter_architecture/app/data/models/factories.dart';
 import 'package:flutter_architecture/app/data/database/database.dart';
 import 'package:dio/dio.dart';
@@ -17,19 +18,13 @@ class Recent {
   Recent(this.date, this.url, this.body);
 }
 
-class ServiceTemporary {
+class AppInterceptor {
   static final AppDatabase _db = Get.find<AppDatabase>();
+  static final Connectivity _connectivity = Connectivity();
 
   static List<Recent> recentPost = [];
   static List<Recent> recentPut = [];
   static List<Recent> recentGet = [];
-  static String _token = '';
-
-  static init() {
-    EventsApp.token$.listen((value) {
-      _token = value.token ?? '';
-    });
-  }
 
   final Dio _dio = Dio(
     BaseOptions(
@@ -46,8 +41,8 @@ class ServiceTemporary {
       InterceptorsWrapper(
         onRequest: (options, handler) {
           print('interceptor');
-          print('TOKEN: $_token');
-          options.headers["x-token"] = _token;
+          print('TOKEN: ${EventsApp.stringToken}');
+          options.headers["x-token"] = EventsApp.stringToken;
           handler.next(options);
         },
         onResponse: (response, handler) {
@@ -92,10 +87,28 @@ class ServiceTemporary {
       }
     }
     if (factories[entity] != null) return TypeData.ENTITIES;
-    throw ('ERROR FACTORIA NO EXISTE $entity');
+    throw ('ERROR FACTORÍA NO EXISTE $entity');
   }
 
-  Stream<T> get<T>(
+  Future<T> get<T>(
+          {required String url,
+          String base = '',
+          bool temporary = false,
+          Map<String, dynamic>? queryParameters,
+          Options? options,
+          CancelToken? cancelToken,
+          void Function(int, int)? onReceiveProgress}) =>
+      _get<T>(
+              url: url,
+              base: base,
+              temporary: temporary,
+              queryParameters: queryParameters,
+              options: options,
+              cancelToken: cancelToken,
+              onReceiveProgress: onReceiveProgress)
+          .first;
+
+  Stream<T> _get<T>(
       {required String url,
       String base = '',
       bool temporary = false,
@@ -104,18 +117,20 @@ class ServiceTemporary {
       CancelToken? cancelToken,
       void Function(int, int)? onReceiveProgress}) async* {
     var type = _isEntity(T.toString());
-    bool recentQuery = false;
 
-    try {
-      recentGet.firstWhere((x) => x.url == url);
-      recentQuery = true;
-    } catch (e) {
-      recentGet.add(Recent(DateTime.now(), url, ''));
-    }
+    bool recentQuery = false;
+    final connection =
+        (await _connectivity.checkConnectivity()) != ConnectivityResult.none;
+    // try {
+    //   recentGet.firstWhere((x) => x.url == url);
+    //   recentQuery = true;
+    // } catch (e) {
+    //   recentGet.add(Recent(DateTime.now(), url, ''));
+    // }
 
     if (DataPreloaded.useMock) {
       yield factories[T.toString()]!().createMock() as T;
-    } else if (temporary && !DataPreloaded.connection) {
+    } else if (temporary && !connection) {
       if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
         yield await _db.getKey(url) as T;
       } else if (type == TypeData.ENTITIES) {
@@ -123,12 +138,11 @@ class ServiceTemporary {
       } else if (type == TypeData.LIST_ENTITIES) {
         final matches = RegExp(r"List<(\w+)>").allMatches(T.toString());
         final name = matches.toList()[0].group(1);
-        yield (await _db.getKey(url))
-            .map((x) => factories[name]!().fromJson(x))
-            .toList() as T;
+        yield factories[name]!().fromArray(await _db.getKey(url)) as T;
       }
-    } else if (DataPreloaded.connection && !recentQuery) {
+    } else if (connection && !recentQuery) {
       try {
+        recentQuery = true;
         final http = interceptor(base);
         final info = await http.get(
           url,
@@ -137,6 +151,7 @@ class ServiceTemporary {
           onReceiveProgress: onReceiveProgress,
           options: options,
         );
+        recentQuery = false;
 
         if (temporary) {
           if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
@@ -161,8 +176,7 @@ class ServiceTemporary {
         } else if (type == TypeData.LIST_ENTITIES) {
           final matches = RegExp(r"List<(\w+)>").allMatches(T.toString());
           final name = matches.toList()[0].group(1);
-          yield info.data.map((x) => factories[name]!().fromJson(x)).toList()
-              as T;
+          yield factories[name]!().fromArray(info.data) as T;
         }
       } on DioError catch (e) {
         final data = e.response?.data ?? {'message': 'Error!', 'errors': []};
@@ -176,13 +190,47 @@ class ServiceTemporary {
         );
         recentPut.removeWhere((x) => x.url == url);
       } catch (e) {
-        recentPut.removeWhere((x) => x.url == url);
         print(e);
+        Get.defaultDialog(
+          title: 'An unexpected error occurred!',
+          content: Column(
+            children: [Text('• try again later'), Text(e.toString())],
+          ),
+        );
+        recentPut.removeWhere((x) => x.url == url);
       }
+    } else if (!connection) {
+      Get.defaultDialog(
+        title: 'No internet connection!',
+        content: Column(
+          children: [Text('• try again later')],
+        ),
+      );
+      recentPut.removeWhere((x) => x.url == url);
     }
   }
 
-  Stream<T> post<T>(
+  Future<T> post<T>(
+          {required String url,
+          String base = '',
+          bool temporary = false,
+          dynamic? data,
+          Map<String, dynamic>? queryParameters,
+          Options? options,
+          CancelToken? cancelToken,
+          void Function(int, int)? onReceiveProgress}) =>
+      _post<T>(
+              url: url,
+              base: base,
+              data: data,
+              temporary: temporary,
+              queryParameters: queryParameters,
+              options: options,
+              cancelToken: cancelToken,
+              onReceiveProgress: onReceiveProgress)
+          .first;
+
+  Stream<T> _post<T>(
       {required String url,
       String base = '',
       bool temporary = false,
@@ -193,7 +241,9 @@ class ServiceTemporary {
       void Function(int, int)? onSendProgress,
       void Function(int, int)? onReceiveProgress}) async* {
     var type = _isEntity(T.toString());
-
+    print('POST');
+    final connection =
+        (await _connectivity.checkConnectivity()) != ConnectivityResult.none;
     bool recentQuery = false;
     try {
       recentPost.firstWhere((x) => x.url == url);
@@ -204,7 +254,7 @@ class ServiceTemporary {
 
     if (DataPreloaded.useMock) {
       yield factories[T.toString()]!().createMock() as T;
-    } else if (temporary && !DataPreloaded.connection) {
+    } else if (temporary && !connection) {
       if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
         yield await _db.getKey(url) as T;
       } else if (type == TypeData.ENTITIES) {
@@ -216,7 +266,7 @@ class ServiceTemporary {
             .map((x) => factories[name]!().fromJson(x))
             .toList() as T;
       }
-    } else if (DataPreloaded.connection && !recentQuery) {
+    } else if (connection && !recentQuery) {
       try {
         final http = interceptor(base);
 
@@ -269,13 +319,47 @@ class ServiceTemporary {
         );
         recentPut.removeWhere((x) => x.url == url);
       } catch (e) {
-        recentPut.removeWhere((x) => x.url == url);
         print(e);
+        Get.defaultDialog(
+          title: 'An unexpected error occurred!',
+          content: Column(
+            children: [Text('• try again later'), Text(e.toString())],
+          ),
+        );
+        recentPut.removeWhere((x) => x.url == url);
       }
+    } else if (!connection) {
+      Get.defaultDialog(
+        title: 'No internet connection!',
+        content: Column(
+          children: [Text('• try again later')],
+        ),
+      );
+      recentPut.removeWhere((x) => x.url == url);
     }
   }
 
-  Stream<T> put<T>(
+  Future<T> put<T>(
+          {required String url,
+          String base = '',
+          bool temporary = false,
+          dynamic? data,
+          Map<String, dynamic>? queryParameters,
+          Options? options,
+          CancelToken? cancelToken,
+          void Function(int, int)? onReceiveProgress}) =>
+      _put<T>(
+              url: url,
+              base: base,
+              data: data,
+              temporary: temporary,
+              queryParameters: queryParameters,
+              options: options,
+              cancelToken: cancelToken,
+              onReceiveProgress: onReceiveProgress)
+          .first;
+
+  Stream<T> _put<T>(
       {required String url,
       String base = '',
       bool temporary = false,
@@ -286,7 +370,9 @@ class ServiceTemporary {
       void Function(int, int)? onSendProgress,
       void Function(int, int)? onReceiveProgress}) async* {
     var type = _isEntity(T.toString());
-
+    print('PUT');
+    final connection =
+        (await _connectivity.checkConnectivity()) != ConnectivityResult.none;
     bool recentQuery = false;
     try {
       recentPut.firstWhere((x) => x.url == url);
@@ -297,7 +383,7 @@ class ServiceTemporary {
 
     if (DataPreloaded.useMock) {
       yield factories[T.toString()]!().createMock() as T;
-    } else if (temporary && !DataPreloaded.connection) {
+    } else if (temporary && !connection) {
       if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
         yield await _db.getKey(url) as T;
       } else if (type == TypeData.ENTITIES) {
@@ -309,7 +395,7 @@ class ServiceTemporary {
             .map((x) => factories[name]!().fromJson(x))
             .toList() as T;
       }
-    } else if (DataPreloaded.connection && !recentQuery) {
+    } else if (connection && !recentQuery) {
       try {
         final http = interceptor(base);
 
@@ -363,8 +449,22 @@ class ServiceTemporary {
         recentPut.removeWhere((x) => x.url == url);
       } catch (e) {
         print(e);
+        Get.defaultDialog(
+          title: 'An unexpected error occurred!',
+          content: Column(
+            children: [Text('• try again later'), Text(e.toString())],
+          ),
+        );
         recentPut.removeWhere((x) => x.url == url);
       }
+    } else if (!connection) {
+      Get.defaultDialog(
+        title: 'No internet connection!',
+        content: Column(
+          children: [Text('• try again later')],
+        ),
+      );
+      recentPut.removeWhere((x) => x.url == url);
     }
   }
 }

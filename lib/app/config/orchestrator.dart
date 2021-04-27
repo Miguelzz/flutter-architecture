@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/data/database/database.dart';
-import 'package:flutter_architecture/app/config/interceptors.dart';
+import 'package:flutter_architecture/app/config/app_interceptor.dart';
 
 class Orchestrator {
   static final AppDatabase _db = Get.find<AppDatabase>();
@@ -18,13 +18,13 @@ class Orchestrator {
 
   static void _cleanRecent() {
     Timer.periodic(Duration(seconds: 5), (timer) {
-      ServiceTemporary.recentPost = ServiceTemporary.recentPost
+      AppInterceptor.recentPost = AppInterceptor.recentPost
           .where((x) => DateTime.now().difference(x.date).inSeconds <= 3)
           .toList();
-      ServiceTemporary.recentPut = ServiceTemporary.recentPut
+      AppInterceptor.recentPut = AppInterceptor.recentPut
           .where((x) => DateTime.now().difference(x.date).inSeconds <= 3)
           .toList();
-      ServiceTemporary.recentGet = ServiceTemporary.recentGet
+      AppInterceptor.recentGet = AppInterceptor.recentGet
           .where((x) => DateTime.now().difference(x.date).inSeconds <= 3)
           .toList();
     });

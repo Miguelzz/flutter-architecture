@@ -81,6 +81,8 @@ class RouteController extends GetxController {
 
   Future<void> nexNone() async => await _nexRouteNoSave('/none');
 
+  Future<void> nexRoute(String url) async => await _nexRouteNoSave(url);
+
   @override
   void onInit() async {
     super.onInit();

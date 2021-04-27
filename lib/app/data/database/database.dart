@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter_architecture/app/data/database/data-preloaded.dart';
 import 'package:flutter_architecture/app/routes/routes.dart';
 import 'package:sembast/sembast.dart';
 import 'package:flutter/rendering.dart';
