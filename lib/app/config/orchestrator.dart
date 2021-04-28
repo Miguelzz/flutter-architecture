@@ -16,19 +16,19 @@ class Orchestrator {
     '/validate-number',
   ];
 
-  static void _cleanRecent() {
-    Timer.periodic(Duration(seconds: 5), (timer) {
-      AppInterceptor.recentPost = AppInterceptor.recentPost
-          .where((x) => DateTime.now().difference(x.date).inSeconds <= 3)
-          .toList();
-      AppInterceptor.recentPut = AppInterceptor.recentPut
-          .where((x) => DateTime.now().difference(x.date).inSeconds <= 3)
-          .toList();
-      AppInterceptor.recentGet = AppInterceptor.recentGet
-          .where((x) => DateTime.now().difference(x.date).inSeconds <= 3)
-          .toList();
-    });
-  }
+  // static void _cleanRecent() {
+  //   Timer.periodic(Duration(seconds: 5), (timer) {
+  //     AppInterceptor.recentPost = AppInterceptor.recentPost
+  //         .where((x) => DateTime.now().difference(x.date).inSeconds <= 3)
+  //         .toList();
+  //     AppInterceptor.recentPut = AppInterceptor.recentPut
+  //         .where((x) => DateTime.now().difference(x.date).inSeconds <= 3)
+  //         .toList();
+  //     AppInterceptor.recentGet = AppInterceptor.recentGet
+  //         .where((x) => DateTime.now().difference(x.date).inSeconds <= 3)
+  //         .toList();
+  //   });
+  // }
 
   static void _clearTemporary() {
     Timer.periodic(Duration(days: 1), (timer) async {
@@ -41,6 +41,6 @@ class Orchestrator {
 
   static Future<void> init() async {
     _clearTemporary();
-    _cleanRecent();
+    //_cleanRecent();
   }
 }

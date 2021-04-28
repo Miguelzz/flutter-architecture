@@ -46,28 +46,29 @@ class EventsApp {
         await Future.delayed(Duration(seconds: 1));
         final connection = (await _connectivity.checkConnectivity()) !=
             ConnectivityResult.none;
-        try {
-          max--;
-          internalToken.expiresAt = Token.expirationDate(max);
-          await changueToken(internalToken);
-          if (connection) {
-            _db.getPreviousCode().then((previousCode) async {
-              if (max < 15 && previousCode != null) {
-                print('TOKEN_RESET');
-                if (!resetAttempt) {
+
+        max--;
+        internalToken.expiresAt = Token.expirationDate(max);
+        await changueToken(internalToken);
+        if (connection) {
+          _db.getPreviousCode().then((previousCode) async {
+            if (max < 15) {
+              print('TOKEN_RESET $max');
+              if (!resetAttempt && previousCode != null) {
+                try {
                   resetAttempt = true;
                   internalToken = await _loginService.resetToken();
                   max = internalToken.expirationSeconds;
                   await changueToken(internalToken);
                   resetAttempt = false;
+                } catch (e) {
+                  max = 0;
+                  resetAttempt = false;
+                  await route.logout();
                 }
               }
-            });
-          }
-        } catch (e) {
-          max = 0;
-          resetAttempt = false;
-          await route.logout();
+            }
+          });
         }
       }
     }
@@ -82,21 +83,7 @@ class EventsApp {
 
   static Future<void> init() async {
     initUser();
-    initToken();
-  }
-
-  static Future<T> dialogLoading<T>(
-      String title, Future<T> Function() callback) async {
-    final _stop = BehaviorSubject<bool>();
-    Get.defaultDialog(
-        title: title,
-        content: CircularProgressIndicator(backgroundColor: PRIMARY_COLOR),
-        onWillPop: () async => await _stop.first);
-    final result = await callback();
-    Get.back();
-    _stop.add(true);
-    _stop.close();
-    return result;
+    //initToken();
   }
 
   close() {

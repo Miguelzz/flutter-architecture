@@ -1,6 +1,6 @@
 import 'package:flutter_architecture/app/data/models/assets.dart';
 
-class Demo extends Entity {
+class Demo extends Entity<Demo> {
   String? id, title, image;
 
   Demo({this.id, this.title, this.image});
@@ -8,8 +8,9 @@ class Demo extends Entity {
   @override
   Demo createMock() => Demo(
         id: '15',
-        title: '57',
-        image: '3016992677',
+        title: 'titulo',
+        image:
+            'https://ichef.bbci.co.uk/news/800/cpsprodpb/15665/production/_107435678_perro1.jpg',
       );
 
   List<Demo> fromArray(dynamic array) =>
@@ -21,6 +22,7 @@ class Demo extends Entity {
         ...addIfNotNull('title', title),
         ...addIfNotNull('image', image),
       };
+
   @override
   Demo fromJson(dynamic json) {
     if (json != null) {

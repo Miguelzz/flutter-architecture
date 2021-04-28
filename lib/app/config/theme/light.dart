@@ -10,4 +10,5 @@ final lightTheme = ThemeData(
       primary: PRIMARY_COLOR,
     ),
   ),
+  textTheme: TextTheme(),
 );

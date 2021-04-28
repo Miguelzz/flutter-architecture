@@ -1,6 +1,6 @@
 import 'package:flutter_architecture/app/data/models/assets.dart';
 
-class User extends Entity {
+class User extends Entity<User> {
   String? id, prefix, phone, names, surnames, email, address, photo;
   DateTime? birthday;
 
@@ -37,8 +37,9 @@ class User extends Entity {
         ...addIfNotNull('email', email),
         ...addIfNotNull('address', address),
         ...addIfNotNull('photo', photo),
-        ...addIfNotNull('birthday', birthday.toString()),
+        ...addIfNotNull('birthday', birthday?.toString()),
       };
+
   @override
   User fromJson(dynamic json) {
     if (json != null) {
@@ -63,12 +64,9 @@ class User extends Entity {
         email: json['email'],
         address: json['address'],
         photo: json['photo'],
-        birthday: convertToDate(json['birthday']),
+        birthday: mapType<DateTime>(json['birthday']),
       );
     }
     return User();
   }
-
-  @override
-  List<User> fromArray(json) => [];
 }

@@ -1,6 +1,45 @@
-abstract class Entity<T> {
-  bool ok<T>(T obj) => obj != null;
-  bool nul<T>(T obj) => obj == null;
+abstract class MethodsApp {
+  T? methodMapType<T>(dynamic value) {
+    try {
+      if (T.toString() == 'int') {
+        if (value is String) return int.parse(value) as T;
+        if (value is int) return value as T;
+      } else if (T.toString() == 'bool') {
+        if (value is String) return (value.toLowerCase() == 'true') as T;
+        if (value is bool) return value as T;
+      } else if (T.toString() == 'num') {
+        if (value is String) return num.parse(value) as T;
+        if (value is num) return value as T;
+      } else if (T.toString() == 'double') {
+        if (value is String) return double.parse(value) as T;
+        if (value is double) return value as T;
+      } else if (T.toString() == 'String') {
+        if (value is String) return value as T;
+      } else if (T.toString() == 'DateTime') {
+        if (value is String) return DateTime.parse(value) as T;
+        if (value is DateTime) return value as T;
+      }
+      return null;
+    } catch (e) {
+      throw '${T.toString()} no mappable!';
+    }
+  }
+
+  void parametersExist(dynamic json, List<String> params) {
+    try {
+      if (json.keys.length == 0) return;
+    } catch (e) {
+      final isExist = params.any((x) {
+        try {
+          return json[x] != null;
+        } catch (e) {
+          return false;
+        }
+      });
+
+      if (!isExist) throw 'ERROR VALIDATING JSON';
+    }
+  }
 
   Map<String, dynamic> addIfNotNull(String key, dynamic? variable) {
     if (variable != null && variable != '') {
@@ -9,79 +48,12 @@ abstract class Entity<T> {
       return {};
     }
   }
+}
 
-  num? convertToNumber(dynamic? value) {
-    try {
-      if (value == null) {
-        throw 'number null';
-      } else if (value is String) {
-        return num.parse(value);
-      } else if (value is num) {
-        return value;
-      }
-    } catch (e) {
-      return null;
-    }
-  }
-
-  DateTime? convertToDate(dynamic? value) {
-    try {
-      if (value == null) {
-        throw 'date null';
-      } else if (value is String) {
-        return DateTime.parse(value);
-      } else if (value is DateTime) {
-        return value;
-      }
-    } catch (e) {
-      return null;
-    }
-  }
-
-  int? convertToInt(dynamic? value) {
-    try {
-      if (value == null) {
-        throw 'number null';
-      } else if (value is String) {
-        return int.parse(value);
-      } else if (value is int) {
-        return value;
-      }
-    } catch (e) {
-      return null;
-    }
-  }
-
-  // void parametersExist(dynamic json) {
-  //   try {
-  //     final isExist = json.keys.toList().any((x) {
-  //       try {
-  //         return json[x] != null;
-  //       } catch (e) {
-  //         return false;
-  //       }
-  //     });
-  //     if (!isExist) throw '';
-  //   } catch (e) {
-  //     print(e);
-  //     throw 'ERROR VALIDATING JSON';
-  //   }
-  // }
-  //
-  void parametersExist(dynamic json, List<String> params) {
-    final isExist = params.any((x) {
-      try {
-        return json[x] != null;
-      } catch (e) {
-        return false;
-      }
-    });
-
-    if (!isExist) throw 'ERROR VALIDATING JSON';
-  }
+abstract class Entity<T> extends MethodsApp {
+  T? mapType<T>(dynamic value) => methodMapType<T?>(value);
 
   T createMock();
   Map<String, dynamic> toJson();
   T fromJson(dynamic json);
-  List<T> fromArray(dynamic json);
 }

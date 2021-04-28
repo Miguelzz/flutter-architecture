@@ -1,31 +1,120 @@
-import 'package:connectivity/connectivity.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_architecture/app/config/app_events.dart';
-import 'package:get/get.dart';
+import 'package:flutter_architecture/app/config/theme/theme.dart';
+import 'package:flutter_architecture/app/data/models/assets.dart';
 import 'package:flutter_architecture/app/config/app-preloaded.dart';
 import 'package:flutter_architecture/app/data/models/factories.dart';
-import 'package:flutter_architecture/app/data/database/database.dart';
 import 'package:dio/dio.dart';
+import 'package:get/get.dart';
 import 'dart:async';
+import 'package:dio/src/response.dart' as res;
 
-enum TypeData { NATIVES, ENTITIES, LIST_NATIVES, LIST_ENTITIES }
+class ErrorApi {
+  final DioError? error;
+  late String message;
+  late List<Widget> errors;
 
-class Recent {
-  final DateTime date;
-  final String url;
-  final String body;
+  ErrorApi(this.error) {
+    final data = this.error?.response?.data ?? {};
 
-  Recent(this.date, this.url, this.body);
+    final _errors =
+        (data['errors'] ?? []).map<Widget>((x) => Text('• $x')).toList();
+    this.message = data['message'] ?? 'Error!';
+    this.errors = [
+      Text('• Status: ${error?.response?.statusCode}'),
+      ..._errors
+    ];
+  }
+}
+
+class MethodResult extends MethodsApp {
+  final Future<res.Response<dynamic>> http;
+  bool _stop = true;
+  bool _touch = true;
+  String _title = '';
+
+  MethodResult(this.http);
+
+  void showMessage(String title) {
+    _title = title;
+  }
+
+  Future<bool> _stopDialog() async {
+    while (!_stop) {
+      await Future.delayed(Duration(milliseconds: 500));
+    }
+    return _stop;
+  }
+
+  Future<dynamic> _exitMessage() async {
+    if (_title != '') {
+      print('nueva petición');
+      _stop = false;
+      Get.defaultDialog(
+          title: _title,
+          content: CircularProgressIndicator(backgroundColor: PRIMARY_COLOR),
+          onWillPop: () async => await _stopDialog());
+      try {
+        final data = (await this.http).data;
+        Get.back();
+        _stop = true;
+        return data;
+      } catch (e) {
+        Get.back();
+        _stop = true;
+        throw 'request error!';
+      }
+    } else {
+      return (await this.http).data;
+    }
+  }
+
+  Future<T> mapEntity<T extends Entity<T>>() async {
+    final data = await _exitMessage();
+    late T result;
+    if (DataPreloaded.useMock)
+      result = factories[T.toString()]!().createMock() as T;
+    else
+      result = factories[T.toString()]!().fromJson(data) as T;
+
+    return result;
+  }
+
+  Future<List<T>> mapListEntity<T extends Entity<T>>() async {
+    final data = await _exitMessage();
+    late List<T> result;
+
+    if (DataPreloaded.useMock)
+      result = [null, null, null]
+          .map<T>((x) => factories[T.toString()]!().createMock() as T)
+          .toList();
+    else
+      result = data
+          .map<T>((x) => factories[T.toString()]!().fromJson(x) as T)
+          .toList();
+
+    return result;
+  }
+
+  Future<T> mapType<T>() async {
+    final data = await _exitMessage();
+    return super.methodMapType<T>(data)!;
+  }
+
+  Future<List<T>> mapListType<T>() async {
+    final data = await _exitMessage();
+    late List<T> result;
+    if (DataPreloaded.useMock)
+      result =
+          [null, null, null].map<T>((x) => super.methodMapType<T>(x)!).toList();
+    else
+      result = data.map<T>(super.methodMapType).toList();
+
+    return result;
+  }
 }
 
 class AppInterceptor {
-  static final AppDatabase _db = Get.find<AppDatabase>();
-  static final Connectivity _connectivity = Connectivity();
-
-  static List<Recent> recentPost = [];
-  static List<Recent> recentPut = [];
-  static List<Recent> recentGet = [];
-
   final Dio _dio = Dio(
     BaseOptions(
         //receiveTimeout: 5000,
@@ -35,7 +124,7 @@ class AppInterceptor {
         ),
   );
 
-  Dio interceptor(String baseUrl) {
+  Dio _interceptor() {
     _dio.interceptors.clear();
     _dio.interceptors.add(
       InterceptorsWrapper(
@@ -47,387 +136,62 @@ class AppInterceptor {
         },
         onResponse: (response, handler) {
           print('onResponse $response');
+
           handler.next(response);
         },
         onError: (error, handler) {
           print('onError ${error.message}');
-          // if (error.response?.statusCode == 403) {
-          //   _dio.interceptors.requestLock.lock();
-          //   _dio.interceptors.responseLock.lock();
-          //   handler.next(error);
-          // }
+
+          Future.delayed(Duration(milliseconds: 300)).then((value) {
+            final data = ErrorApi(error);
+            Get.defaultDialog(
+              title: data.message,
+              content: Column(children: data.errors),
+            );
+          });
+
           handler.next(error);
         },
       ),
     );
-    _dio.options.baseUrl = baseUrl;
     return _dio;
   }
 
-  TypeData _isEntity(String entity) {
-    final isNative = 'bool' == entity ||
-        'int' == entity ||
-        'num' == entity ||
-        'double' == entity ||
-        'dynamic' == entity ||
-        'String' == entity;
-
-    if (isNative) return TypeData.NATIVES;
-    if (RegExp(r'^List<[a-zA-Z0-9]+>$').hasMatch(entity)) {
-      final matches = RegExp(r"List<(\w+)>").allMatches(entity);
-      final name = matches.toList()[0].group(1);
-      final type = _isEntity(name ?? '');
-
-      if (type == TypeData.ENTITIES) {
-        return TypeData.LIST_ENTITIES;
-      }
-
-      if (type == TypeData.NATIVES) {
-        return TypeData.LIST_ENTITIES;
-      }
-    }
-    if (factories[entity] != null) return TypeData.ENTITIES;
-    throw ('ERROR FACTORÍA NO EXISTE $entity');
+  MethodResult get({
+    required String url,
+    Map<String, dynamic>? queryParameters,
+  }) {
+    final http = _interceptor();
+    final info = http.get(url, queryParameters: queryParameters);
+    return MethodResult(info);
   }
 
-  Future<T> get<T>(
-      {required String url,
-      String base = '',
-      bool temporary = false,
-      Map<String, dynamic>? queryParameters,
-      Options? options,
-      CancelToken? cancelToken,
-      void Function(int, int)? onReceiveProgress}) async {
-    var type = _isEntity(T.toString());
-
-    bool recentQuery = false;
-    final connection =
-        (await _connectivity.checkConnectivity()) != ConnectivityResult.none;
-    // try {
-    //   recentGet.firstWhere((x) => x.url == url);
-    //   recentQuery = true;
-    // } catch (e) {
-    //   recentGet.add(Recent(DateTime.now(), url, ''));
-    // }
-
-    if (DataPreloaded.useMock) {
-      return factories[T.toString()]!().createMock() as T;
-    } else if (temporary && !connection) {
-      if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
-        return await _db.getKey(url) as T;
-      } else if (type == TypeData.ENTITIES) {
-        return factories[T.toString()]!().fromJson(await _db.getKey(url)) as T;
-      } else if (type == TypeData.LIST_ENTITIES) {
-        final matches = RegExp(r"List<(\w+)>").allMatches(T.toString());
-        final name = matches.toList()[0].group(1);
-        return factories[name]!().fromArray(await _db.getKey(url)) as T;
-      } else {
-        throw 'error get';
-      }
-    } else if (connection && !recentQuery) {
-      try {
-        recentQuery = true;
-        final http = interceptor(base);
-        final info = await http.get(
-          url,
-          queryParameters: queryParameters,
-          cancelToken: cancelToken,
-          onReceiveProgress: onReceiveProgress,
-          options: options,
-        );
-        recentQuery = false;
-
-        if (temporary) {
-          if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
-            _db.setTemporary(url, info.data);
-          } else if (type == TypeData.ENTITIES) {
-            _db.setTemporary(url,
-                factories[T.toString()]!().fromJson(info.data)?.toJson() ?? {});
-          } else if (type == TypeData.LIST_ENTITIES) {
-            _db.setTemporary(
-                url,
-                info.data
-                    .map((x) =>
-                        factories[T.toString()]!().fromJson(x)?.toJson() ?? {})
-                    .toList());
-          }
-        }
-
-        if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
-          return info.data as T;
-        } else if (type == TypeData.ENTITIES) {
-          return factories[T.toString()]!().fromJson(info.data) as T;
-        } else if (type == TypeData.LIST_ENTITIES) {
-          final matches = RegExp(r"List<(\w+)>").allMatches(T.toString());
-          final name = matches.toList()[0].group(1);
-          return factories[name]!().fromArray(info.data) as T;
-        } else {
-          throw 'error get';
-        }
-      } on DioError catch (e) {
-        final data = e.response?.data ?? {'message': 'Error!', 'errors': []};
-        Get.defaultDialog(
-          title: data['message'] ?? 'Error!',
-          content: Column(
-            children: [
-              ...(data['errors'] ?? []).map((x) => Text('• $x')).toList()
-            ],
-          ),
-        );
-        recentPut.removeWhere((x) => x.url == url);
-        throw 'error get';
-      } catch (e) {
-        print(e);
-        Get.defaultDialog(
-          title: 'An unexpected error occurred!',
-          content: Column(
-            children: [Text('• try again later'), Text(e.toString())],
-          ),
-        );
-        recentPut.removeWhere((x) => x.url == url);
-        throw 'error get';
-      }
-    } else if (!connection) {
-      Get.defaultDialog(
-        title: 'No internet connection!',
-        content: Column(
-          children: [Text('• try again later')],
-        ),
-      );
-      recentPut.removeWhere((x) => x.url == url);
-      throw 'error get';
-    } else {
-      throw 'error get';
-    }
+  MethodResult post({
+    required String url,
+    dynamic? data,
+    Map<String, dynamic>? queryParameters,
+  }) {
+    final http = _interceptor();
+    final info = http.post(url, data: data, queryParameters: queryParameters);
+    return MethodResult(info);
   }
 
-  Future<T> post<T>(
-      {required String url,
-      String base = '',
-      bool temporary = false,
-      dynamic? data,
-      Map<String, dynamic>? queryParameters,
-      Options? options,
-      CancelToken? cancelToken,
-      void Function(int, int)? onSendProgress,
-      void Function(int, int)? onReceiveProgress}) async {
-    var type = _isEntity(T.toString());
-
-    final connection =
-        (await _connectivity.checkConnectivity()) != ConnectivityResult.none;
-    bool recentQuery = false;
-
-    if (DataPreloaded.useMock) {
-      return factories[T.toString()]!().createMock() as T;
-    } else if (temporary && !connection) {
-      if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
-        return await _db.getKey(url) as T;
-      } else if (type == TypeData.ENTITIES) {
-        return factories[T.toString()]!().fromJson(await _db.getKey(url)) as T;
-      } else if (type == TypeData.LIST_ENTITIES) {
-        final matches = RegExp(r"List<(\w+)>").allMatches(T.toString());
-        final name = matches.toList()[0].group(1);
-        return (await _db.getKey(url))
-            .map((x) => factories[name]!().fromJson(x))
-            .toList() as T;
-      } else {
-        throw 'error get';
-      }
-    } else if (connection && !recentQuery) {
-      try {
-        final http = interceptor(base);
-
-        final info = await http.post(
-          url,
-          data: data,
-          queryParameters: queryParameters,
-          options: options,
-          cancelToken: cancelToken,
-          onReceiveProgress: onReceiveProgress,
-          onSendProgress: onReceiveProgress,
-        );
-
-        if (temporary) {
-          if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
-            _db.setTemporary(url, info.data);
-          } else if (type == TypeData.ENTITIES) {
-            _db.setTemporary(url,
-                factories[T.toString()]!().fromJson(info.data)?.toJson() ?? {});
-          } else if (type == TypeData.LIST_ENTITIES) {
-            _db.setTemporary(
-                url,
-                info.data
-                    .map((x) =>
-                        factories[T.toString()]!().fromJson(x)?.toJson() ?? {})
-                    .toList());
-          }
-        }
-
-        if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
-          return info.data as T;
-        } else if (type == TypeData.ENTITIES) {
-          return factories[T.toString()]!().fromJson(info.data) as T;
-        } else if (type == TypeData.LIST_ENTITIES) {
-          final matches = RegExp(r"List<(\w+)>").allMatches(T.toString());
-          final name = matches.toList()[0].group(1);
-          return info.data.map((x) => factories[name]!().fromJson(x)).toList()
-              as T;
-        } else {
-          throw 'error get';
-        }
-      } on DioError catch (e) {
-        final data = e.response?.data ?? {'message': 'Error!', 'errors': []};
-        Get.back();
-        Get.defaultDialog(
-          title: data['message'] ?? 'Error!',
-          content: Column(
-            children: [
-              ...(data['errors'] ?? []).map((x) => Text('• $x')).toList()
-            ],
-          ),
-        );
-        recentPut.removeWhere((x) => x.url == url);
-        throw 'error get';
-      } catch (e) {
-        print(e);
-        Get.defaultDialog(
-          title: 'An unexpected error occurred!',
-          content: Column(
-            children: [Text('• try again later'), Text(e.toString())],
-          ),
-        );
-        recentPut.removeWhere((x) => x.url == url);
-        throw 'error get';
-      }
-    } else if (!connection) {
-      Get.defaultDialog(
-        title: 'No internet connection!',
-        content: Column(
-          children: [Text('• try again later')],
-        ),
-      );
-      recentPut.removeWhere((x) => x.url == url);
-      throw 'error get';
-    } else {
-      throw 'error post';
-    }
+  MethodResult put({
+    required String url,
+    dynamic? data,
+    Map<String, dynamic>? queryParameters,
+  }) {
+    final http = _interceptor();
+    final info = http.put(url, data: data, queryParameters: queryParameters);
+    return MethodResult(info);
   }
 
-  Future<T> put<T>(
-      {required String url,
-      String base = '',
-      bool temporary = false,
-      dynamic? data,
-      Map<String, dynamic>? queryParameters,
-      Options? options,
-      CancelToken? cancelToken,
-      void Function(int, int)? onSendProgress,
-      void Function(int, int)? onReceiveProgress}) async {
-    var type = _isEntity(T.toString());
-    print('PUT');
-    final connection =
-        (await _connectivity.checkConnectivity()) != ConnectivityResult.none;
-    bool recentQuery = false;
-    try {
-      recentPut.firstWhere((x) => x.url == url);
-      recentQuery = true;
-    } catch (e) {
-      recentPut.add(Recent(DateTime.now(), url, data.toString()));
-    }
-
-    if (DataPreloaded.useMock) {
-      return factories[T.toString()]!().createMock() as T;
-    } else if (temporary && !connection) {
-      if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
-        return await _db.getKey(url) as T;
-      } else if (type == TypeData.ENTITIES) {
-        return factories[T.toString()]!().fromJson(await _db.getKey(url)) as T;
-      } else if (type == TypeData.LIST_ENTITIES) {
-        final matches = RegExp(r"List<(\w+)>").allMatches(T.toString());
-        final name = matches.toList()[0].group(1);
-        return (await _db.getKey(url))
-            .map((x) => factories[name]!().fromJson(x))
-            .toList() as T;
-      } else {
-        throw 'error get';
-      }
-    } else if (connection && !recentQuery) {
-      try {
-        final http = interceptor(base);
-
-        final info = await http.put(
-          url,
-          data: data,
-          queryParameters: queryParameters,
-          options: options,
-          cancelToken: cancelToken,
-          onReceiveProgress: onReceiveProgress,
-          onSendProgress: onReceiveProgress,
-        );
-
-        if (temporary) {
-          if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
-            _db.setTemporary(url, info.data);
-          } else if (type == TypeData.ENTITIES) {
-            _db.setTemporary(url,
-                factories[T.toString()]!().fromJson(info.data)?.toJson() ?? {});
-          } else if (type == TypeData.LIST_ENTITIES) {
-            _db.setTemporary(
-                url,
-                info.data
-                    .map((x) =>
-                        factories[T.toString()]!().fromJson(x)?.toJson() ?? {})
-                    .toList());
-          }
-        }
-
-        if (type == TypeData.NATIVES || type == TypeData.LIST_NATIVES) {
-          return info.data as T;
-        } else if (type == TypeData.ENTITIES) {
-          return factories[T.toString()]!().fromJson(info.data) as T;
-        } else if (type == TypeData.LIST_ENTITIES) {
-          final matches = RegExp(r"List<(\w+)>").allMatches(T.toString());
-          final name = matches.toList()[0].group(1);
-          return info.data.map((x) => factories[name]!().fromJson(x)).toList()
-              as T;
-        } else {
-          throw 'error get';
-        }
-      } on DioError catch (e) {
-        final data = e.response?.data ?? {'message': 'Error!', 'errors': []};
-        Get.back();
-        Get.defaultDialog(
-          title: data['message'] ?? 'Error!',
-          content: Column(
-            children: [
-              ...(data['errors'] ?? []).map((x) => Text('• $x')).toList()
-            ],
-          ),
-        );
-        recentPut.removeWhere((x) => x.url == url);
-        throw 'error get';
-      } catch (e) {
-        print(e);
-        Get.defaultDialog(
-          title: 'An unexpected error occurred!',
-          content: Column(
-            children: [Text('• try again later'), Text(e.toString())],
-          ),
-        );
-        recentPut.removeWhere((x) => x.url == url);
-        throw 'error get';
-      }
-    } else if (!connection) {
-      Get.defaultDialog(
-        title: 'No internet connection!',
-        content: Column(
-          children: [Text('• try again later')],
-        ),
-      );
-      recentPut.removeWhere((x) => x.url == url);
-      throw 'error get';
-    } else {
-      throw 'error put';
-    }
+  MethodResult delete({
+    required String url,
+    Map<String, dynamic>? queryParameters,
+  }) {
+    final http = _interceptor();
+    final info = http.delete(url, queryParameters: queryParameters);
+    return MethodResult(info);
   }
 }

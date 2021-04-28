@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_architecture/app/config/theme/theme.dart';
 import 'package:flutter_architecture/app/modules/common/components/fullscreen.dart';
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/modules/main/setting/setting_controller.dart';
@@ -35,7 +36,7 @@ class SettingPage extends StatelessWidget {
                   value: _.theme,
                   onChanged: _.updateTheme,
                   activeTrackColor: Colors.grey[300],
-                  activeColor: Colors.red,
+                  activeColor: PRIMARY_COLOR,
                 ),
               ),
               ListTile(

@@ -96,8 +96,7 @@ class HomeController extends GetxController {
 
     EventsApp.token$.listen((token) {
       this.token = token;
-      final date = token.convertToDate(token.expiresAt) ?? DateTime.now();
-
+      final date = token.mapType<DateTime>(token.expiresAt) ?? DateTime.now();
       final duration = date.difference(DateTime.now());
       final days = duration.inDays;
       final hours = duration.inHours - (duration.inDays * 24);

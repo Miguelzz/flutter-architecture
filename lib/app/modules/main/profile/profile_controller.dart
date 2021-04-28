@@ -13,14 +13,12 @@ class ProfileController extends GetxController {
   User user = EventsApp.user;
 
   Future<void> home() async {
-    await EventsApp.dialogLoading('Guardando...', () async {
-      await updateNames(user.names ?? '');
-      await updateSurnames(user.surnames ?? '');
-      final date = user.birthday ?? DateTime(DateTime.now().year - 18);
-      final dateFormat =
-          "${date.year}/${date.month > 9 ? '' : '0'}${date.month}/${date.day > 9 ? '' : '0'}${date.day}";
-      await updateBirthday(dateFormat);
-    });
+    await updateNames(user.names ?? '');
+    await updateSurnames(user.surnames ?? '');
+    final date = user.birthday ?? DateTime(DateTime.now().year - 18);
+    final dateFormat =
+        "${date.year}/${date.month > 9 ? '' : '0'}${date.month}/${date.day > 9 ? '' : '0'}${date.day}";
+    await updateBirthday(dateFormat);
 
     route.offAllHome();
   }

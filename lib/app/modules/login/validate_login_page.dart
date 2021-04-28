@@ -49,7 +49,7 @@ class ValidateLoginPage extends StatelessWidget {
                         codeLength: 4,
                         decoration: UnderlineDecoration(
                           textStyle:
-                              TextStyle(fontSize: 20, color: Colors.black),
+                              TextStyle(fontSize: 20, color: Colors.black87),
                           colorBuilder:
                               FixedColorBuilder(Colors.black.withOpacity(0.3)),
                         ),

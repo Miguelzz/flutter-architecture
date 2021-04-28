@@ -29,16 +29,14 @@ class LoginController extends GetxController {
   }
 
   Future<void> validateNumber() async {
-    await EventsApp.dialogLoading('Validando...', () async {
-      return await _loginService.login(codePhone, phone, 'code [code]');
-    });
+    print('validate');
+    await _loginService.login(codePhone, phone, 'code [code]');
+    print('aaaaaaaaaaaaaaaaaa');
     route.nexValidateCode();
   }
 
   Future<void> validateCode(String code) async {
-    final token = await EventsApp.dialogLoading('Verificando...', () async {
-      return await _loginService.validateLogin(codePhone, phone, code);
-    });
+    final token = await _loginService.validateLogin(codePhone, phone, code);
     await _db.setPreviousCode(code);
     await EventsApp.changueToken(token);
 

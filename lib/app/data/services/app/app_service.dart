@@ -6,23 +6,27 @@ import 'package:get/get.dart';
 
 class AppService extends MainGateway {
   static final AppInterceptor _http = Get.find<AppInterceptor>();
-  static final identity = Constants.IDENTITY;
+  static final search = '${Constants.IDENTITY}/app/search';
 
   @override
   Future<List<Demo>> searchOne(String search) async {
-    return _http.get<List<Demo>>(
-        url: '$identity/app/search/one', queryParameters: {'q': search});
+    final result =
+        _http.get(url: '$search/one', queryParameters: {'q': search});
+
+    return result.mapListEntity<Demo>();
   }
 
   @override
   Future<List<Demo>> searchTwo(String search) async {
-    return _http.get<List<Demo>>(
-        url: '$identity/app/search/one', queryParameters: {'q': search});
+    final result =
+        _http.get(url: '$search/one', queryParameters: {'q': search});
+    return result.mapListEntity<Demo>();
   }
 
   @override
   Future<List<Demo>> searchThree(String search) async {
-    return _http.get<List<Demo>>(
-        url: '$identity/app/search/one', queryParameters: {'q': search});
+    final result =
+        _http.get(url: '$search/one', queryParameters: {'q': search});
+    return result.mapListEntity<Demo>();
   }
 }

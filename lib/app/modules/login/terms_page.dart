@@ -46,7 +46,7 @@ class TermsPage extends StatelessWidget {
                       textAlign: TextAlign.center,
                       text: TextSpan(children: [
                         TextSpan(
-                            style: TextStyle(color: Colors.black),
+                            style: TextStyle(color: Colors.black87),
                             text:
                                 'Toca "Aceptar y continuar" para aceptar los '),
                         TextSpan(
@@ -54,7 +54,7 @@ class TermsPage extends StatelessWidget {
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => route.nexReadTerms(),
                             text:
-                                'Terminos de servicio y politica de privacidad de ${Constants.NAME_APP}'),
+                                'Términos de servicio y política de privacidad de ${Constants.NAME_APP}'),
                       ]),
                     )),
                 ButtonLoading(

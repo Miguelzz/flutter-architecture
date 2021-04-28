@@ -6,28 +6,48 @@ import 'package:get/get.dart';
 
 class UserService extends UserGateway {
   static final AppInterceptor _http = Get.find<AppInterceptor>();
-  static final identity = Constants.IDENTITY;
+  static final user = '${Constants.IDENTITY}/user';
 
   @override
-  Future<User> getUser() => _http.get<User>(url: '$identity/user');
+  Future<User> getUser() async {
+    final result = _http.get(url: '$user');
+    return result.mapEntity<User>();
+  }
 
   @override
-  Future<User> updateNames(String names) =>
-      _http.put<User>(url: '$identity/user/names', data: {'names': names});
+  Future<User> updateNames(String names) async {
+    final result = _http.put(url: '$user/names', data: {'names': names});
+
+    return result.mapEntity<User>();
+  }
 
   @override
-  Future<User> updateSurnames(String surnames) => _http
-      .put<User>(url: '$identity/user/surnames', data: {'surnames': surnames});
+  Future<User> updateSurnames(String surnames) async {
+    final result =
+        _http.put(url: '$user/surnames', data: {'surnames': surnames});
+
+    return result.mapEntity<User>();
+  }
 
   @override
-  Future<User> updateAddress(String address) => _http
-      .put<User>(url: '$identity/user/address', data: {'address': address});
+  Future<User> updateAddress(String address) async {
+    final result = _http.put(url: '$user/address', data: {'address': address});
+
+    return result.mapEntity<User>();
+  }
 
   @override
-  Future<User> updateBirthday(String birthday) => _http
-      .put<User>(url: '$identity/user/birthday', data: {'birthday': birthday});
+  Future<User> updateBirthday(String birthday) async {
+    final result =
+        _http.put(url: '$user/birthday', data: {'birthday': birthday});
+
+    return result.mapEntity<User>();
+  }
 
   @override
-  Future<User> updateEmail(String email) =>
-      _http.put<User>(url: '$identity/user/email', data: {'email': email});
+  Future<User> updateEmail(String email) async {
+    final result = _http.put(url: '$user/email', data: {'email': email});
+
+    return result.mapEntity<User>();
+  }
 }
