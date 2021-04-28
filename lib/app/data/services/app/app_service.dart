@@ -9,24 +9,20 @@ class AppService extends MainGateway {
   static final search = '${Constants.IDENTITY}/app/search';
 
   @override
-  Future<List<Demo>> searchOne(String search) async {
-    final result =
-        _http.get(url: '$search/one', queryParameters: {'q': search});
-
+  Future<List<Demo>> searchOne(String query) async {
+    final result = _http.get(url: '$search/one', queryParameters: {'q': query});
     return result.mapListEntity<Demo>();
   }
 
   @override
-  Future<List<Demo>> searchTwo(String search) async {
-    final result =
-        _http.get(url: '$search/one', queryParameters: {'q': search});
+  Future<List<Demo>> searchTwo(String query) async {
+    final result = _http.get(url: '$search/one', queryParameters: {'q': query});
     return result.mapListEntity<Demo>();
   }
 
   @override
-  Future<List<Demo>> searchThree(String search) async {
-    final result =
-        _http.get(url: '$search/one', queryParameters: {'q': search});
+  Future<List<Demo>> searchThree(String query) async {
+    final result = _http.get(url: '$search/one', queryParameters: {'q': query});
     return result.mapListEntity<Demo>();
   }
 }

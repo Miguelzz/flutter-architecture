@@ -30,7 +30,6 @@ class ErrorApi {
 class MethodResult extends MethodsApp {
   final Future<res.Response<dynamic>> http;
   bool _stop = true;
-  bool _touch = true;
   String _title = '';
 
   MethodResult(this.http);
@@ -161,6 +160,7 @@ class AppInterceptor {
     required String url,
     Map<String, dynamic>? queryParameters,
   }) {
+    print('$url, $queryParameters');
     final http = _interceptor();
     final info = http.get(url, queryParameters: queryParameters);
     return MethodResult(info);

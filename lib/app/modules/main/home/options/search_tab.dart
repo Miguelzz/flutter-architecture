@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_architecture/app/modules/main/home/home_controller.dart';
 import 'package:flutter_architecture/app/routes/routes_controller.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +22,7 @@ class ItemSearch {
 
 class DataSearch extends SearchDelegate<String> {
   final HomeController _controller = Get.find();
+  Timer _debounce = Timer(Duration(milliseconds: 700), () {});
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -34,7 +37,11 @@ class DataSearch extends SearchDelegate<String> {
 
   @override
   Widget buildLeading(BuildContext context) {
-    _controller.searchTab(query);
+    if (_debounce.isActive) _debounce.cancel();
+    _debounce = Timer(Duration(milliseconds: 700), () {
+      _controller.searchTab(query);
+    });
+
     return IconButton(
         icon: AnimatedIcon(
           icon: AnimatedIcons.menu_arrow,
