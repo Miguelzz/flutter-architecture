@@ -5,11 +5,11 @@ import 'package:get/get.dart';
 Widget floatTab(int index) {
   final options = [
     // ONE
-    FloatingActionButton(onPressed: () {}, child: Icon(Icons.add)),
+    FloatingActionButton(onPressed: () {}, child: Icon(Icons.looks_one)),
     // TWO
-    FloatingActionButton(onPressed: () {}, child: Icon(Icons.remove)),
+    FloatingActionButton(onPressed: () {}, child: Icon(Icons.home)),
     // THREE
-    FloatingActionButton(onPressed: () {}, child: Icon(Icons.delete))
+    FloatingActionButton(onPressed: () {}, child: Icon(Icons.looks_two))
   ];
 
   return options[index];
@@ -18,6 +18,7 @@ Widget floatTab(int index) {
 class FloatTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) => GetBuilder<HomeController>(
-        builder: (_) => floatTab(_.index),
+        id: 'float_tap',
+        builder: (_) => floatTab(_.indexTab),
       );
 }

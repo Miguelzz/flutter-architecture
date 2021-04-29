@@ -91,7 +91,8 @@ class MenuTap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<HomeController>(
-      builder: (_) => returnMenu(_.index),
+      id: 'menu_tap',
+      builder: (_) => returnMenu(_.indexTab),
     );
   }
 }

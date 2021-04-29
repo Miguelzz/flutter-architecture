@@ -1,21 +1,22 @@
 abstract class MethodsApp {
   T? methodMapType<T>(dynamic value) {
     try {
-      if (T.toString() == 'int') {
+      // print(T.toString());
+      if (T.toString() == 'int' || T.toString() == 'int?') {
         if (value is String) return int.parse(value) as T;
         if (value is int) return value as T;
-      } else if (T.toString() == 'bool') {
+      } else if (T.toString() == 'bool' || T.toString() == 'bool?') {
         if (value is String) return (value.toLowerCase() == 'true') as T;
         if (value is bool) return value as T;
-      } else if (T.toString() == 'num') {
+      } else if (T.toString() == 'num' || T.toString() == 'num?') {
         if (value is String) return num.parse(value) as T;
         if (value is num) return value as T;
-      } else if (T.toString() == 'double') {
+      } else if (T.toString() == 'double' || T.toString() == 'double?') {
         if (value is String) return double.parse(value) as T;
         if (value is double) return value as T;
-      } else if (T.toString() == 'String') {
+      } else if (T.toString() == 'String' || T.toString() == 'String?') {
         if (value is String) return value as T;
-      } else if (T.toString() == 'DateTime') {
+      } else if (T.toString() == 'DateTime' || T.toString() == 'DateTime?') {
         if (value is String) return DateTime.parse(value) as T;
         if (value is DateTime) return value as T;
       }

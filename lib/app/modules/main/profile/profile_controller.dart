@@ -13,13 +13,11 @@ class ProfileController extends GetxController {
   User user = EventsApp.user;
 
   Future<void> home() async {
-    await updateNames(user.names ?? '');
-    await updateSurnames(user.surnames ?? '');
-    final date = user.birthday ?? DateTime(DateTime.now().year - 18);
-    final dateFormat =
-        "${date.year}/${date.month > 9 ? '' : '0'}${date.month}/${date.day > 9 ? '' : '0'}${date.day}";
-    await updateBirthday(dateFormat);
-
+    try {
+      await updateNames(user.names ?? '');
+      await updateSurnames(user.surnames ?? '');
+      await updateBirthday(user.birthday);
+    } catch (e) {}
     route.offAllHome();
   }
 
@@ -35,8 +33,13 @@ class ProfileController extends GetxController {
   Future<void> updateAddress(String value) async =>
       await _userService.updateAddress(value);
 
-  Future<void> updateBirthday(String value) async =>
-      await _userService.updateBirthday(value);
+  Future<void> updateBirthday(DateTime? date) async {
+    if (date != null) {
+      final dateFormat =
+          "${date.year}/${date.month > 9 ? '' : '0'}${date.month}/${date.day > 9 ? '' : '0'}${date.day}";
+      await _userService.updateBirthday(dateFormat);
+    }
+  }
 
   @override
   void onInit() async {

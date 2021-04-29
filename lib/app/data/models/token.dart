@@ -32,7 +32,10 @@ class Token extends Entity<Token> {
     if (json != null) {
       parametersExist(json, ['expiresAt', 'token']);
       final expired = mapType<int>(json['expiresAt']);
-
+      print('**************');
+      print(json['expiresAt']);
+      print(expired);
+      print('**************');
       return Token(
         expiresAt: expirationDate(expired ?? 0),
         token: json['token'],

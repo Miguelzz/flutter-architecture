@@ -5,7 +5,7 @@ import 'package:flutter_architecture/app/modules/main/home/options/float_tab.dar
 import 'package:flutter_architecture/app/modules/main/home/options/search_tab.dart';
 import 'package:flutter_architecture/app/modules/main/home/tabs/tab_content_one.dart';
 import 'package:flutter_architecture/app/modules/main/home/tabs/tab_content_three.dart';
-import 'package:flutter_architecture/app/modules/main/home/tabs/tab_content_two.dart';
+import 'package:flutter_architecture/app/modules/main/home/tabs/tab_content_home.dart';
 import 'package:flutter_architecture/app/modules/main/home/options/menu_tab.dart';
 import 'package:get/get.dart';
 
@@ -25,10 +25,27 @@ class _HomePageState extends State<HomePage>
   @override
   void initState() {
     super.initState();
-    _controller = TabController(length: 3, vsync: this);
-    _controller.index = homeController.index;
-    _controller.addListener(() {
-      homeController.changueTab(_controller.index);
+    _controller = TabController(
+      length: 3,
+      vsync: this,
+      initialIndex: homeController.indexTab,
+    );
+
+    int after = _controller.index;
+    int before = _controller.index;
+
+    _controller.animation?.addListener(() {
+      final index = _controller.animation?.value ?? _controller.index;
+      if (index < 0.5)
+        after = 0;
+      else if (index < 1.5)
+        after = 1;
+      else
+        after = 2;
+      if (before != after) {
+        before = after;
+        homeController.changueTab(before);
+      }
     });
   }
 
@@ -44,7 +61,6 @@ class _HomePageState extends State<HomePage>
         body: NestedScrollView(
           controller: _scrollViewController,
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-            print("Selected Index: " + _controller.index.toString());
             return [
               SliverAppBar(
                 title: Text(Constants.NAME_APP),
@@ -77,7 +93,7 @@ class _HomePageState extends State<HomePage>
           body: TabBarView(
             children: [
               TabContentOne(),
-              TabContentTow(),
+              TabContentHome(),
               TabContentThree(),
             ],
             controller: _controller,

@@ -53,6 +53,7 @@ class MethodResult extends MethodsApp {
           title: _title,
           content: CircularProgressIndicator(backgroundColor: PRIMARY_COLOR),
           onWillPop: () async => await _stopDialog());
+
       try {
         final data = (await this.http).data;
         Get.back();

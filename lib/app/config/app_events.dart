@@ -35,55 +35,49 @@ class EventsApp {
     _controllerUser.sink.add(user);
   }
 
-  static Future<void> initToken() async {
+  static Future<void> _initToken() async {
     Token internalToken = (await _db.getToken()) ?? Token();
     await changueToken(internalToken);
     int max = internalToken.expirationSeconds;
     bool resetAttempt = false;
 
-    Future<void> _intent() async {
-      while (true) {
-        await Future.delayed(Duration(seconds: 1));
-        final connection = (await _connectivity.checkConnectivity()) !=
-            ConnectivityResult.none;
+    Timer.periodic(Duration(seconds: 1), (t) async {
+      max--;
+      internalToken.expiresAt = Token.expirationDate(max);
+      _controllerToken.sink.add(internalToken);
+      if (max % 10 == 0) changueToken(internalToken);
 
-        max--;
-        internalToken.expiresAt = Token.expirationDate(max);
-        await changueToken(internalToken);
-        if (connection) {
-          _db.getPreviousCode().then((previousCode) async {
-            if (max < 15) {
-              print('TOKEN_RESET $max');
-              if (!resetAttempt && previousCode != null) {
-                try {
-                  resetAttempt = true;
-                  internalToken = await _loginService.resetToken();
-                  max = internalToken.expirationSeconds;
-                  await changueToken(internalToken);
-                  resetAttempt = false;
-                } catch (e) {
-                  max = 0;
-                  resetAttempt = false;
-                  await route.logout();
-                }
-              }
+      if (max < 15) {
+        _db.getPreviousCode().then((previousCode) async {
+          print('TOKEN_RESET $max');
+          final connection = (await _connectivity.checkConnectivity()) !=
+              ConnectivityResult.none;
+          if (!resetAttempt && previousCode != null && connection) {
+            try {
+              resetAttempt = true;
+              internalToken = await _loginService.resetToken();
+              max = internalToken.expirationSeconds;
+              await changueToken(internalToken);
+              resetAttempt = false;
+            } catch (e) {
+              max = 0;
+              resetAttempt = false;
+              await route.logout();
             }
-          });
-        }
+          }
+        });
       }
-    }
-
-    _intent();
+    });
   }
 
-  static Future<void> initUser() async {
+  static Future<void> _initUser() async {
     final internalUser = (await _db.getUser()) ?? User();
     await changueUser(internalUser);
   }
 
   static Future<void> init() async {
-    initUser();
-    //initToken();
+    _initUser();
+    _initToken();
   }
 
   close() {
