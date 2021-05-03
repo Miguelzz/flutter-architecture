@@ -5,6 +5,7 @@ import 'package:flutter_architecture/app/data/models/demo.dart';
 
 final Map<String, Entity Function()> factories = {
   'Demo': () => Demo(),
+  'DemoPaginate': () => DemoPaginate(),
   'User': () => User(),
   'Token': () => Token(),
 };

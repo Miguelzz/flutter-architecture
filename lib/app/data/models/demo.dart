@@ -1,4 +1,5 @@
 import 'package:flutter_architecture/app/data/models/assets.dart';
+import 'package:flutter_architecture/app/data/models/paginate.dart';
 
 class Demo extends Entity<Demo> {
   String? id, title, image;
@@ -41,3 +42,9 @@ class Demo extends Entity<Demo> {
     return Demo();
   }
 }
+
+class DemoPaginate extends Paginate<Demo> {}
+
+// final DemoPaginate asd = DemoPaginate();
+
+// final mmm = asd.docs?.map((x) => x.title);

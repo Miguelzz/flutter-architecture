@@ -5,6 +5,7 @@ import 'package:flutter_architecture/app/data/models/assets.dart';
 import 'package:flutter_architecture/app/config/app-preloaded.dart';
 import 'package:flutter_architecture/app/data/models/factories.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_architecture/app/data/models/paginate.dart';
 import 'package:get/get.dart';
 import 'dart:async';
 import 'package:dio/src/response.dart' as res;
@@ -80,6 +81,17 @@ class MethodResult extends MethodsApp {
     return result;
   }
 
+  Future<Paginate<T>> mapPaginate<T extends Entity<T>>() async {
+    final data = await _exitMessage();
+    late Paginate<T> result;
+    if (DataPreloaded.useMock)
+      result = Paginate<T>().createMock();
+    else
+      result = Paginate<T>().fromJson(data);
+
+    return result;
+  }
+
   Future<List<T>> mapListEntity<T extends Entity<T>>() async {
     final data = await _exitMessage();
     late List<T> result;
@@ -135,7 +147,7 @@ class AppInterceptor {
           handler.next(options);
         },
         onResponse: (response, handler) {
-          print('onResponse $response');
+          print('onResponse '); //$response
 
           handler.next(response);
         },

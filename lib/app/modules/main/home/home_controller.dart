@@ -57,17 +57,21 @@ class HomeController extends GetxController {
   }
 
   Future<void> searchTab(String value) async {
-    page = 0;
+    page = 1;
     query = value.toLowerCase();
     switch (indexTab) {
       case 0:
-        tapOneSearch = await _appService.searchOne(query, page);
+        final result = await _appService.paginateSearch(query, page, 30);
+        tapOneSearch = result.docs ?? [];
         break;
       case 1:
-        tapHomeSearch = await _appService.searchTwo(query, page);
+        final result = await _appService.paginateSearch(query, page, 30);
+        tapHomeSearch = result.docs ?? [];
         break;
       case 2:
-        tapThreeSearch = await _appService.searchThree(query, page);
+        final result = await _appService.paginateSearch(query, page, 30);
+        page = result.page ?? 0;
+        tapThreeSearch = result.docs ?? [];
         break;
     }
     update(['search_tap']);
@@ -82,21 +86,21 @@ class HomeController extends GetxController {
 
   Future<void> searchNextTab() async {
     page++;
-    print('*******');
-    print(page);
-    print('*******');
     switch (indexTab) {
       case 0:
-        final list = await _appService.searchOne(query, page);
-        tapOneSearch = limitMemory(tapOneSearch, list, 3);
+        final result = await _appService.paginateSearch(query, page, 15);
+        if (result.docs?.length == 0) page--;
+        tapOneSearch = limitMemory(tapOneSearch, result.docs ?? [], 3);
         break;
       case 1:
-        final list = await _appService.searchTwo(query, page);
-        tapHomeSearch = limitMemory(tapHomeSearch, list, 3);
+        final result = await _appService.paginateSearch(query, page, 15);
+        if (result.docs?.length == 0) page--;
+        tapHomeSearch = limitMemory(tapHomeSearch, result.docs ?? [], 3);
         break;
       case 2:
-        final list = await _appService.searchThree(query, page);
-        tapThreeSearch = limitMemory(tapThreeSearch, list, 3);
+        final result = await _appService.paginateSearch(query, page, 15);
+        if (result.docs?.length == 0) page--;
+        tapThreeSearch = limitMemory(tapThreeSearch, result.docs ?? [], 3);
         break;
     }
     update(['search_tap']);
