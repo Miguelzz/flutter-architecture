@@ -147,7 +147,7 @@ class AppInterceptor {
           handler.next(options);
         },
         onResponse: (response, handler) {
-          print('onResponse '); //$response
+          print('onResponse $response');
 
           handler.next(response);
         },

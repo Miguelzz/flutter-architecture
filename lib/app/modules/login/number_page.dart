@@ -81,7 +81,8 @@ class NumberPage extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ButtonLoading(
+                      ButtonLoadingFullScreen(
+                        title: 'Espera un momento!',
                         onPressed: _.phone.length > 4
                             ? () async {
                                 await _.validateNumber();

@@ -13,11 +13,15 @@ class ProfileController extends GetxController {
   User user = EventsApp.user;
 
   Future<void> home() async {
+    print('aaaaaaaaaaaaaaaaaaaaaaa');
     try {
       await updateNames(user.names ?? '');
       await updateSurnames(user.surnames ?? '');
       await updateBirthday(user.birthday);
-    } catch (e) {}
+    } catch (e) {
+      print(e);
+    }
+    print('aaaaaaaaaaaaaaaaaaaaaaa');
     route.offAllHome();
   }
 

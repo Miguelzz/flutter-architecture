@@ -73,8 +73,9 @@ class UserInfoPage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ButtonLoading(
+                  ButtonLoadingFullScreen(
                     onPressed: _.home,
+                    title: 'Espera un momento!',
                     child: Text('txt_f590ead4'.tr),
                   )
                 ],
