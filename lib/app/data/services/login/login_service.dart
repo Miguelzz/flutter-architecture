@@ -18,7 +18,6 @@ class LoginService extends LoginGateway {
       'phone': phone,
       'message': message,
     });
-    result.showMessage('Validando...');
     return result.mapType<bool>();
   }
 
