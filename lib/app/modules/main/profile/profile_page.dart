@@ -77,16 +77,17 @@ class ProfilePage extends StatelessWidget {
                   labelText: 'Dirección',
                   margin: EdgeInsets.only(bottom: 5),
                 ),
-                Input(
-                  width: size.width * 0.8,
-                  controller: TextEditingController(
-                    text: DateFormat('MM/dd/yyyy').format(
-                      _.user.birthday ?? DateTime(DateTime.now().year - 18),
-                    ),
-                  ),
-                  enabled: false,
+                InputDate(
                   labelText: 'Fecha de nacimiento',
-                  margin: EdgeInsets.only(bottom: 5),
+                  width: size.width * 0.8,
+                  debounce: 2000,
+                  initialDateTime:
+                      _.user.birthday ?? DateTime(DateTime.now().year - 18),
+                  onDateTimeChanged: (newDateTime) async {
+                    _.user.birthday = newDateTime;
+                    _.updateBirthday(newDateTime);
+                    _.update();
+                  },
                 ),
               ]),
               Text('')

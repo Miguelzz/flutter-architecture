@@ -60,7 +60,9 @@ class UserInfoPage extends StatelessWidget {
                     margin: EdgeInsets.only(bottom: 5),
                   ),
                   InputDate(
+                    labelText: 'Cual es tu Fecha de nacimiento?',
                     width: size.width * 0.8,
+                    debounce: 2000,
                     initialDateTime:
                         _.user.birthday ?? DateTime(DateTime.now().year - 18),
                     onDateTimeChanged: (newDateTime) async {

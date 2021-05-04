@@ -40,7 +40,6 @@ class UserService extends UserGateway {
   Future<User> updateBirthday(String birthday) async {
     final result =
         _http.put(url: '$user/birthday', data: {'birthday': birthday});
-
     return result.mapEntity<User>();
   }
 

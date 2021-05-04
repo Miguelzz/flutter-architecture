@@ -77,13 +77,14 @@ class InputDate extends StatelessWidget {
   final DateTime? initialDateTime;
   final void Function(DateTime) onDateTimeChanged;
   final double? width;
-
+  final String labelText;
   final int? debounce;
 
   InputDate(
       {this.initialDateTime,
       this.width,
       this.debounce,
+      required this.labelText,
       required this.onDateTimeChanged});
 
   @override
@@ -96,7 +97,7 @@ class InputDate extends StatelessWidget {
             context: context,
             builder: (context) {
               return AlertDialog(
-                title: Text('Cual es su fecha de nacimiento?'),
+                title: Text(labelText),
                 content: Container(
                   height: 150,
                   child: CupertinoDatePicker(
@@ -119,7 +120,7 @@ class InputDate extends StatelessWidget {
             text: DateFormat('MM/dd/yyyy')
                 .format(initialDateTime ?? DateTime(DateTime.now().year - 18))),
         enabled: false,
-        labelText: 'Cual es su fecha de nacimiento?',
+        labelText: labelText,
         margin: EdgeInsets.only(bottom: 5),
       ),
     );

@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 abstract class MethodsApp {
   T? methodMapType<T>(dynamic value) {
     try {
@@ -17,6 +19,11 @@ abstract class MethodsApp {
       } else if (T.toString() == 'String' || T.toString() == 'String?') {
         if (value is String) return value as T;
       } else if (T.toString() == 'DateTime' || T.toString() == 'DateTime?') {
+        if (value is String &&
+            RegExp(r'\d\d\d\d\/\d\d\/\d\d').hasMatch(value)) {
+          print(value);
+          return DateFormat("yyyy/MM/dd", "en_US").parse(value) as T;
+        }
         if (value is String) return DateTime.parse(value) as T;
         if (value is DateTime) return value as T;
       }
