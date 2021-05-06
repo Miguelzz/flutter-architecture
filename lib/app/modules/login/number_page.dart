@@ -83,11 +83,9 @@ class NumberPage extends StatelessWidget {
                     children: [
                       ButtonLoadingFullScreen(
                         title: 'Espera un momento!',
-                        onPressed: _.phone.length > 4
-                            ? () async {
-                                await _.validateNumber();
-                              }
-                            : null,
+                        onPressed:
+                            _.phone.length >= 7 ? _.validateNumber : null,
+                        after: route.nexValidateCode,
                         child: Text('txt_f590ead4'.tr),
                       )
                     ],

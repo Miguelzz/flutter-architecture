@@ -40,51 +40,47 @@ class _ButtonLoadingState extends State<ButtonLoading> {
   }
 }
 
-class ButtonLoadingFullScreen extends StatefulWidget {
+class ButtonLoadingFullScreen extends StatelessWidget {
   final Widget child;
   final String title;
   final Future<void> Function()? onPressed;
+  final Future<void> Function()? after;
   const ButtonLoadingFullScreen(
-      {required this.onPressed, required this.child, required this.title});
-
-  @override
-  _ButtonLoadingFullScreenState createState() =>
-      _ButtonLoadingFullScreenState();
-}
-
-class _ButtonLoadingFullScreenState extends State<ButtonLoadingFullScreen> {
-  bool enabled = true;
-  bool _stop = true;
-
-  Future<bool> _stopDialog() async {
-    while (!_stop) {
-      await Future.delayed(Duration(milliseconds: 500));
-    }
-    return _stop;
-  }
+      {required this.onPressed,
+      required this.after,
+      required this.child,
+      required this.title});
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: enabled && widget.onPressed != null
+      onPressed: onPressed != null
           ? () async {
+              bool stop = false;
               try {
-                _stop = false;
                 Get.defaultDialog(
-                    title: widget.title,
-                    content: CircularProgressIndicator(
-                        backgroundColor: PRIMARY_COLOR),
-                    onWillPop: () async => await _stopDialog());
+                  title: title,
+                  content:
+                      CircularProgressIndicator(backgroundColor: PRIMARY_COLOR),
+                  onWillPop: () async {
+                    while (!stop) {
+                      await Future.delayed(Duration(milliseconds: 500));
+                    }
+                    return true;
+                  },
+                );
                 FocusScope.of(context).unfocus();
-                setState(() => enabled = false);
-                await widget.onPressed!();
-                setState(() => enabled = true);
+                await onPressed!();
+                stop = true;
+                Get.back();
+                await after!();
               } catch (e) {
-                setState(() => enabled = true);
+                stop = true;
+                Get.back();
               }
             }
           : null,
-      child: widget.child,
+      child: child,
     );
   }
 }

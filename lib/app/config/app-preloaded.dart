@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter_architecture/app/data/database/database.dart';
 import 'package:flutter_architecture/app/config/theme/dark.dart';
-import 'package:flutter_architecture/app/config/theme/custom.dart';
 import 'package:flutter_architecture/app/config/theme/light.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -32,9 +31,9 @@ class DataPreloaded {
       case 'dark':
         theme = darkTheme;
         break;
-      case 'custom':
-        theme = customTheme;
-        break;
+      // case 'custom':
+      //   theme = customTheme;
+      //   break;
       default:
         theme = lightTheme;
         break;

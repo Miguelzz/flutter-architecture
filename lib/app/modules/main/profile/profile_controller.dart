@@ -20,7 +20,6 @@ class ProfileController extends GetxController {
     } catch (e) {
       print(e);
     }
-    route.offAllHome();
   }
 
   Future<void> updateNames(String value) async =>

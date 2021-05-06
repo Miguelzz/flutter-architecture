@@ -28,7 +28,7 @@ class DependencyInjection {
     Get.put(RouteController());
     Get.put(LoginController());
     Get.put(ProfileController());
-    Get.put(MainController());
+    Get.put(GlobalController());
     Get.put(HomeController());
     Get.put(SettingController());
   }

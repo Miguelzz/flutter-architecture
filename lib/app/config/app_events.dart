@@ -49,7 +49,7 @@ class EventsApp {
 
       if (max < 15) {
         _db.getPreviousCode().then((previousCode) async {
-          print('TOKEN_RESET $max');
+          //print('TOKEN_RESET $max');
           final connection = (await _connectivity.checkConnectivity()) !=
               ConnectivityResult.none;
           if (!resetAttempt && previousCode != null && connection) {

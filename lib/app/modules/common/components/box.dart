@@ -6,6 +6,7 @@ class Box extends StatefulWidget {
   final EdgeInsetsGeometry? margin, padding;
   final Radius? borderRadius;
   final double? width, height, minWidth, maxWidth, minHeight, maxHeight;
+  final void Function()? onTap;
   Box(
       {this.backgroundColor,
       this.child,
@@ -18,7 +19,8 @@ class Box extends StatefulWidget {
       this.minHeight,
       this.maxHeight,
       this.width,
-      this.height});
+      this.height,
+      this.onTap});
 
   @override
   _BoxState createState() => _BoxState();
@@ -29,7 +31,7 @@ class _BoxState extends State<Box> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final container = Container(
       margin: widget.margin,
       padding: widget.padding,
       width: widget.width ?? double.infinity,
@@ -48,5 +50,9 @@ class _BoxState extends State<Box> {
       ),
       child: widget.child,
     );
+
+    return widget.onTap == null
+        ? container
+        : InkWell(onTap: widget.onTap, child: container);
   }
 }

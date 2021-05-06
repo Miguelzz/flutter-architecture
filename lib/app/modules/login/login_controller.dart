@@ -31,7 +31,6 @@ class LoginController extends GetxController {
   Future<void> validateNumber() async {
     print('validate');
     await _loginService.login(codePhone, phone, 'code [code]');
-    route.nexValidateCode();
   }
 
   Future<void> validateCode(String code) async {

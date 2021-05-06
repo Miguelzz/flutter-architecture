@@ -38,7 +38,13 @@ class ProfilePage extends StatelessWidget {
           return Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Center(child: UploadImage()),
+              Center(
+                  child: UploadImagePreview(
+                title: 'Photo user',
+                changueImage: (image) {
+                  print(image);
+                },
+              )),
               Column(children: [
                 Input(
                   width: size.width * 0.8,

@@ -4,22 +4,29 @@ import 'package:flutter_architecture/app/config/theme/theme.dart';
 import 'package:flutter_architecture/app/data/models/assets.dart';
 import 'package:flutter_architecture/app/config/app-preloaded.dart';
 import 'package:flutter_architecture/app/data/models/factories.dart';
-import 'package:dio/dio.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:flutter_architecture/app/data/models/paginate.dart';
 import 'package:get/get.dart';
 import 'dart:async';
-import 'package:dio/src/response.dart' as res;
 
 class ErrorApi {
-  final DioError? error;
-  late String message;
+  final dio.DioError? error;
+  late String message, url;
   late List<Widget> errors;
 
-  ErrorApi(this.error) {
+  ErrorApi(this.error, this.url) {
     final data = this.error?.response?.data ?? {};
 
-    final _errors =
+    List<Widget> _errors =
         (data['errors'] ?? []).map<Widget>((x) => Text('• $x')).toList();
+
+    _errors = _errors.length == 0
+        ? [
+            Text('• $url'),
+            Text('• ${this.error.toString()}'),
+          ]
+        : _errors;
+
     this.message = data['message'] ?? 'Error!';
     this.errors = [
       Text('• Status: ${error?.response?.statusCode}'),
@@ -29,7 +36,7 @@ class ErrorApi {
 }
 
 class MethodResult extends MethodsApp {
-  final Future<res.Response<dynamic>> http;
+  final Future<dio.Response<dynamic>> http;
   bool _stop = true;
   String _title = '';
 
@@ -127,8 +134,8 @@ class MethodResult extends MethodsApp {
 }
 
 class AppInterceptor {
-  final Dio _dio = Dio(
-    BaseOptions(
+  final dio.Dio _dio = dio.Dio(
+    dio.BaseOptions(
         //receiveTimeout: 5000,
         //connectTimeout: 3000,
         //followRedirects: false,
@@ -136,10 +143,10 @@ class AppInterceptor {
         ),
   );
 
-  Dio _interceptor() {
+  dio.Dio _interceptor(String url) {
     _dio.interceptors.clear();
     _dio.interceptors.add(
-      InterceptorsWrapper(
+      dio.InterceptorsWrapper(
         onRequest: (options, handler) {
           print('interceptor');
           print('TOKEN: ${EventsApp.stringToken}');
@@ -155,7 +162,7 @@ class AppInterceptor {
           print('onError ${error.message}');
 
           Future.delayed(Duration(milliseconds: 300)).then((value) {
-            final data = ErrorApi(error);
+            final data = ErrorApi(error, url);
             Get.defaultDialog(
               title: data.message,
               content: Column(children: data.errors),
@@ -174,7 +181,7 @@ class AppInterceptor {
     Map<String, dynamic>? queryParameters,
   }) {
     print('$url, $queryParameters');
-    final http = _interceptor();
+    final http = _interceptor(url);
     final info = http.get(url, queryParameters: queryParameters);
     return MethodResult(info);
   }
@@ -184,7 +191,7 @@ class AppInterceptor {
     dynamic? data,
     Map<String, dynamic>? queryParameters,
   }) {
-    final http = _interceptor();
+    final http = _interceptor(url);
     final info = http.post(url, data: data, queryParameters: queryParameters);
     return MethodResult(info);
   }
@@ -194,7 +201,7 @@ class AppInterceptor {
     dynamic? data,
     Map<String, dynamic>? queryParameters,
   }) {
-    final http = _interceptor();
+    final http = _interceptor(url);
     final info = http.put(url, data: data, queryParameters: queryParameters);
     return MethodResult(info);
   }
@@ -203,7 +210,7 @@ class AppInterceptor {
     required String url,
     Map<String, dynamic>? queryParameters,
   }) {
-    final http = _interceptor();
+    final http = _interceptor(url);
     final info = http.delete(url, queryParameters: queryParameters);
     return MethodResult(info);
   }

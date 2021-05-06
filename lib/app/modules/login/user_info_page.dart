@@ -36,7 +36,11 @@ class UserInfoPage extends StatelessWidget {
                   SizedBox(height: 20),
                   P('Por favor, ingresa tu nombre y una foto de perfil.',
                       textAlign: TextAlign.center),
-                  Center(child: UploadImage()),
+                  Center(
+                      child: UploadImagePreview(
+                    title: 'Photo user',
+                    changueImage: (image) {},
+                  )),
                   Input(
                     width: size.width * 0.8,
                     controller: TextEditingController(text: _.user.names)
@@ -77,6 +81,7 @@ class UserInfoPage extends StatelessWidget {
                 children: [
                   ButtonLoadingFullScreen(
                     onPressed: _.home,
+                    after: route.offAllHome,
                     title: 'Espera un momento!',
                     child: Text('txt_f590ead4'.tr),
                   )

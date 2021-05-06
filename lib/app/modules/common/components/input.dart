@@ -1,9 +1,54 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_architecture/app/modules/common/components/box.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
+import 'dart:async';
+
+class TextArea extends StatelessWidget {
+  final TextEditingController? controller;
+  final TextAlign? textAlign;
+  final String? labelText;
+  final bool? enabled, ignoring;
+  final int? debounce;
+  final EdgeInsetsGeometry? margin;
+  final void Function(String)? onChanged;
+  final double? width;
+  final int? maxLines, minLines, maxLength;
+
+  TextArea({
+    this.controller,
+    this.labelText,
+    this.margin,
+    this.enabled,
+    this.debounce,
+    this.textAlign,
+    this.onChanged,
+    this.width,
+    this.ignoring,
+    this.maxLines,
+    this.minLines,
+    this.maxLength,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Input(
+      controller: this.controller,
+      labelText: this.labelText,
+      margin: this.margin,
+      enabled: this.enabled,
+      debounce: this.debounce,
+      textAlign: this.textAlign,
+      onChanged: this.onChanged,
+      width: this.width,
+      ignoring: this.ignoring,
+      keyboardType: TextInputType.multiline,
+      maxLines: this.maxLines,
+      minLines: this.minLines,
+      maxLength: this.maxLength,
+    );
+  }
+}
 
 class Input extends StatefulWidget {
   final TextEditingController? controller;
@@ -15,18 +60,25 @@ class Input extends StatefulWidget {
   final EdgeInsetsGeometry? margin;
   final void Function(String)? onChanged;
   final double? width;
+  final int? maxLines;
+  final int? maxLength;
+  final int? minLines;
 
-  Input(
-      {this.controller,
-      this.keyboardType,
-      this.labelText,
-      this.margin,
-      this.enabled,
-      this.debounce,
-      this.textAlign,
-      this.onChanged,
-      this.width,
-      this.ignoring});
+  Input({
+    this.controller,
+    this.keyboardType,
+    this.labelText,
+    this.margin,
+    this.enabled,
+    this.debounce,
+    this.textAlign,
+    this.onChanged,
+    this.width,
+    this.ignoring,
+    this.maxLines,
+    this.maxLength,
+    this.minLines,
+  });
 
   @override
   _InputState createState() => _InputState();
@@ -53,6 +105,9 @@ class _InputState extends State<Input> {
           controller: widget.controller,
           enabled: widget.enabled,
           keyboardType: widget.keyboardType,
+          maxLines: widget.maxLines,
+          minLines: widget.minLines,
+          maxLength: widget.maxLength,
           onChanged: widget.onChanged != null
               ? (value) {
                   if (_debounce.isActive) _debounce.cancel();

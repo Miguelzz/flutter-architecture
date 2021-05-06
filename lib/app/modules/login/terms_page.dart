@@ -58,7 +58,7 @@ class TermsPage extends StatelessWidget {
                       ]),
                     )),
                 ButtonLoading(
-                  onPressed: () => route.nexNumber(),
+                  onPressed: route.nexNumber,
                   child: Text('ACEPTAR Y CONTINUAR'),
                 )
               ],
