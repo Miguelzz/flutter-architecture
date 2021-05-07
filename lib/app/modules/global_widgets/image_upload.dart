@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter_architecture/app/modules/global_widgets/box.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:image/image.dart' as img;
 
 bool isImageFile(String url) {
   return (url != '' &&
@@ -49,11 +50,9 @@ class UploadImagePreview extends StatefulWidget {
   final EdgeInsetsGeometry? padding;
   final Color? backgroundColor;
   final void Function(String? url) changueImage;
-  final void Function(String? url) cropImage;
   UploadImagePreview({
     required this.title,
     required this.changueImage,
-    required this.cropImage,
     this.url,
     this.height,
     this.width,
@@ -95,6 +94,7 @@ class _UploadImagePreviewState extends State<UploadImagePreview> {
           context,
           height: size.width * 0.9,
           width: size.width * 0.9,
+          closeModal: () {},
           child: ClipRRect(
             child: PhotoView.customChild(child: image),
           ),
@@ -129,11 +129,6 @@ class _UploadImagePreviewState extends State<UploadImagePreview> {
                       url = image ?? '';
                       widget.changueImage(image);
                     });
-                  }, (image) {
-                    setState(() {
-                      url = image ?? '';
-                      widget.cropImage(image);
-                    });
                   });
                 },
                 child: ClipRRect(
@@ -145,7 +140,7 @@ class _UploadImagePreviewState extends State<UploadImagePreview> {
                     backgroundColor: Theme.of(context).primaryColor,
                     padding: widget.padding,
                     child: Icon(
-                      Icons.camera_alt,
+                      isImageFile(url) ? Icons.edit : Icons.camera_alt,
                       size: 15,
                       color: Theme.of(context).indicatorColor,
                     ),
@@ -160,96 +155,11 @@ class _UploadImagePreviewState extends State<UploadImagePreview> {
   }
 }
 
-class CropImage extends StatefulWidget {
-  final String url;
-  final void Function(String? url) cropImage;
-  CropImage(this.url, this.cropImage);
-  @override
-  _CropImageState createState() => _CropImageState();
-}
-
-class _CropImageState extends State<CropImage> {
-  final cropKey = GlobalKey<CropState>();
-  late File _image;
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
-  initState() {
-    super.initState();
-    print(widget.url);
-    _image = File(widget.url);
-  }
-
-  Future<void> _cropImage() async {
-    final area = cropKey.currentState!.area;
-    if (area == null) return;
-    final file = await ImageCrop.cropImage(
-      file: _image,
-      area: area,
-    );
-
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String bgPath = appDocDir.uri
-        .resolve("image-${DateTime.now().millisecondsSinceEpoch}.jpg")
-        .path;
-
-    _image = await file.copy(bgPath);
-    file.delete();
-    widget.cropImage(_image.path);
-    Navigator.of(context).pop();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    //final scale = cropKey.currentState!.scale;
-    return FutureBuilder<File>(
-        future: ImageCrop.sampleImage(
-          file: _image,
-          preferredSize: (2000 / 1).round(),
-        ),
-        builder: (context, snapshot) {
-          if (snapshot.data == null) return Container();
-          return Column(
-            children: [
-              Expanded(
-                child: Crop.file(
-                  snapshot.data!,
-                  key: cropKey,
-                  aspectRatio: 1,
-                  alwaysShowGrid: true,
-                ),
-              ),
-              Box(
-                padding: EdgeInsets.only(top: 7),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    InkWell(
-                      child: Icon(Icons.save),
-                      onTap: () async {
-                        await _cropImage();
-                        Navigator.of(context).pop();
-                      },
-                    )
-                  ],
-                ),
-              )
-            ],
-          );
-        });
-  }
-}
-
 Future<void> showSelectionDialog(
   BuildContext context,
   String title,
   String url,
   void Function(String? url) changueImage,
-  void Function(String? url) cropImage,
 ) {
   final picker = ImagePicker();
   return showModalBottomSheet(
@@ -263,7 +173,8 @@ Future<void> showSelectionDialog(
             H6(title, margin: EdgeInsets.only(bottom: 12)),
             Row(
               children: [
-                CircleIcon(
+                if (url == '')
+                  CircleIcon(
                     icon: Icons.camera_alt,
                     title: 'Cámara',
                     onTap: () async {
@@ -275,32 +186,38 @@ Future<void> showSelectionDialog(
                         print('No image selected.');
                       }
                       Navigator.of(context).pop();
-                    }),
-                CircleIcon(
-                  icon: Icons.image,
-                  title: 'Galería',
-                  onTap: () async {
-                    var pickedFile =
-                        await picker.getImage(source: ImageSource.gallery);
+                    },
+                  ),
+                if (url == '')
+                  CircleIcon(
+                    icon: Icons.image,
+                    title: 'Galería',
+                    onTap: () async {
+                      var pickedFile =
+                          await picker.getImage(source: ImageSource.gallery);
 
-                    if (pickedFile != null) {
-                      changueImage(pickedFile.path);
-                    } else {
-                      print('No image selected.');
-                    }
-                    Navigator.of(context).pop();
-                  },
-                ),
+                      if (pickedFile != null) {
+                        changueImage(pickedFile.path);
+                      } else {
+                        print('No image selected.');
+                      }
+                      Navigator.of(context).pop();
+                    },
+                  ),
                 if (isImageFile(url))
                   CircleIcon(
-                    icon: Icons.crop,
-                    title: 'Recortar',
+                    icon: Icons.edit,
+                    title: 'Editar',
                     onTap: () {
                       final size = MediaQuery.of(context).size;
+                      Navigator.of(context).pop();
                       openModal(
                         context,
                         height: size.width * 0.9,
-                        child: CropImage(url, cropImage),
+                        child: CropImage(url, (image) {
+                          changueImage(image);
+                        }),
+                        closeModal: () {},
                       );
                     },
                   ),
@@ -321,6 +238,117 @@ Future<void> showSelectionDialog(
       );
     },
   );
+}
+
+class CropImage extends StatefulWidget {
+  final String url;
+  final void Function(String? url) changeImage;
+  CropImage(this.url, this.changeImage);
+  @override
+  _CropImageState createState() => _CropImageState();
+}
+
+class _CropImageState extends State<CropImage> {
+  final cropKey = GlobalKey<CropState>();
+  late File _image;
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  initState() {
+    super.initState();
+    _image = File(widget.url);
+  }
+
+  Future<void> _rotateImage(num angle) async {
+    List<int> imageBytes = await _image.readAsBytes();
+    String urlBefore = _image.path;
+
+    final originalImage = img.decodeImage(imageBytes);
+
+    if (originalImage != null) {
+      img.Image fixedImage;
+      fixedImage = img.copyRotate(originalImage, angle);
+      _image = await _image.writeAsBytes(img.encodeJpg(fixedImage));
+
+      Directory appDocDir = await getApplicationDocumentsDirectory();
+      String bgPath = appDocDir.uri
+          .resolve("image-${DateTime.now().millisecondsSinceEpoch}.jpg")
+          .path;
+
+      _image = await _image.copy(bgPath);
+      widget.changeImage(_image.path);
+      File(urlBefore).delete();
+      setState(() {});
+    }
+  }
+
+  Future<void> _cropImage() async {
+    final area = cropKey.currentState!.area;
+    String urlBefore = _image.path;
+    if (area == null) return;
+    final file = await ImageCrop.cropImage(
+      file: _image,
+      area: area,
+    );
+    _image = file;
+    widget.changeImage(_image.path);
+    File(urlBefore).delete();
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<File>(
+        future: ImageCrop.sampleImage(
+          file: _image,
+          preferredSize: (2000 / 1).round(),
+        ),
+        builder: (context, snapshot) {
+          if (snapshot.data == null) return Container();
+          return Column(
+            children: [
+              Expanded(
+                child: Crop.file(
+                  snapshot.data!,
+                  key: cropKey,
+                  aspectRatio: 1,
+                  alwaysShowGrid: true,
+                ),
+              ),
+              Box(
+                padding: EdgeInsets.only(top: 7),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    InkWell(
+                      child: Icon(Icons.rotate_left),
+                      onTap: () async {
+                        await _rotateImage(-90);
+                      },
+                    ),
+                    InkWell(
+                      child: Icon(Icons.crop),
+                      onTap: () async {
+                        await _cropImage();
+                      },
+                    ),
+                    InkWell(
+                      child: Icon(Icons.rotate_right),
+                      onTap: () async {
+                        await _rotateImage(90);
+                      },
+                    )
+                  ],
+                ),
+              )
+            ],
+          );
+        });
+  }
 }
 
 class CircleIcon extends StatelessWidget {
@@ -362,4 +390,54 @@ class CircleIcon extends StatelessWidget {
       ),
     );
   }
+}
+
+class UploadImageMultiple extends StatefulWidget {
+  final int maxImage;
+  final void Function(List<String> urls) changueImages;
+  UploadImageMultiple({required this.maxImage, required this.changueImages});
+  @override
+  _UploadImageMultipleState createState() => _UploadImageMultipleState();
+}
+
+class _UploadImageMultipleState extends State<UploadImageMultiple> {
+  List<String> urls = [''];
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) => CustomScrollView(
+        slivers: [
+          SliverGrid(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (_, index) => Box(
+                backgroundColor: Colors.grey,
+                onTap: () async {
+                  await showSelectionDialog(
+                      context, 'Agregar Imagen', urls[index], (image) {
+                    setState(() {
+                      urls[index] = image ?? '';
+                      widget.changueImages(urls);
+                      if (urls.length < widget.maxImage &&
+                          urls[urls.length - 1] != '') urls.add('');
+                    });
+                  });
+                },
+                child: urls[index] == ''
+                    ? Center(child: Icon(Icons.add))
+                    : imageComponent(urls[index]),
+              ),
+              childCount: urls.length,
+            ),
+          ),
+        ],
+      );
 }

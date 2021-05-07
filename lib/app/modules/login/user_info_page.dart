@@ -40,7 +40,6 @@ class UserInfoPage extends StatelessWidget {
                       child: UploadImagePreview(
                     title: 'Foto de Perfil',
                     changueImage: (image) {},
-                    cropImage: (image) {},
                   )),
                   Input(
                     width: size.width * 0.8,

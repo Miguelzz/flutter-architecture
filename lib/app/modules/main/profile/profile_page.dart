@@ -43,8 +43,8 @@ class ProfilePage extends StatelessWidget {
                 title: 'Photo user',
                 changueImage: (image) {
                   print(image);
+                  if (image != '') File(image!).delete();
                 },
-                cropImage: (image) {},
               )),
               Column(children: [
                 Input(

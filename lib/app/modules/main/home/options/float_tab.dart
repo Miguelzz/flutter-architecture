@@ -1,4 +1,3 @@
-import 'package:flutter_architecture/app/modules/global_widgets/box.dart';
 import 'package:flutter_architecture/app/modules/global_widgets/fullscreen.dart';
 import 'package:flutter_architecture/app/modules/global_widgets/image_upload.dart';
 import 'package:flutter_architecture/app/modules/global_widgets/input.dart';
@@ -14,44 +13,68 @@ Widget floatTab(BuildContext context, int index) {
     // TWO
     FloatingActionButton(
         onPressed: () {
-          openModal(context,
-              child: FullScreen(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    UploadImagePreview(
-                      title: 'Photo producto',
-                      changueImage: (image) {
-                        print('nueva imagen');
-                        print(image);
-                      },
-                      cropImage: (image) {
-                        print('cortar imagen');
-                        print(image);
-                      },
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Input(
-                          margin: EdgeInsets.only(bottom: 12),
-                          labelText: 'Titulo Producto',
-                        ),
-                        TextArea(
-                          margin: EdgeInsets.only(bottom: 12),
-                          labelText: 'Descripción Producto',
-                        ),
-                      ],
-                    ),
-                    ElevatedButton(
-                      child: Text('Guardar'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    )
-                  ],
-                ),
-              ));
+          String _image = '';
+          String _title = '';
+          String _description = '';
+          openModal(
+            context,
+            iconFloating: Icons.save,
+            onPressedFloating: () {
+              print(_image);
+              print(_title);
+              print(_description);
+
+              // if (_image != '') {
+              //   File(_image).delete();
+              //   _image = '';
+              // }
+            },
+            child: FullScreen(
+              child: Column(
+                children: [
+                  UploadImagePreview(
+                    title: 'Photo producto',
+                    changueImage: (image) {
+                      _image = image ?? '';
+                    },
+                  ),
+                  Input(
+                    onChanged: (value) => _title = value,
+                    margin: EdgeInsets.only(bottom: 12, top: 30),
+                    labelText: 'Titulo Producto',
+                  ),
+                  TextArea(
+                    onChanged: (value) => _description = value,
+                    margin: EdgeInsets.only(bottom: 12),
+                    labelText: 'Descripción Producto',
+                  ),
+                ],
+              ),
+            ),
+            closeModal: () {},
+          );
+
+          // List<String> _listImages = [];
+          // openModal(
+          //   context,
+          //   height: MediaQuery.of(context).size.width * 0.8,
+          //   onPressedFloating: () {
+          //     print(_listImages);
+          //     // _listImages.forEach((url) {
+          //     //   try {
+          //     //     if (url != '') File(url).delete();
+          //     //   } catch (e) {}
+          //     // });
+          //   },
+          //   closeModal: () {
+          //   },
+          //   child: UploadImageMultiple(
+          //     maxImage: 5,
+          //     changueImages: (images) {
+          //       _listImages = images;
+          //     },
+          //   ),
+          // );
         },
         child: Icon(Icons.home)),
     // THREE
