@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_architecture/app/modules/common/components/fullscreen.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/fullscreen.dart';
 import 'package:get/get.dart';
 
 class ExamplePage extends StatelessWidget {

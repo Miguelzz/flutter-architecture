@@ -1,4 +1,4 @@
-import 'package:flutter_architecture/app/modules/common/components/box.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/box.dart';
 import 'package:flutter/material.dart';
 
 openModal(

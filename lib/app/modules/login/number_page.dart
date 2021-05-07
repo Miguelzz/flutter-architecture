@@ -1,11 +1,11 @@
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_architecture/app/config/theme/theme.dart';
-import 'package:flutter_architecture/app/modules/common/components/button.dart';
-import 'package:flutter_architecture/app/modules/common/components/box.dart';
-import 'package:flutter_architecture/app/modules/common/components/fonts.dart';
-import 'package:flutter_architecture/app/modules/common/components/fullscreen.dart';
-import 'package:flutter_architecture/app/modules/common/components/input.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/button.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/box.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/fonts.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/fullscreen.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/input.dart';
 import 'package:flutter_architecture/app/modules/login/login_controller.dart';
 import 'package:flutter_architecture/app/config/constants.dart';
 import 'package:flutter_architecture/app/routes/routes_controller.dart';
@@ -26,7 +26,7 @@ class NumberPage extends StatelessWidget {
             children: [
               Column(
                 children: [
-                  H4(
+                  H5(
                     'Verifica tu número ',
                     textAlign: TextAlign.center,
                     color: PRIMARY_COLOR,

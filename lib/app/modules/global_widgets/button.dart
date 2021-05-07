@@ -60,8 +60,7 @@ class ButtonLoadingFullScreen extends StatelessWidget {
               try {
                 Get.defaultDialog(
                   title: title,
-                  content:
-                      CircularProgressIndicator(backgroundColor: PRIMARY_COLOR),
+                  content: CircularProgressIndicator(),
                   onWillPop: () async {
                     while (!stop) {
                       await Future.delayed(Duration(milliseconds: 500));

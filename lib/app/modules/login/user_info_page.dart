@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_architecture/app/config/theme/theme.dart';
-import 'package:flutter_architecture/app/modules/common/components/button.dart';
-import 'package:flutter_architecture/app/modules/common/components/fonts.dart';
-import 'package:flutter_architecture/app/modules/common/components/fullscreen.dart';
-import 'package:flutter_architecture/app/modules/common/components/input.dart';
-import 'package:flutter_architecture/app/modules/common/components/image_upload.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/button.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/fonts.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/fullscreen.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/input.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/image_upload.dart';
 import 'package:flutter_architecture/app/modules/main/profile/profile_controller.dart';
 import 'package:flutter_architecture/app/routes/routes_controller.dart';
 import 'package:get/get.dart';
@@ -28,7 +28,7 @@ class UserInfoPage extends StatelessWidget {
             children: [
               Column(
                 children: [
-                  H4(
+                  H5(
                     'Información de Perfil',
                     textAlign: TextAlign.center,
                     color: PRIMARY_COLOR,
@@ -38,8 +38,9 @@ class UserInfoPage extends StatelessWidget {
                       textAlign: TextAlign.center),
                   Center(
                       child: UploadImagePreview(
-                    title: 'Photo user',
+                    title: 'Foto de Perfil',
                     changueImage: (image) {},
+                    cropImage: (image) {},
                   )),
                   Input(
                     width: size.width * 0.8,

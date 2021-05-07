@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_architecture/app/config/theme/theme.dart';
-import 'package:flutter_architecture/app/modules/common/components/fullscreen.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/fullscreen.dart';
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/modules/main/setting/setting_controller.dart';
 import 'package:flutter_architecture/app/routes/routes_controller.dart';

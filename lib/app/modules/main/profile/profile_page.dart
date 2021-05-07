@@ -1,11 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_architecture/app/modules/common/components/image_upload.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/image_upload.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'package:flutter_architecture/app/modules/common/components/fullscreen.dart';
-import 'package:flutter_architecture/app/modules/common/components/input.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/fullscreen.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/input.dart';
 import 'package:get/get.dart';
 import 'package:flutter_architecture/app/modules/main/profile/profile_controller.dart';
 import 'package:flutter_architecture/app/routes/routes_controller.dart';
@@ -44,6 +44,7 @@ class ProfilePage extends StatelessWidget {
                 changueImage: (image) {
                   print(image);
                 },
+                cropImage: (image) {},
               )),
               Column(children: [
                 Input(

@@ -1,8 +1,8 @@
-import 'package:flutter_architecture/app/modules/common/components/box.dart';
-import 'package:flutter_architecture/app/modules/common/components/fullscreen.dart';
-import 'package:flutter_architecture/app/modules/common/components/image_upload.dart';
-import 'package:flutter_architecture/app/modules/common/components/input.dart';
-import 'package:flutter_architecture/app/modules/common/components/modal.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/box.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/fullscreen.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/image_upload.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/input.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/modal.dart';
 import '../home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

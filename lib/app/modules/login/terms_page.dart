@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_architecture/app/config/constants.dart';
 import 'package:flutter_architecture/app/config/theme/theme.dart';
-import 'package:flutter_architecture/app/modules/common/components/box.dart';
-import 'package:flutter_architecture/app/modules/common/components/button.dart';
-import 'package:flutter_architecture/app/modules/common/components/fullscreen.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/box.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/button.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/fullscreen.dart';
+import 'package:flutter_architecture/app/modules/global_widgets/fonts.dart';
 import 'package:flutter_architecture/app/modules/login/login_controller.dart';
 import 'package:flutter_architecture/app/routes/routes_controller.dart';
 import 'package:flutter/gestures.dart';
@@ -25,12 +26,10 @@ class TermsPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Box(
-                child: Text(
+            H5(
               Constants.NAME_APP,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 20),
-            )),
+            ),
             Container(
               height: size.height * 0.5,
               child: FractionallySizedBox(
@@ -46,11 +45,12 @@ class TermsPage extends StatelessWidget {
                       textAlign: TextAlign.center,
                       text: TextSpan(children: [
                         TextSpan(
-                            style: TextStyle(color: Colors.black87),
+                            style: Theme.of(context).textTheme.bodyText1,
                             text:
                                 'Toca "Aceptar y continuar" para aceptar los '),
                         TextSpan(
-                            style: TextStyle(color: PRIMARY_COLOR),
+                            style: TextStyle(
+                                color: Theme.of(context).primaryColor),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => route.nexReadTerms(),
                             text:
