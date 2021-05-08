@@ -6,4 +6,5 @@ abstract class MainGateway {
   Future<List<Demo>> searchTwo(String search, int page);
   Future<List<Demo>> searchThree(String search, int page);
   Future<Paginate<Demo>> paginateSearch(String search, int page, int limit);
+  Future<Demo> createDemo(List<String> filesPaths, Demo demo);
 }

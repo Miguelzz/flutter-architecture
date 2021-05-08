@@ -142,7 +142,7 @@ class _ContentSearchState extends State<ContentSearch> {
         title: Text(item.title ?? ''),
         subtitle: Text('ONE'),
         leading: CircleAvatar(
-          backgroundImage: NetworkImage(item.image ?? ''),
+          backgroundImage: NetworkImage(item.images?[0].url ?? ''),
         ),
         onTap: _route.nexProfile,
       ),
@@ -158,7 +158,7 @@ class _ContentSearchState extends State<ContentSearch> {
         title: Text(item.title ?? ''),
         subtitle: Text('HOME'),
         leading: CircleAvatar(
-          backgroundImage: NetworkImage(item.image ?? ''),
+          backgroundImage: NetworkImage(item.images?[0].url ?? ''),
         ),
         onTap: _route.nexProfile,
       ),
@@ -174,7 +174,7 @@ class _ContentSearchState extends State<ContentSearch> {
         title: Text(item.title ?? ''),
         subtitle: Text('THREE'),
         leading: CircleAvatar(
-          backgroundImage: NetworkImage(item.image ?? ''),
+          backgroundImage: NetworkImage(item.images?[0].url ?? ''),
         ),
         onTap: _route.nexProfile,
       ),

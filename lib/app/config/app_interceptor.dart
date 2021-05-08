@@ -188,11 +188,29 @@ class AppInterceptor {
 
   MethodResult post({
     required String url,
-    dynamic? data,
+    Map<String, dynamic>? data,
     Map<String, dynamic>? queryParameters,
   }) {
     final http = _interceptor(url);
     final info = http.post(url, data: data, queryParameters: queryParameters);
+    return MethodResult(info);
+  }
+
+  Future<MethodResult> formData({
+    required String url,
+    Map<String, dynamic>? data,
+    required List<String> filesPaths,
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    var formData = dio.FormData.fromMap({...(data ?? {})});
+    for (String path in filesPaths)
+      formData.files.addAll(
+        [MapEntry("files", await dio.MultipartFile.fromFile(path))],
+      );
+
+    final http = _interceptor(url);
+    final info =
+        http.post(url, data: formData, queryParameters: queryParameters);
     return MethodResult(info);
   }
 

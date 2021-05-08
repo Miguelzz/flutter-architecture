@@ -1,3 +1,4 @@
+import 'package:flutter_architecture/app/data/models/demo.dart';
 import 'package:flutter_architecture/app/modules/global_widgets/fullscreen.dart';
 import 'package:flutter_architecture/app/modules/global_widgets/image_upload.dart';
 import 'package:flutter_architecture/app/modules/global_widgets/input.dart';
@@ -6,7 +7,8 @@ import '../home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-Widget floatTab(BuildContext context, int index) {
+Widget floatTab(BuildContext context, HomeController _) {
+  int index = _.indexTab;
   final options = [
     // ONE
     FloatingActionButton(onPressed: () {}, child: Icon(Icons.looks_one)),
@@ -19,11 +21,15 @@ Widget floatTab(BuildContext context, int index) {
           openModal(
             context,
             iconFloating: Icons.save,
-            onPressedFloating: () {
+            onPressedFloating: () async {
               print(_image);
               print(_title);
               print(_description);
-
+              await _.createDemo(
+                [_image].where((x) => x != '').toList(),
+                Demo(title: _title, description: _description),
+              );
+              print('************** FIN **************');
               // if (_image != '') {
               //   File(_image).delete();
               //   _image = '';
@@ -88,6 +94,6 @@ class FloatTab extends StatelessWidget {
   @override
   Widget build(context) => GetBuilder<HomeController>(
         id: 'float_tap',
-        builder: (_) => floatTab(context, _.indexTab),
+        builder: (_) => floatTab(context, _),
       );
 }

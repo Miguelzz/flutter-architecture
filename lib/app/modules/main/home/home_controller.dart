@@ -116,6 +116,11 @@ class HomeController extends GetxController {
     //update(['menu_tap', 'search_tap', 'float_tap']);
   }
 
+  createDemo(List<String> filesPaths, Demo demo) async {
+    final _as = await _appService.createDemo(filesPaths, demo);
+    print(_as);
+  }
+
   @override
   void onInit() async {
     super.onInit();

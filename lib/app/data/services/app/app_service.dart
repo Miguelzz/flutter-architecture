@@ -37,4 +37,11 @@ class AppService extends MainGateway {
         queryParameters: {'q': query, 'page': page, 'limit': limit});
     return result.mapPaginate<Demo>();
   }
+
+  @override
+  Future<Demo> createDemo(List<String> filesPaths, Demo demo) async {
+    final result = (await _http.formData(
+        url: '$search/create', filesPaths: filesPaths, data: demo.toJson()));
+    return result.mapEntity<Demo>();
+  }
 }

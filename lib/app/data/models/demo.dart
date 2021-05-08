@@ -1,17 +1,44 @@
 import 'package:flutter_architecture/app/data/models/assets.dart';
 import 'package:flutter_architecture/app/data/models/paginate.dart';
 
-class Demo extends Entity<Demo> {
-  String? id, title, image;
+class Image extends Entity<Image> {
+  String? publicId, url;
+  Image({this.publicId, this.url});
 
-  Demo({this.id, this.title, this.image});
+  @override
+  Image createMock() {
+    return Image();
+  }
+
+  @override
+  Image fromJson(json) => Image(
+        publicId: json["public_id"],
+        url: json["secure_url"],
+      );
+
+  @override
+  Map<String, dynamic> toJson() => {
+        ...addIfNotNull('public_id', publicId),
+        ...addIfNotNull('secure_url', url)
+      };
+}
+
+class Demo extends Entity<Demo> {
+  String? id, title, description;
+  List<Image>? images;
+
+  Demo({
+    this.id,
+    this.title,
+    this.images,
+    this.description,
+  });
 
   @override
   Demo createMock() => Demo(
         id: '15',
         title: 'titulo',
-        image:
-            'https://ichef.bbci.co.uk/news/800/cpsprodpb/15665/production/_107435678_perro1.jpg',
+        images: [],
       );
 
   List<Demo> fromArray(dynamic array) =>
@@ -21,7 +48,8 @@ class Demo extends Entity<Demo> {
   Map<String, dynamic> toJson() => {
         ...addIfNotNull('id', id),
         ...addIfNotNull('title', title),
-        ...addIfNotNull('image', image),
+        ...addIfNotNull('images', images?.map((e) => e.toJson())),
+        ...addIfNotNull('description', description),
       };
 
   @override
@@ -31,12 +59,14 @@ class Demo extends Entity<Demo> {
         'id',
         'title',
         'image',
+        'description',
       ]);
 
       return Demo(
         id: json['id'],
         title: json['title'],
-        image: json['image'],
+        images: json['image']?.map<Image>((x) => Image().fromJson(x)).toList(),
+        description: json['description'],
       );
     }
     return Demo();
