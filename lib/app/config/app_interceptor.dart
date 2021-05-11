@@ -8,6 +8,7 @@ import 'package:dio/dio.dart' as dio;
 import 'package:flutter_architecture/app/data/models/paginate.dart';
 import 'package:get/get.dart';
 import 'dart:async';
+import 'dart:io';
 
 class ErrorApi {
   final dio.DioError? error;
@@ -203,10 +204,12 @@ class AppInterceptor {
     Map<String, dynamic>? queryParameters,
   }) async {
     var formData = dio.FormData.fromMap({...(data ?? {})});
-    for (String path in filesPaths)
+    for (String path in filesPaths) {
       formData.files.addAll(
         [MapEntry("files", await dio.MultipartFile.fromFile(path))],
       );
+      //File(path).delete();
+    }
 
     final http = _interceptor(url);
     final info =

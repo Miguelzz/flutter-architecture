@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_architecture/app/config/theme/theme.dart';
 import 'package:flutter_architecture/app/data/database/database.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter_architecture/app/data/models/token.dart';

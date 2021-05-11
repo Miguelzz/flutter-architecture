@@ -1,17 +1,17 @@
 import 'package:flutter_architecture/app/data/models/assets.dart';
 import 'package:flutter_architecture/app/data/models/paginate.dart';
 
-class Image extends Entity<Image> {
+class ImageCloudinary extends Entity<ImageCloudinary> {
   String? publicId, url;
-  Image({this.publicId, this.url});
+  ImageCloudinary({this.publicId, this.url});
 
   @override
-  Image createMock() {
-    return Image();
+  ImageCloudinary createMock() {
+    return ImageCloudinary();
   }
 
   @override
-  Image fromJson(json) => Image(
+  ImageCloudinary fromJson(json) => ImageCloudinary(
         publicId: json["public_id"],
         url: json["secure_url"],
       );
@@ -25,7 +25,7 @@ class Image extends Entity<Image> {
 
 class Demo extends Entity<Demo> {
   String? id, title, description;
-  List<Image>? images;
+  List<ImageCloudinary>? images;
 
   Demo({
     this.id,
@@ -58,14 +58,16 @@ class Demo extends Entity<Demo> {
       parametersExist(json, [
         'id',
         'title',
-        'image',
+        'images',
         'description',
       ]);
 
       return Demo(
         id: json['id'],
         title: json['title'],
-        images: json['image']?.map<Image>((x) => Image().fromJson(x)).toList(),
+        images: json['images']
+            ?.map<ImageCloudinary>((x) => ImageCloudinary().fromJson(x))
+            .toList(),
         description: json['description'],
       );
     }

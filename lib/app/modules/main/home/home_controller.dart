@@ -116,14 +116,21 @@ class HomeController extends GetxController {
     //update(['menu_tap', 'search_tap', 'float_tap']);
   }
 
-  createDemo(List<String> filesPaths, Demo demo) async {
-    final _as = await _appService.createDemo(filesPaths, demo);
-    print(_as);
+  Future<Demo> createDemo(List<String> filesPaths, Demo demo) async =>
+      await _appService.createDemo(filesPaths, demo);
+
+  addTapHomeContent(Demo demo) {
+    tapHomeContent.add(demo);
+    update(['tap-home']);
   }
 
   @override
   void onInit() async {
     super.onInit();
+
+    final result = await _appService.paginateSearch(query, page, 30);
+    tapHomeContent = result.docs ?? [];
+    update(['search_tap', 'tap-home']);
 
     // EventsApp.token$.listen((token) {
     //   this.token = token;

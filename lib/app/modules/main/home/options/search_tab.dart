@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_architecture/app/config/constants.dart';
 import 'package:flutter_architecture/app/data/models/demo.dart';
 import 'package:flutter_architecture/app/modules/main/home/home_controller.dart';
 import 'package:flutter/material.dart';
@@ -136,13 +137,27 @@ class _ContentSearchState extends State<ContentSearch> {
     );
   }
 
+  String _getMainImage(List<ImageCloudinary>? images) {
+    String url = Constants.IMAGE_DEMO;
+
+    if (images != null && images.length > 0) {
+      if (images[0].url != null &&
+          images[0].url != null &&
+          images[0].url != '') {
+        url = images[0].url!;
+      }
+    }
+
+    return url;
+  }
+
   Widget itemSearchOne(Demo item) {
     return InkWell(
       child: ListTile(
         title: Text(item.title ?? ''),
         subtitle: Text('ONE'),
         leading: CircleAvatar(
-          backgroundImage: NetworkImage(item.images?[0].url ?? ''),
+          backgroundImage: NetworkImage(_getMainImage(item.images)),
         ),
         onTap: _route.nexProfile,
       ),
@@ -158,7 +173,7 @@ class _ContentSearchState extends State<ContentSearch> {
         title: Text(item.title ?? ''),
         subtitle: Text('HOME'),
         leading: CircleAvatar(
-          backgroundImage: NetworkImage(item.images?[0].url ?? ''),
+          backgroundImage: NetworkImage(_getMainImage(item.images)),
         ),
         onTap: _route.nexProfile,
       ),
@@ -174,7 +189,7 @@ class _ContentSearchState extends State<ContentSearch> {
         title: Text(item.title ?? ''),
         subtitle: Text('THREE'),
         leading: CircleAvatar(
-          backgroundImage: NetworkImage(item.images?[0].url ?? ''),
+          backgroundImage: NetworkImage(_getMainImage(item.images)),
         ),
         onTap: _route.nexProfile,
       ),

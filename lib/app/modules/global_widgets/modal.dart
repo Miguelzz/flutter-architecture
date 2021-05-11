@@ -1,9 +1,11 @@
 import 'package:flutter_architecture/app/modules/global_widgets/box.dart';
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
 
 openModal(
   BuildContext context, {
   required Widget child,
+  BehaviorSubject<bool>? enabledFloat,
   void Function()? onPressedFloating,
   required void Function() closeModal,
   IconData? iconFloating,
@@ -53,13 +55,25 @@ openModal(
             ),
           ),
           floatingActionButton: onPressedFloating != null
-              ? FloatingActionButton(
-                  child: Icon(iconFloating ?? Icons.arrow_forward),
-                  onPressed: () {
-                    onPressedFloating();
-                    Navigator.of(context).pop();
-                  },
-                )
+              ? StreamBuilder<bool>(
+                  stream: enabledFloat?.stream,
+                  builder: (_, snapshot) {
+                    bool enabled = snapshot.data ?? false;
+                    return enabled
+                        ? FloatingActionButton(
+                            child: Icon(iconFloating),
+                            onPressed: () {
+                              onPressedFloating();
+                              Navigator.of(context).pop();
+                            },
+                          )
+                        : FloatingActionButton(
+                            backgroundColor: Theme.of(context).disabledColor,
+                            child: Icon(iconFloating ?? Icons.arrow_forward,
+                                color: Colors.white60),
+                            onPressed: () {},
+                          );
+                  })
               : null,
         );
       },
